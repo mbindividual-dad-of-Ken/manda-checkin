@@ -1150,4 +1150,8 @@ function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent);}
 function isInStandaloneMode(){return window.matchMedia('(display-mode: standalone)').matches||(window.navigator.standalone===true);}
 function showIOSGuide(){document.getElementById('ios-guide').classList.add('open');}
 function closeIOSGuide(){
-  document.getElementById('ios-guid
+  document.getElementById('ios-guide').classList.remove('open');
+}
+</script>
+</body>
+</html>

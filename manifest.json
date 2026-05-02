@@ -1,19 +1,54 @@
 {
-  "name": "彈性習慣",
-  "short_name": "彈性習慣",
-  "description": "漫打卡 — 融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA",
-  "author": "Jerry",
-  "developer": "Jerry | 曼談人生",
-  "start_url": "./index.html",
+  "name": "漫打卡 Manda",
+  "short_name": "漫打卡",
+  "description": "融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#4f46e5",
   "theme_color": "#4f46e5",
   "orientation": "portrait",
+  "scope": "/",
   "lang": "zh-TW",
   "icons": [
     {
+      "src": "./icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
       "src": "./icons/icon-192.png",
       "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-384.png",
+      "sizes": "384x384",
       "type": "image/png",
       "purpose": "any maskable"
     },
@@ -24,6 +59,21 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["health", "lifestyle", "productivity"],
-  "screenshots": []
+  "categories": ["productivity", "lifestyle", "utilities"],
+  "screenshots": [
+    {
+      "src": "./screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "漫打卡主界面"
+    },
+    {
+      "src": "./screenshots/mobile-1.png", 
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "手機版打卡界面"
+    }
+  ]
 }
