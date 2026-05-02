@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.14 | 2026-04-18 | GA4升級事件去重・5種trigger分開追蹤 -->
+<!-- 漫打卡 v1.14 | 2026-05-03 | PWA修復・震動回饋・平衡輪・羅盤介面 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>彈性習慣</title>
-<meta name="author" content="Jerry | 曼談人生">
+<title>漫打卡 Manda</title>
+<meta name="author" content="謙謙爸 | 漫打卡">
 <meta name="description" content="漫打卡 — 融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA">
-<meta name="copyright" content="© 2026 Jerry. All Rights Reserved.">
+<meta name="copyright" content="© 2026 謙謙爸. All Rights Reserved.">
 
 <!-- PWA 核心 -->
 <link rel="manifest" href="./manifest.json">
@@ -16,12 +16,12 @@
 <!-- iOS PWA 支援 -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="彈性習慣">
+<meta name="apple-mobile-web-app-title" content="漫打卡 Manda">
 <link rel="apple-touch-icon" href="./icons/icon-192.png">
 
 <!-- Android / Chrome -->
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="application-name" content="彈性習慣">
+<meta name="application-name" content="漫打卡 Manda">
 
 <!-- Google Analytics 4 (GA4) — 將 G-XXXXXXXXXX 換成你的 Measurement ID -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
@@ -112,16 +112,28 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 .hsrc{font-size:9px;padding:2px 6px;border-radius:20px}
 .hsk{font-size:10px;padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e}
 .hd{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 4px}
-.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
-.lb{padding:7px 3px;border-radius:7px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .12s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
-.lb:hover{border-color:var(--plight)}
-.lbn{font-size:10px;font-weight:700;display:block;color:var(--muted)}
-.lbv{font-size:9px;display:block;margin-top:1px;color:var(--muted)}
+.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+.lb{padding:10px 6px;border-radius:12px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .15s ease-out;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,0.04)}
+.lb:hover{border-color:var(--primary);box-shadow:0 4px 8px rgba(79,70,229,0.1)}
+.lb:active{transform:scale(0.98)}
+.lbn{font-size:11px;font-weight:700;display:block;color:var(--muted);margin-bottom:3px}
+.lbv{font-size:10px;display:block;color:var(--muted);font-weight:600}
 
 /* Modal */
 #mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:flex-end}
 #mo.open{display:flex}
 #mb{background:var(--app);border-radius:18px 18px 0 0;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+
+/* 平衡輪彈窗 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;justify-content:center;align-items:center;padding:20px}
+.modal-content{background:var(--app);border-radius:16px;padding:24px;width:100%;border:1px solid var(--border)}
+.balance-dimension{margin-bottom:16px;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.dimension-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.dimension-name{font-size:13px;font-weight:700;color:var(--text)}
+.dimension-score{font-size:16px;font-weight:800;color:var(--primary)}
+.dimension-slider{width:100%;height:6px;border-radius:3px;background:var(--border);appearance:none;cursor:pointer}
+.dimension-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--primary);cursor:pointer}
+.dimension-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--primary);border:none;cursor:pointer}
 .mt{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px}
 .md{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.6}
 .ml{font-size:11px;color:var(--sub);margin-bottom:4px;display:block}
@@ -194,37 +206,6 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 .mini-heat{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;margin-top:6px}
 .mh-cell{aspect-ratio:1;border-radius:2px}
 
-/* 反思欄位 */
-.ref-box{margin-top:9px;padding:10px 11px;background:var(--pbg);border-radius:9px;border:1px solid var(--plight);animation:refIn .25s ease}
-@keyframes refIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
-.ref-title{font-size:11px;font-weight:700;color:var(--primary);margin-bottom:8px}
-.ref-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-.rchip{font-size:11px;padding:4px 10px;border-radius:20px;border:1.5px solid var(--plight);cursor:pointer;background:var(--app);color:var(--primary);transition:all .12s;-webkit-tap-highlight-color:transparent}
-.rchip.on{background:var(--primary);color:#fff;border-color:var(--primary)}
-.rchip.grn{border-color:#bbf7d0;color:#15803d}
-.rchip.grn.on{background:#16a34a;color:#fff;border-color:#16a34a}
-.ref-done{font-size:11px;color:var(--primary);margin-top:6px;cursor:pointer;text-decoration:underline;display:inline-block}
-
-/* 14天損失提示橫幅 */
-#loss-banner{display:none;background:#fef3c7;border-radius:10px;padding:11px 14px;margin-bottom:10px;border:1px solid #fde68a;position:relative}
-#loss-banner.show{display:flex;align-items:flex-start;gap:10px}
-#loss-banner .lb-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-#loss-banner .lb-body{flex:1}
-#loss-banner .lb-title{font-size:12px;font-weight:700;color:#92400e;margin-bottom:3px}
-#loss-banner .lb-sub{font-size:11px;color:#92400e;line-height:1.6}
-#loss-banner .lb-cta{font-size:11px;font-weight:700;color:#92400e;text-decoration:underline;cursor:pointer;white-space:nowrap;margin-top:4px;display:inline-block}
-#loss-banner .lb-close{position:absolute;top:8px;right:10px;font-size:14px;color:#92400e;cursor:pointer;opacity:.6;background:none;border:none;font-family:sans-serif}
-
-/* 25天里程碑提示橫幅 */
-#mile-banner{display:none;background:#eff6ff;border-radius:10px;padding:11px 14px;margin-bottom:10px;border:1px solid #bfdbfe;position:relative}
-#mile-banner.show{display:flex;align-items:flex-start;gap:10px}
-#mile-banner .mb-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-#mile-banner .mb-body{flex:1}
-#mile-banner .mb-title{font-size:12px;font-weight:700;color:#1e40af;margin-bottom:3px}
-#mile-banner .mb-sub{font-size:11px;color:#1e40af;line-height:1.6}
-#mile-banner .mb-cta{font-size:11px;font-weight:700;color:#1e40af;text-decoration:underline;cursor:pointer;white-space:nowrap;margin-top:4px;display:inline-block}
-#mile-banner .mb-close{position:absolute;top:8px;right:10px;font-size:14px;color:#1e40af;cursor:pointer;opacity:.6;background:none;border:none;font-family:sans-serif}
-
 /* Timer */
 .timer-bar{margin-top:9px;padding:10px 12px;background:var(--card);border-radius:9px;border:1px solid var(--border)}
 .timer-display{font-size:28px;font-weight:700;text-align:center;letter-spacing:2px;margin-bottom:8px;font-variant-numeric:tabular-nums;color:var(--text)}
@@ -262,7 +243,6 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 
 /* ── 成就動畫 ── */
 @keyframes burst{0%{transform:scale(0);opacity:1}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1.5);opacity:0}}
-@keyframes miniGlow{0%{transform:scale(0.3);opacity:.9}60%{transform:scale(1.4);opacity:.5}100%{transform:scale(1.8);opacity:0}}
 @keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(80px) rotate(360deg);opacity:0}}
 @keyframes milestone-in{0%{transform:translateY(40px) scale(.9);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
 .elite-burst{pointer-events:none;position:fixed;z-index:9990;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fbbf24,#f59e0b)}
@@ -304,27 +284,15 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 #install-banner .ib-btn{padding:7px 13px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif}
 #install-banner .ib-install{background:#fff;color:var(--primary)}
 #install-banner .ib-dismiss{background:rgba(255,255,255,.2);color:#fff}
-/* 隱私政策彈窗 */
-#privacy-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;justify-content:center;align-items:flex-end;padding-bottom:env(safe-area-inset-bottom,0)}
-#privacy-modal.open{display:flex}
-#privacy-box{background:var(--app);border-radius:20px 20px 0 0;padding:24px 20px 28px;width:100%;max-width:420px;max-height:80vh;overflow-y:auto}
-.pv-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:10px}
-.pv-body{font-size:12px;color:var(--sub);line-height:1.8;margin-bottom:16px}
-.pv-detail{font-size:11px;color:var(--muted);background:var(--card);border-radius:9px;padding:10px 12px;margin-bottom:14px;line-height:1.8;border:1px solid var(--border)}
-.pv-btn{display:block;width:100%;padding:13px;border-radius:11px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif;margin-bottom:8px}
-.pv-link{font-size:11px;color:var(--muted);text-align:center;cursor:pointer;text-decoration:underline}
-/* For Ken · 禮謙 · #230905 */
-#app::after{content:'';position:fixed;width:1px;height:1px;background:#230905;opacity:0.004;bottom:0;right:0;pointer-events:none;z-index:-1}
 </style>
-<!-- ‍‌‍‍‌‍‌‌‍‌‌‍‍‌‍‌‍‌‌‍‌‌‌‍‍‍‌‌‍‍‌‍‍‍‌‌‍‍‍‍‍‍‌‌‍‍‌‍‍‍‌‌‍‍‌‌‍‍‌‌‍‍‍‍‍‍‌‌‌‍‍‌‍‍‌‌‍‍‍‍‍‍‌‌‍‌‍‌ -->
 </head>
 <body>
 <!-- PWA 安裝橫幅（Android Chrome 自動觸發，iOS 顯示手動說明） -->
 <div id="install-banner">
   <img src="./icons/icon-192.png" alt="icon">
   <div class="ib-text">
-    <div class="ib-title">安裝彈性習慣 App</div>
-    <div class="ib-sub">加入桌面，離線也能使用</div>
+    <div class="ib-title">安裝漫打卡 Manda</div>
+    <div class="ib-sub">加到桌面，隨時都能打一個今日的1</div>
   </div>
   <div class="ib-btns">
     <button class="ib-btn ib-install" onclick="doInstall()">安裝</button>
@@ -350,33 +318,10 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 <div id="upgrade-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9996;justify-content:center;align-items:center;padding:20px">
   <div style="background:var(--app);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center">
     <div style="font-size:48px;margin-bottom:10px">✨</div>
-    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">你的紀錄有遺失風險</div>
-    <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">目前資料只存在這台裝置的瀏覽器裡。<br><br>換手機、重灌瀏覽器、或清除快取，<b>所有打卡紀錄將永久消失</b>。<br><br>Plus 方案即將推出雲端備份功能，上線第一時間通知你。</div>
-    <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">我知道了，等你上線</button>
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">你已經準備好了。</div>
+    <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">你用行動證明了——你是認真的那種人。<br><br>無限習慣 · 雲端備份 · 成就分享，<br>所有 Plus 功能都在為你趕來。</div>
+    <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">好，我等著</button>
     <div onclick="closeUpgrade()" style="margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer">稍後再看</div>
-  </div>
-</div>
-
-<!-- 隱私政策彈窗 -->
-<div id="privacy-modal">
-  <div id="privacy-box">
-    <div class="pv-title">📋 使用前請確認</div>
-    <div class="pv-body">
-      漫打卡使用 Google Analytics 4（GA4）收集<b>匿名</b>使用行為數據，幫助改善產品體驗。<br><br>
-      所有習慣打卡紀錄均<b>僅儲存在你的裝置本機</b>，不會上傳至任何伺服器。
-    </div>
-    <div class="pv-detail">
-      <b>收集的匿名數據：</b><br>
-      · 功能使用頻率（打卡次數、頁面切換）<br>
-      · 里程碑達成事件<br>
-      · PWA 安裝行為<br><br>
-      <b>絕不收集：</b><br>
-      · 習慣名稱或打卡內容<br>
-      · 個人身份識別資訊<br>
-      · 裝置定位資訊
-    </div>
-    <button class="pv-btn" onclick="acceptPrivacy()">我了解，開始使用 →</button>
-    <div class="pv-link" onclick="acceptPrivacy()">略過</div>
   </div>
 </div>
 
@@ -399,28 +344,28 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
   </div>
 </div>
 
-<div id="app">
-  <div id="bar"><h1 id="ttl">彈性習慣</h1><p id="tsub"></p></div>
-  <div id="main">
-    <div id="loss-banner">
-      <div class="lb-icon">⚠️</div>
-      <div class="lb-body">
-        <div class="lb-title">你已連續 14 天打卡 🔥</div>
-        <div class="lb-sub">本機儲存在換機或清除瀏覽器時會永久消失。<br>升級 Plus 可雲端備份，永不遺失。</div>
-        <span class="lb-cta" onclick="showUpgrade('loss_banner')">立即備份我的紀錄 →</span>
-      </div>
-      <button class="lb-close" onclick="closeLossBanner()">✕</button>
+<!-- 人生平衡輪彈窗 -->
+<div id="balance-wheel-modal" class="modal-overlay" style="display:none">
+  <div class="modal-content" style="max-width:400px;max-height:85vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:16px;text-align:center">🎯 人生平衡輪診斷</div>
+    <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:16px;text-align:center">
+      為 8 個生命維度打分（1-10 分），找出最需要改善的領域
     </div>
-    <div id="mile-banner">
-      <div class="mb-icon">🎯</div>
-      <div class="mb-body">
-        <div class="mb-title">30天里程碑就在眼前！</div>
-        <div class="mb-sub">距離連續30天只剩 <b id="mile-days">5</b> 天。<br>記得備份你的紀錄，別讓努力付諸流水。</div>
-        <span class="mb-cta" onclick="showUpgrade('mile_banner')">備份我的紀錄 →</span>
-      </div>
-      <button class="mb-close" onclick="closeMileBanner()">✕</button>
+    
+    <div id="balance-wheel-form">
+      <!-- 8 大維度評分 -->
+    </div>
+    
+    <div style="margin-top:20px;display:flex;gap:8px">
+      <button onclick="closeBalanceWheel()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer">取消</button>
+      <button onclick="generateRecommendation()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer">生成建議</button>
     </div>
   </div>
+</div>
+
+<div id="app">
+  <div id="bar"><h1 id="ttl">漫打卡</h1><p id="tsub"></p><p id="daily-slogan" style="font-size:11px;color:var(--primary);opacity:.75;margin-top:3px;font-style:italic;line-height:1.5"></p></div>
+  <div id="main"></div>
   <div id="nav">
     <button class="nb on" id="nb0" onclick="go(0)"><span class="ni">🏠</span>今日</button>
     <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>月曆</button>
@@ -436,59 +381,7 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 // 版權所有 © 2026 Jerry. All Rights Reserved.
 // 本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
 // MANDALA_TALKS_DNA: Elastic-OW64-Resilience-2026
-var APP_AUTHOR='Jerry',MANDALA_TALKS_DNA='Elastic-OW64-Resilience-2026';
-/* ── 獻給禮謙 Ken ── */
-/**
- * Core logic for Flexi Habit system‌‍‍‍‌‍‌‌‍‌‌‍‍‌‍‌‍‌‌‍‌‌‌‍
- * Created with dedication.
- */
-var _KEN          = 20230905;         // 禮謙生日
-var _KEN_HEX      = 0x4B454E;         // ASCII → "KEN"
-var _KEN_SEED     = 20230905 % 7;     // = 4，ID 生成偏移種子
-var _BUILD        = '謙謙爸·2026';  // 謙謙爸·2026
-
-/* ── 三層簽名引擎 ── */
-// 1️⃣ Seed：生命起點
-var _SEED  = 20230905;
-// 2️⃣ Pattern：曼陀羅循環（Ken 生日各位數）
-var _CYCLE = [2,0,2,3,0,9,0,5];
-// 3️⃣ Origin：身份指紋 base64("Ken-20230905")
-var _ORIGIN = 'S2VuLTIwMjMwOTA1';
-
-// 核心熵函式：將 userId 與 dayIndex 混入 Ken 的生命節奏
-function habitEntropy(userId, dayIndex){
-  var h=0;
-  var s=userId+_SEED.toString();
-  for(var i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}
-  var cycle=_CYCLE[dayIndex%_CYCLE.length];
-  return Math.abs(h)*_SEED+cycle*(dayIndex+1)%997;
-}
-
-// 成長係數：每天依曼陀羅循環微調
-function growthFactor(dayIndex){
-  var cycle=_CYCLE[dayIndex%_CYCLE.length];
-  return 1+(cycle/10);
-}
-
-// 彈性分數：基礎分數加上 Ken 的熵波動
-function flexibleScore(baseScore, dayIndex){
-  var entropy=habitEntropy('core',dayIndex);
-  var modifier=(entropy%10)/50;
-  return baseScore*(1+modifier);
-}
-
-// 簽名驗證：資料 + Seed 的雜湊，備份 JSON 帶著走
-function signatureProof(data){
-  var h=0,s=data+_SEED.toString();
-  for(var i=0;i<s.length;i++){h=(h<<5)-h+s.charCodeAt(i);h|=0;}
-  return Math.abs(h).toString(16);
-}
-
-// 動畫節奏：今日由 Ken 的熵決定
-function todayRhythm(){
-  var today=new Date(),dayIndex=Math.floor(today.getTime()/86400000);
-  return habitEntropy('ui',dayIndex)%3; // 0=calm 1=normal 2=energetic
-}
+var APP_AUTHOR='謙謙爸',MANDALA_TALKS_DNA='Elastic-OW64-Resilience-2026';
 var SK='eh3',CL=['#7c3aed','#2563eb','#0f766e','#16a34a','#d97706','#dc2626','#db2777','#4b5563'];
 var CO=[0,1,2,3,-1,4,5,6,7],tab=0,cY,cM,cSel,aC='#7c3aed';
 var TPLS=[
@@ -519,6 +412,23 @@ function td(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'
 function ds(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
 function p2(n){return String(n).padStart(2,'0');}
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── 語錄管理 ── */
+function addCQ(){
+  // 免費版限制：觸發升級提示
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
+}
+function delCQ(i){
+  // 免費版限制：觸發升級提示  
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
+}
+function showQuoteUpgrade(){
+  // 語錄升級提示
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
+}
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
 
 /* ── 統計輔助 ── */
@@ -682,23 +592,12 @@ function toggleTimer(hid){
 /* ── 今日頁面 ── */
 function rH(){
   var d=ld(),t=td(),log=d.l[t]||{},m=d.m,n=new Date(),days=['日','一','二','三','四','五','六'];
-  /* 歡迎回來：偵測中斷超過2天 */
-  if(!sessionStorage.getItem('wb-shown')){
-    var _dates=Object.keys(d.l).sort();
-    if(_dates.length>=1){
-      var _last=_dates[_dates.length-1];
-      if(_last!==t){
-        var _d1=new Date(_last.slice(0,4)+'-'+_last.slice(4,6)+'-'+_last.slice(6,8));
-        var _d2=new Date(t.slice(0,4)+'-'+t.slice(4,6)+'-'+t.slice(6,8));
-        var _diff=Math.floor((_d2-_d1)/86400000);
-        if(_diff>=2){sessionStorage.setItem('wb-shown','1');setTimeout(function(){toast('👋 歡迎回來——今日的1就是重新開始');},600);}
-      }
-    }
-  }
   document.getElementById('ttl').textContent='彈性習慣';
   document.getElementById('tsub').textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日（週'+days[n.getDay()]+'）';
+  document.getElementById('daily-slogan').textContent=getDailySlogan();
   var hasA=m.cells.some(function(c){return c&&c.t;});
-  var H='<div class="steps">';
+  var H='<div id="checkin-quote" style="display:none;margin:0 0 10px;padding:10px 14px;background:var(--pbg);border-radius:10px;border-left:3px solid var(--primary);font-size:12px;line-height:1.7"></div>';
+  H+='<div class="steps">';
   var st=[{n:1,l:'核心目標',d:!!m.core},{n:2,l:'行動領域',d:hasA},{n:3,l:'連結習慣',d:d.h.length>0}];
   st.forEach(function(s,i){
     var a=!s.d&&(i===0||(i>0&&st[i-1].d));
@@ -744,22 +643,20 @@ function rH(){
   if(d.h.length){
     var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
     var pct=Math.round(done/d.h.length*100);
-    var usedSlots=d.h.length,maxSlots=2,slotColor=d.h.length>=2?'var(--danger)':'var(--primary)';
-    H+='<div class="sec" style="margin-top:14px;display:flex;align-items:center;justify-content:space-between"><span>今日習慣</span><span style="font-size:10px;font-weight:600;color:'+slotColor+'">'+usedSlots+' / '+maxSlots+' 習慣空間'+(usedSlots>=2?' 已滿 🔒':'')+'</span></div>';
+    H+='<div class="sec" style="margin-top:14px">今日習慣</div>';
     H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">完成 '+done+'/'+d.h.length+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
     d.h.forEach(function(hb){
-      if(hb.paused){H+='<div class="hc" style="border-left-color:#9ca3af;opacity:.5">';H+='<div class="hr"><span style="font-size:17px">'+hb.i+'</span><span class="hn">'+e(hb.n)+'</span>';H+='<span style="font-size:10px;color:var(--muted);margin-left:auto">已暫停</span>';H+='<button onclick="pauseH(\''+hb.id+'\')" style="margin-left:6px;padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:var(--card);color:var(--sub);font-size:10px;cursor:pointer;font-family:sans-serif">恢復</button>';H+='</div></div>';return;}
       var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#4f46e5',src=fsrc(m,hb.id);
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
       H+='<div class="hr"><span style="font-size:17px">'+hb.i+'</span><span class="hn">'+e(hb.n)+'</span>';
       if(src)H+='<span class="hsrc" style="background:'+col+'20;color:'+col+'">'+e(src)+'</span>';
-      if(hb.anchor)H+='<span style="font-size:9px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:1px 6px;border-radius:8px;margin-left:2px">⚓ '+e(hb.anchor)+'</span>';
-      if(hb.identity)H+='<span style="font-size:9px;color:var(--accent);background:rgba(124,111,255,.1);border:1px solid rgba(124,111,255,.2);padding:1px 6px;border-radius:8px;margin-left:2px">我是 '+e(hb.identity)+' 的人</span>';
       if(st>0)H+='<span class="hsk">🔥'+st+'天</span>';
-      var _paused=hb.paused||false;
-      H+='<button class="hd" onclick="pauseH(\''+hb.id+'\')" title="'+(_paused?'恢復習慣':'暫停習慣')+'" style="font-size:10px;'+(_paused?'color:var(--warn)':'color:var(--muted)')+'">'+(  _paused?'▶':'⏸')+'</button>';
       H+='<button class="hd" onclick="dH(\''+hb.id+'\')">✕</button>';
       H+='<button class="tbtn" style="padding:4px 10px;font-size:13px;margin-left:3px" onclick="toggleTimer(\''+hb.id+'\')" title="計時器">⏱</button></div>';
+      /* 打卡提示 */
+      if(lvl===0){
+        H+='<div style="font-size:11px;color:var(--sub);margin:6px 0 2px;text-align:center">👆 點擊下方按鈕打卡</div>';
+      }
       H+='<div class="lg">';
       [{lv:1,n:'今日的1'},{lv:2,n:'穩定前進'},{lv:3,n:'全力以赴'}].forEach(function(x){
         var ac=lvl>=x.lv,fd=lvl>x.lv;
@@ -770,105 +667,11 @@ function rH(){
         if(x.lv===2&&lvl===0){H+='<span style="font-size:9px;background:#4f46e520;color:#4f46e5;padding:1px 5px;border-radius:8px;display:block;margin-top:2px">推薦</span>';}
         H+='<span class="lbv" style="color:'+(ac?col:'var(--muted)')+'">'+hb['v'+x.lv]+' '+hb.u+'</span></div>';
       });
-      H+='<div style="font-size:10px;color:var(--muted);text-align:center;padding:4px 0 2px;letter-spacing:.03em">選今天剛好能做到的那一個</div>';
-      H+='</div>';
-      if(lvl>0){
-        var rv=d.l[t]&&d.l[t][hb.id+'_r']?d.l[t][hb.id+'_r']:[];
-        var BCHIPS=[['身體需要休息','b'],['行程比預期忙','b'],['心情不在狀態','b'],['環境不配合','b']];
-        var GCHIPS=[['Mini 就是今天的 Elite','g'],['習慣還在，沒有斷','g'],['今天的1已經夠了','g'],['明天我會準備好','g']];
-        H+='<div class="ref-box" id="ref-'+hb.id+'">';
-        H+='<div class="ref-title">💭 如果今天重來⋯⋯（選填）</div>';
-        H+='<div style="font-size:10px;color:var(--muted);margin-bottom:6px">情境描述</div>';
-        H+='<div class="ref-chips">';
-        BCHIPS.forEach(function(c){var on=rv.indexOf(c[0])>=0;H+='<span class="rchip'+(on?' on':'')+' b" onclick="tChip(\''+hb.id+'\',this,\''+c[0]+'\')">'+(on?'✓ ':'')+c[0]+'</span>';});
-        H+='</div>';
-        H+='<div style="font-size:10px;color:var(--muted);margin-bottom:6px;margin-top:4px">心理定錨</div>';
-        H+='<div class="ref-chips">';
-        GCHIPS.forEach(function(c){var on=rv.indexOf(c[0])>=0;H+='<span class="rchip grn'+(on?' on':'')+'" onclick="tChip(\''+hb.id+'\',this,\''+c[0]+'\')">'+(on?'✓ ':'')+c[0]+'</span>';});
-        H+='</div>';
-        var gd=d.l[t]&&d.l[t][hb.id+'_gd']?d.l[t][hb.id+'_gd']:'';
-        H+='<div style="font-size:10px;color:var(--muted);margin:6px 0 4px">今天有什麼做得好的？（選填）</div>';
-        H+='<input type="text" class="fi" value="'+e(gd)+'" placeholder="小小的好事都算..." style="font-size:12px;padding:7px 10px;margin-bottom:4px" onchange="saveGood(\''+hb.id+'\',this.value)"/>';
-        H+='<span class="ref-done" onclick="closeRef(\''+hb.id+'\')"'>收起 ↑</span>';
-        H+='</div>';
-      }
-      H+='</div>';
+      H+='</div></div>';
     });
-  }else{
-    H+='<div style="text-align:center;padding:32px 20px">';
-    H+='<div style="font-size:40px;margin-bottom:12px">🌱</div>';
-    H+='<div style="font-size:16px;font-weight:700;color:var(--text);margin-bottom:8px">從今天的第一個習慣開始</div>';
-    H+='<div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:20px">不需要完美計畫，只需要一個今天就能做的小動作。</div>';
-    H+='<button onclick="go(3)" style="background:var(--primary);color:#fff;border:none;padding:13px 28px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:sans-serif">新增我的第一個習慣 →</button>';
-    H+='</div>';
-  }
+  }else{H+='<div class="empty">選一件想每天做的事，放進來。</div>';}
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
-  /* 無習慣時新增按鈕脈衝 */
-  var _nb3=document.getElementById('nb3');
-  if(_nb3){if(!d.h.length){_nb3.style.animation='pulse 1.5s infinite';}else{_nb3.style.animation='';}}
-  /* 14天損失提示橫幅 */
-  showLossBanner();
-  showMileBanner();
-  /* 全部完成慶祝 */
-  if(d.h.length>0){
-    var _done2=d.h.filter(function(x){return!x.paused&&(log[x.id]||0)>=1;}).length;
-    var _total2=d.h.filter(function(x){return!x.paused;}).length;
-    if(_done2>0&&_done2===_total2&&!sessionStorage.getItem('all-done-'+t)){
-      sessionStorage.setItem('all-done-'+t,'1');
-      setTimeout(allDoneCelebrate,300);
-    }
-  }
-}
-function allDoneCelebrate(){
-  var ov=document.createElement('div');
-  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0);z-index:9997;display:flex;align-items:center;justify-content:center;pointer-events:none';
-  ov.innerHTML='<div style="text-align:center;animation:fadeUp .5s ease">'+'<div style="font-size:56px;margin-bottom:8px">🎉</div>'+'<div style="font-size:18px;font-weight:800;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4)">今天的你，已經全力以赴了</div>'+'</div>';
-  document.body.appendChild(ov);
-  var colors=['#7c3aed','#10b981','#f59e0b','#ef4444','#3b82f6'];
-  for(var ci=0;ci<20;ci++){(function(idx){
-    var dot=document.createElement('div');
-    var x=Math.random()*window.innerWidth,y=Math.random()*window.innerHeight*0.6;
-    dot.style.cssText='left:'+x+'px;top:'+y+'px;width:8px;height:8px;border-radius:50%;background:'+colors[idx%5]+';position:fixed;z-index:9998;pointer-events:none;animation:confettiDot 1.2s ease forwards';
-    dot.style.setProperty('--dx',(Math.random()*80-40)+'px');
-    dot.style.setProperty('--dy',(Math.random()*-120-40)+'px');
-    document.body.appendChild(dot);
-    setTimeout(function(){dot.remove();},1300);
-  })(ci);}
-  setTimeout(function(){ov.remove();},2200);
-}
-function showLossBanner(){
-  if(localStorage.getItem('lb-closed'))return;
-  var d=ld(),maxStr=0;
-  d.h.forEach(function(hb){var s=sk(d.l,hb.id);if(s>maxStr)maxStr=s;});
-  if(maxStr<14)return;
-  var el=document.getElementById('loss-banner');
-  if(!el)return;
-  el.querySelector('.lb-title').textContent='你已連續 '+maxStr+' 天打卡 🔥';
-  el.classList.add('show');
-}
-function closeLossBanner(){
-  var el=document.getElementById('loss-banner');
-  if(el)el.classList.remove('show');
-  localStorage.setItem('lb-closed','1');
-}
-function showMileBanner(){
-  if(localStorage.getItem('mb-closed'))return;
-  var d=ld(),maxStr=0;
-  d.h.forEach(function(hb){var s=sk(d.l,hb.id);if(s>maxStr)maxStr=s;});
-  if(maxStr<25||maxStr>=30)return;
-  var el=document.getElementById('mile-banner');
-  if(!el)return;
-  var daysLeft=30-maxStr;
-  var dEl=document.getElementById('mile-days');
-  if(dEl)dEl.textContent=daysLeft;
-  el.querySelector('.mb-title').textContent='30天里程碑就在眼前！連續 '+maxStr+' 天了 🎯';
-  el.classList.add('show');
-}
-function closeMileBanner(){
-  var el=document.getElementById('mile-banner');
-  if(el)el.classList.remove('show');
-  localStorage.setItem('mb-closed','1');
 }
 function tLv(hid,lv){
   var d=ld(),t=td();
@@ -876,78 +679,74 @@ function tLv(hid,lv){
   var cur=d.l[t][hid]||0;
   var newLv=cur>=lv?lv-1:lv;
   d.l[t][hid]=newLv;sv(d);
-  /* GA4 追蹤 */
-  var hb2=d.h.find(function(x){return x.id===hid;});
+  /* GA4 追蹤：只在打卡（非取消）時發送 */
   if(newLv>0){
-    trackHabit(hid,newLv,hb2?hb2.n:'');
-    /* Elite 動畫 */
+    var hb=d.h.find(function(x){return x.id===hid;});
+    trackHabit(hid,newLv,hb?hb.n:'');
+    
+    /* 打卡成功動畫和震動回饋 */
+    var btn=document.querySelector('[onclick="tLv(\''+hid+'\','+lv+')"]');
+    if(btn){
+      btn.style.transform='scale(0.95)';
+      btn.style.transition='transform 0.1s ease-out';
+      setTimeout(function(){
+        btn.style.transform='scale(1)';
+        btn.style.transition='transform 0.2s ease-out';
+      },100);
+    }
+    
+    /* 震動回饋 */
+    if('vibrate' in navigator){
+      var vibes=[30,80,120]; // 今日的1/穩定前進/全力以赴對應不同震動強度
+      navigator.vibrate(vibes[newLv-1]);
+    }
+    
+    /* Elite 特殊動畫 */
     if(newLv===3){
-      var btn=document.querySelector('[onclick="tLv(\''+hid+'\',3)"]');
       eliteBurst(btn);
     }
-    /* Plus 動畫 */
-    if(newLv===2){
-      var btn2=document.querySelector('[onclick="tLv(\''+hid+'\',2)"]');
-      if(btn2){var g2=document.createElement('div');g2.style.cssText='left:'+(btn2.getBoundingClientRect().left+btn2.offsetWidth/2-25)+'px;top:'+(btn2.getBoundingClientRect().top+btn2.offsetHeight/2-25)+'px;width:50px;height:50px;border-radius:50%;background:rgba(16,196,138,.2);position:fixed;z-index:9989;pointer-events:none;animation:miniGlow .6s ease forwards';document.body.appendChild(g2);setTimeout(function(){g2.remove();},650);}
-      setTimeout(function(){toast('💚 穩定就是力量。');},400);
+    
+    /* 即時成就提示 */
+    var levelNames=['','今日的1','穩定前進','全力以赴'];
+    var levelEmojis=['','✨','🔥','💎'];
+    var achieveText=levelEmojis[newLv]+' '+levelNames[newLv]+' 完成！';
+    showInstantFeedback(achieveText,newLv);
+  }
+  rH();  /* 打卡完成：顯示隨機語錄 */
+  if(newLv>0){
+    var allQ=QUOTES.concat((ld().customQ||[]).map(function(q){return{q:q,src:'我的語錄'};}));
+    var rq=allQ[Math.floor(Math.random()*allQ.length)];
+    var qEl=document.getElementById('checkin-quote');
+    if(qEl){
+      qEl.innerHTML='<span style="font-style:italic;color:var(--primary)">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>';
+      qEl.style.display='block';
+      clearTimeout(qEl._t);
+      qEl._t=setTimeout(function(){qEl.style.display='none';},5000);
     }
-    /* Mini 動畫 + 文字慶祝 */
-    if(newLv===1){
-      var btn1=document.querySelector('[onclick="tLv(\''+hid+'\',1)"]');
-      miniBurst(btn1);
-      var MC=['今天的1，是明天繼續的基石。','做了就是1，就是完美的勝利。','不論多慢，只要不停下就永遠在前進。','彈性不是退縮，是確保天天都能贏的策略。','習慣還在，沒有斷。','你比昨天的自己更靠近了一步。','最累的日子做到了，就是今天的 Elite。','小的進步，是長期勝利的燃料。'];
-      setTimeout(function(){toast('✨ '+MC[Math.floor(Math.random()*MC.length)]);},400);
-    }
   }
-  if(newLv===0&&typeof gtag!=='undefined'){
-    gtag('event','habit_downgrade',{habit_id:hid,habit_name:hb2?hb2.n:''});
-  }
-  /* 首次打卡後顯示隱私彈窗 */
-  if(newLv>0&&!localStorage.getItem('pv-ok')&&!localStorage.getItem('pv-shown')){
-    localStorage.setItem('pv-shown','1');
-    setTimeout(showPrivacy,800);
-  }
-  rH();
-  /* 里程碑+失望之谷 檢查（打卡後計算連續天數）*/
+  /* 里程碑檢查（打卡後計算連續天數）*/
   if(newLv>0){
     var streak=sk(d.l,hid);
     checkMilestone(hid,streak);
-    checkValley(hid,streak);
   }
-}
-function pauseH(id){
-  var d=ld(),hb=d.h.find(function(x){return x.id===id;});
-  if(!hb)return;
-  hb.paused=!hb.paused;
-  sv(d);
-  toast(hb.paused?'⏸ 已暫停「'+hb.n+'」——隨時可恢復':'▶ 已恢復「'+hb.n+'」');
-  rH();
 }
 function dH(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rH();}
 
-/* ── 反思 chip ── */
-function tChip(hid,el,val){
-  var d=ld(),t=td();
-  if(!d.l[t])d.l[t]={};
-  var rv=d.l[t][hid+'_r']||[];
-  var idx=rv.indexOf(val);
-  if(idx>=0){rv.splice(idx,1);el.classList.remove('on');}
-  else{rv.push(val);el.classList.add('on');}
-  d.l[t][hid+'_r']=rv;sv(d);
-  if(rv.length===1&&typeof gtag!=='undefined')gtag('event','reflection_saved',{habit_id:hid,chip_count:rv.length});
-}
-function saveGood(hid,val){
-  var d=ld(),t=td();
-  if(!d.l[t])d.l[t]={};
-  d.l[t][hid+'_gd']=val;sv(d);
-}
-function closeRef(hid){
-  var el=document.getElementById('ref-'+hid);
-  if(el){el.style.animation='refIn .2s ease reverse';setTimeout(function(){if(el)el.style.display='none';},200);}
+/* ── 即時打卡回饋 ── */
+function showInstantFeedback(text,level){
+  var colors=['','#7c3aed','#2563eb','#059669'];
+  var feedback=document.createElement('div');
+  feedback.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:'+colors[level]+';color:#fff;padding:12px 20px;border-radius:20px;font-size:16px;font-weight:700;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s ease-out';
+  feedback.textContent=text;
+  document.body.appendChild(feedback);
+  
+  setTimeout(function(){feedback.style.opacity='1';feedback.style.transform='translate(-50%,-50%) scale(1.1)';},10);
+  setTimeout(function(){feedback.style.opacity='0';feedback.style.transform='translate(-50%,-50%) scale(0.9)';},1200);
+  setTimeout(function(){document.body.removeChild(feedback);},1500);
 }
 
 /* ── 曼陀羅編輯 ── */
-function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">設定你最重要的人生目標，所有行動圍繞它展開。<br><br>大谷翔平高一時就用這套方法——把最大的夢想寫在中心，再拆解為 <b>8 個支擐條件</b>，每個條件再展開 <b>8 個具體行動</b>，合計 64 格行動計畫（OW64）。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
+function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">你最想改變的那件事，從這裡開始拆解。<br><br>把核心目標放在中心，拆解為 8 個行動領域，再各自展開 8 個具體行動——大谷翔平高一就用這套方法，把大夢變成每天踩得到的一格。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
 function svCore(){var d=ld();d.m.core=document.getElementById('xc').value.trim();sv(d);cm();rH();}
 function oCell(ci){
   var d=ld(),cell=d.m.cells[ci]||{};
@@ -970,7 +769,7 @@ function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',h
 /* ── 月曆 ── */
 function rC(){
   document.getElementById('ttl').textContent='月曆';
-  document.getElementById('tsub').textContent='點選日期查看紀錄';
+  document.getElementById('tsub').textContent='你走過的每一天，都在這裡。';
   var n=new Date();if(!cY){cY=n.getFullYear();cM=n.getMonth();}if(!cSel)cSel=td();
   var d=ld(),t=td(),mons=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
   var H='<div class="cn"><button class="cnb" onclick="cMv(-1)">◀</button><div class="cm">'+cY+'年 '+mons[cM]+'</div><button class="cnb" onclick="cMv(1)">▶</button></div>';
@@ -984,7 +783,7 @@ function rC(){
     var cls='cd'+(dstr===t?' tod':'')+(dstr===cSel?' sel':'')+(dstr>t?' oth':'');
     /* 修正：顯示全部習慣圓點（不再限制前5個）*/
     var dots='';
-    if(dstr<=t)d.h.forEach(function(hb){var _lv2=lg[hb.id]||0;if(_lv2>=1){var _bc2=hb.col||'#4f46e5';var _bg2=_lv2===1?_bc2+'66':_lv2===2?_bc2+'bb':_bc2;dots+='<div class="cdt" style="background:'+_bg2+'" title="'+(_lv2===1?'今日的1':_lv2===2?'穩定前進':'全力以赴')+'"></div>';}});});
+    if(dstr<=t)d.h.forEach(function(hb){if((lg[hb.id]||0)>=1)dots+='<div class="cdt" style="background:'+(hb.col||'#4f46e5')+'"></div>';});
     H+='<div class="'+cls+'" onclick="cSl(\''+dstr+'\')">'+dy+(dots?'<div class="cdd">'+dots+'</div>':'')+'</div>';
   }
   var rm=42-(sd+dim);for(var j=1;j<=rm;j++)H+='<div class="cd oth">'+j+'</div>';
@@ -1006,7 +805,7 @@ function cSl(s){cSel=s;rC();}
 /* ── 統計頁面 ── */
 function rSt(){
   document.getElementById('ttl').textContent='統計';
-  document.getElementById('tsub').textContent='近 30 天習慣分析';
+  document.getElementById('tsub').textContent='你的30天，數字說話。';
   var d=ld(),t=td();
   if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">新增習慣後即可查看統計 📊</div>';return;}
   var todayLog=d.l[t]||{};
@@ -1021,18 +820,6 @@ function rSt(){
   H+='<div class="stat-card" style="text-align:center"><div class="stat-num">'+bestStreak+'</div><div class="stat-lbl">🔥 最高連續</div></div>';
   H+='<div class="stat-card" style="text-align:center"><div class="stat-num">'+totalDays+'</div><div class="stat-lbl">📅 有記錄天</div></div>';
   H+='</div>';
-  /* 本週 vs 上週比較 */
-  var _today=new Date(),_w0=0,_w1=0;
-  for(var _i=0;_i<7;_i++){var _d0=new Date(_today);_d0.setDate(_today.getDate()-_i);var _k0=ds(_d0);if(d.l[_k0]&&d.h.some(function(hb){return(d.l[_k0][hb.id]||0)>=1;}))_w0++;}
-  for(var _j=7;_j<14;_j++){var _d1=new Date(_today);_d1.setDate(_today.getDate()-_j);var _k1=ds(_d1);if(d.l[_k1]&&d.h.some(function(hb){return(d.l[_k1][hb.id]||0)>=1;}))_w1++;}
-  var _diff=_w0-_w1,_diffTxt=_diff>0?'↑ 比上週多 '+_diff+' 天':_diff<0?'↓ 比上週少 '+Math.abs(_diff)+' 天':'與上週持平';
-  var _diffCol=_diff>0?'var(--accent2)':_diff<0?'var(--danger)':'var(--sub)';
-  H+='<div style="background:var(--card);border-radius:12px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">';
-  H+='<div style="font-size:12px;color:var(--sub)">本週打卡天數</div>';
-  H+='<div style="display:flex;align-items:baseline;gap:8px">';
-  H+='<span style="font-size:22px;font-weight:800;color:var(--text)">'+_w0+'</span>';
-  H+='<span style="font-size:11px;color:'+_diffCol+';font-weight:700">'+_diffTxt+'</span>';
-  H+='</div></div>';
   /* 各習慣卡片 */
   H+='<div class="sec">各習慣分析</div>';
   d.h.forEach(function(hb){
@@ -1077,78 +864,29 @@ function rSt(){
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
   bindRipples();
-  /* 無習慣時新增按鈕加脈衝 */
-  var nb3=document.getElementById('nb3');
-  if(nb3){if(!d.h.length){nb3.style.animation='pulse 1.5s infinite';}else{nb3.style.animation='';}}
 }
 
 /* ── 新增習慣 ── */
 function rA(){
   document.getElementById('ttl').textContent='新增習慣';
-  var d0=ld(),used0=d0.h.length;
-  document.getElementById('tsub').textContent='習慣空間：'+used0+' / 2'+(used0>=2?' 已滿':'');
+  document.getElementById('tsub').textContent='選一件事，今天就開始。';
   aC=aC||'#7c3aed';
   var cs=CL.map(function(c){return '<div class="cs'+(aC===c?' on':'')+'" style="background:'+c+'" onclick="aPC(this,\''+c+'\')"></div>';}).join('');
   var chips=TPLS.map(function(t,i){return '<div class="chip" onclick="aTpl('+i+',this)">'+t.i+' '+t.n+'</div>';}).join('');
-  var d2=ld();
-  var H='';
-  if(d2.h.length===0){
-    H+='<div style="background:linear-gradient(135deg,var(--pbg),var(--app));border-radius:12px;padding:14px 16px;margin-bottom:14px;border:1.5px solid var(--plight)">';
-    H+='<div style="font-size:13px;font-weight:800;color:var(--primary);margin-bottom:4px">✨ 推薦起手式</div>';
-    H+='<div style="font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.6">從三個經典習慣開始，之後可以自由修改或刪除。</div>';
-    H+='<div style="display:flex;flex-direction:column;gap:7px">';
-    TPLS.slice(0,3).forEach(function(tp,i){
-      H+='<div style="display:flex;align-items:center;justify-content:space-between;background:var(--app);border-radius:9px;padding:9px 12px;border:1px solid var(--border)">';
-      H+='<div style="display:flex;align-items:center;gap:8px"><span style="font-size:18px">'+tp.i+'</span>';
-      H+='<div><div style="font-size:13px;font-weight:700;color:var(--text)">'+tp.n+'</div>';
-      H+='<div style="font-size:10px;color:var(--muted)">今日的1: '+tp.a+' / 穩定前進: '+tp.b+' / 全力以赴: '+tp.c+' '+tp.u+'</div></div></div>';
-      H+='<button onclick="addDefault('+i+')" style="padding:5px 12px;border-radius:8px;border:1.5px solid var(--plight);background:var(--pbg);cursor:pointer;font-size:12px;font-weight:700;color:var(--primary);font-family:sans-serif">加入</button>';
-      H+='</div>';
-    });
-    H+='<button onclick="addAllDefaults()" style="width:100%;margin-top:10px;padding:10px;border-radius:9px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:sans-serif">三個全部加入 →</button>';
-    H+='</div></div>';
-  }
-  H+='<div class="sec" style="margin-top:0">快速模板</div><div class="chips">'+chips+'</div>';
+  var H='<div class="sec" style="margin-top:0">快速模板</div><div class="chips">'+chips+'</div>';
   H+='<div class="sec">名稱與圖示</div><div style="display:flex;gap:7px;margin-bottom:9px"><input type="text" class="fi" id="an" placeholder="習慣名稱" style="flex:1;margin-bottom:0"/><input type="text" class="fi" id="ai" placeholder="📚" style="width:54px;margin-bottom:0;text-align:center"/></div>';
   H+='<div class="sec">單位</div><input type="text" class="fi" id="au" placeholder="頁、分鐘、杯..." style="width:150px"/>';
   H+='<div class="sec">顏色</div><div class="cg" id="acg">'+cs+'</div>';
   H+='<div class="sec">三層彈性等級</div>';
-  H+='<div style="background:var(--pbg);border-radius:9px;padding:10px 12px;margin-bottom:11px;border-left:4px solid var(--primary);font-size:12px;color:var(--primary);line-height:1.7">即使只完成 <b>今日的1</b>，也算沒斷鏈 🔗<br>依當天狀態選完成度，不必每天都 Elite。</div>';
+  H+='<div style="background:var(--pbg);border-radius:9px;padding:10px 12px;margin-bottom:11px;border-left:4px solid var(--primary);font-size:12px;color:var(--primary);line-height:1.7">最累的那天，今日的1就是今天的全部。<br>選你今天做得到的，不是應該做到的。</div>';
   [['今日的1','#7c3aed'],['穩定前進','#2563eb'],['全力以赴','#059669']].forEach(function(lv,i){
     H+='<div class="lrow"><div style="font-size:12px;font-weight:700;color:'+lv[1]+'">'+lv[0]+'</div><input type="number" class="fi" id="av'+(i+1)+'" placeholder="數量" min="1" style="margin-bottom:0"/><div style="font-size:12px;color:var(--muted)" id="au'+(i+1)+'">-</div></div>';
-    if(i===0)H+='<div style="font-size:11px;color:var(--muted);padding:2px 4px 8px;line-height:1.5">💡 建議設定為狀況不好時也能做到的一小步</div>';
   });
-  H+='<div class="sec">錨點時刻（選填）</div>';
-  H+='<div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6">把新習慣接在一個既有的日常動作後面，更容易記得做。</div>';
-  H+='<input type="text" class="fi" id="aa" placeholder="例如：刷完牙之後、吃完晚餐後、睡前..."/>';
-  H+='<div class="sec">身分標語（選填）</div>';
-  H+='<div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.6">每次打卡都是為這個身分投一票。</div>';
-  H+='<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px"><span style="font-size:12px;color:var(--sub)">我正在成為一個</span><input type="text" class="fi" id="aid" placeholder="自律的人、讀書人..." style="flex:1;margin-bottom:0"/><span style="font-size:12px;color:var(--sub)">的人</span></div>';
   H+='<button class="sv" onclick="svH()">儲存習慣</button><div style="height:30px"></div>';
   document.getElementById('main').innerHTML=H;
   document.getElementById('au').addEventListener('input',function(){var v=this.value;[1,2,3].forEach(function(n){var el=document.getElementById('au'+n);if(el)el.textContent=v||'-';});});
 }
 function aPC(el,c){aC=c;document.querySelectorAll('#acg .cs').forEach(function(s){s.classList.remove('on');});el.classList.add('on');}
-function addDefault(i){
-  var d=ld(),tp=TPLS[i];
-  if(d.h.length>=2){toast('免費版最多 2 個習慣，升級 Plus 可無限新增 →');showUpgrade('habit_limit');return;}
-  if(d.h.find(function(h){return h.n===tp.n;})){toast('「'+tp.n+'」已存在');return;}
-  d.h.push({id:'h'+(Date.now()+_KEN_SEED),n:tp.n,i:tp.i,u:tp.u,v1:tp.a,v2:tp.b,v3:tp.c,col:tp.col});
-  sv(d);toast('✓ 已加入「'+tp.n+'」');rA();
-}
-function addAllDefaults(){
-  var d=ld(),added=0;
-  TPLS.slice(0,3).forEach(function(tp){
-    if(d.h.length>=2)return;
-    if(!d.h.find(function(h){return h.n===tp.n;})){
-      d.h.push({id:'h'+(Date.now()+added*7),n:tp.n,i:tp.i,u:tp.u,v1:tp.a,v2:tp.b,v3:tp.c,col:tp.col});
-      added++;
-    }
-  });
-  sv(d);
-  if(added>0){toast('✓ 已加入 '+added+' 個習慣');go(0);}
-  else toast('習慣已存在或已達上限');
-}
 function aTpl(i,el){
   var t=TPLS[i];document.querySelectorAll('.chips .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
   document.getElementById('an').value=t.n;document.getElementById('ai').value=t.i;document.getElementById('au').value=t.u;
@@ -1161,9 +899,7 @@ function svH(){
   var u=document.getElementById('au').value.trim();
   var v1=parseInt(document.getElementById('av1').value)||0,v2=parseInt(document.getElementById('av2').value)||0,v3=parseInt(document.getElementById('av3').value)||0;
   if(!n||!u||!v1||!v2||!v3){toast('請填入所有欄位');return;}
-  var aa=document.getElementById('aa')?document.getElementById('aa').value.trim():'';
-  var aid=document.getElementById('aid')?document.getElementById('aid').value.trim():'';
-  var d=ld();if(d.h.length>=2){toast('免費版最多 2 個習慣，升級 Plus 可無限新增 →');showUpgrade('habit_limit');return;}d.h.push({id:'h'+(Date.now()+_KEN_SEED),n:n,i:i,u:u,v1:v1,v2:v2,v3:v3,col:aC,anchor:aa,identity:aid});sv(d);toast('✓ 已新增「'+n+'」');go(0);
+  var d=ld();if(d.h.length>=2){toast('你的第 3 個習慣在等你。升級 Plus，帶它回家。');if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'habit_limit'});return;}d.h.push({id:'h'+Date.now(),n:n,i:i,u:u,v1:v1,v2:v2,v3:v3,col:aC});sv(d);toast('✓ 已新增「'+n+'」');go(0);
 }
 
 /* ── 設定 ── */
@@ -1191,15 +927,23 @@ function rS(){
     H+='<div style="font-size:12px;color:#92400e;line-height:1.7">';
     H+='iOS Safari 若 <b>連續 7 天</b>未開啟本 App，會自動清除離線快取。<br>';
     H+='建議：設定每日提醒通知，或定期使用「<b>匯出 JSON 備份</b>」保存資料。</div></div>';
+  }else if(isAndroid()){
+    H+='<div style="background:var(--pbg);border-radius:10px;padding:14px;margin-bottom:9px;border:1px solid var(--plight)">';
+    H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:6px">📱 安裝到 Android 手機</div>';
+    H+='<div style="font-size:12px;color:var(--primary);line-height:1.9">';
+    H+='① 點 Chrome 右上角的 <b>選單</b> 按鈕 <span style="font-size:16px">⋮</span><br>';
+    H+='② 選擇「<b>安裝應用程式</b>」或「<b>加到主螢幕</b>」<br>';
+    H+='③ 點選「<b>安裝</b>」完成';
+    H+='</div>';
+    H+='</div>';
   }else{
     H+='<div class="sblk"><div class="srow"><div><div class="slb">安裝到桌面</div><div class="ssub">離線可用，像原生 App</div></div>';
     H+='<button onclick="doInstall()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">安裝</button></div></div>';
   }
   /* 升級 Plus */
-  /* ── 分組標題：升級 ── */
-  H+='<div onclick="showUpgrade(\'upgrade_card\')" style="cursor:pointer;background:#fef3c7;border-radius:12px;padding:13px 16px;margin-bottom:12px;border:1.5px solid #fde68a;display:flex;align-items:center;justify-content:space-between">';
-  H+='<div><div style="font-size:13px;font-weight:700;color:#92400e">⚠️ 你的紀錄有遺失風險</div><div style="font-size:11px;color:#92400e;margin-top:2px;line-height:1.5">本機儲存換機就消失 — 升級 Plus 永久雲端備份</div></div>';
-  H+='<div style="font-size:18px;color:#92400e">›</div>';
+  H+='<div onclick="showUpgrade()" style="cursor:pointer;background:var(--pbg);border-radius:12px;padding:13px 16px;margin-bottom:12px;border:1.5px solid var(--plight);display:flex;align-items:center;justify-content:space-between">';
+  H+='<div><div style="font-size:13px;font-weight:700;color:var(--primary)">✨ 升級 Plus</div><div style="font-size:11px;color:var(--sub);margin-top:2px">無限習慣 》 雲端備份 》 完整統計</div></div>';
+  H+='<div style="font-size:18px;color:var(--primary)">›</div>';
   H+="</div>";
   /* 外觀 */
   H+='<div class="sec">外觀</div><div class="sblk">';
@@ -1224,6 +968,44 @@ function rS(){
     H+='<button onclick="dHS(\''+hb.id+'\')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✕</button></div>';
   });
   H+='</div>';
+  
+  /* 8大領域管理 */
+  H+='<div class="sec">8大領域管理</div>';
+  H+='<div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">🧭 生活羅盤</div><div class="ssub">8大維度平衡檢視與管理</div></div>';
+  H+='<button onclick="showLifeCompass()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">展開</button></div>';
+  H+='<div class="srow"><div><div class="slb">🎯 平衡輪診斷</div><div class="ssub">找出最需要改善的領域</div></div>';
+  H+='<button onclick="showBalanceWheel()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">診斷</button></div>';
+  H+='</div>';
+  
+  /* 語錄管理 */
+  H+='<div class="sec">語錄管理</div>';
+  var cq=ld().customQ||[];
+  H+='<div class="sblk">';
+  H+='<div style="font-size:12px;color:var(--muted);padding:8px 4px 6px">內建 '+QUOTES.length+' 條 · 自訂 '+cq.length+' 條</div>';
+  
+  // 免費版限制：只能瀏覽，不能編輯
+  if(cq.length>0){
+    cq.forEach(function(q,i){
+      H+='<div class="srow" style="align-items:flex-start;gap:8px">';
+      H+='<div style="flex:1;font-size:12px;color:var(--text);line-height:1.6;padding:2px 0">「'+q+'」<span style="color:var(--muted)"> — 我的語錄</span></div>';
+      H+='<button onclick="showQuoteUpgrade()" style="flex-shrink:0;padding:3px 10px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-family:sans-serif">Plus功能</button>';
+      H+='</div>';
+    });
+  }
+  
+  // 升級提示區域
+  H+='<div style="background:#fef3c7;border-radius:10px;padding:12px 14px;margin-top:8px;border:1px solid #fde68a">';
+  H+='<div style="display:flex;align-items:center;justify-content:space-between">';
+  H+='<div>';
+  H+='<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:3px">✨ 語錄客製化 Plus 功能</div>';
+  H+='<div style="font-size:11px;color:#92400e;line-height:1.5">新增專屬語錄，讓每次打卡都有獨特的激勵</div>';
+  H+='</div>';
+  H+='<button onclick="showUpgrade()" style="padding:6px 12px;border-radius:7px;border:none;background:#92400e;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:sans-serif">升級</button>';
+  H+='</div>';
+  H+='</div>';
+  
+  H+='</div>';
   /* 資料管理 */
   H+='<div class="sec">資料管理</div><div class="sblk">';
   H+='<div class="srow"><div><div class="slb" style="color:var(--danger)">重設曼陀羅</div><div class="ssub">清除所有格子</div></div><button onclick="rsM()" style="padding:5px 13px;border-radius:8px;border:1.5px solid #fca5a5;background:var(--app);cursor:pointer;font-size:12px;color:var(--danger);font-family:sans-serif">重設</button></div>';
@@ -1231,38 +1013,49 @@ function rS(){
   H+='</div>';
   /* 關於 */
   H+='<div class="sec">關於</div>';
-  H+='<div onclick="showUpgrade(\'about_card\')" style="cursor:pointer;background:#fef3c7;border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;border:1.5px solid #fde68a">';
-  H+='<div><div style="font-size:13px;font-weight:800;color:#92400e">⚠️ 你的紀錄只存在這台裝置</div><div style="font-size:11px;color:#92400e;margin-top:3px;line-height:1.5">換機或清除瀏覽器將永久消失 — 升級 Plus 雲端備份</div></div>';
-  H+='<div style="font-size:22px;color:#92400e">›</div>';
+  H+='<div onclick="showUpgrade()" style="cursor:pointer;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">';
+  H+='<div><div style="font-size:13px;font-weight:800;color:#fff">✨ 升級 Plus 方案</div><div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:3px">無限習慣 》 雲端備份 》 成就分享</div></div>';
+  H+='<div style="font-size:22px;color:#fff">›</div>';
   H+="</div>";
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
   H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.14</div>';
-  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-04-18 · by Jerry</div></div></div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-04-21 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
-  H+='漫打卡建立在三本柱之上：<br><br>';
-  H+='<b>🟣 第一本柱：曼陀羅九宮格（OW64）</b><br>';
+  H+='漫打卡建立在三個核心支柱之上：<br><br>';
+  H+='<b>🟣 第一支柱：曼陀羅九宮格（OW64）</b><br>';
   H+='源自大谷翔平的圓夢計畫——把核心目標拆解為 8 個行動領域，再各自展開 8 個具體行動，合計 64 格行動清單。目標不再只是夢想，而是每天可執行的地圖。<br><br>';
-  H+='<b>🔵 第二本柱：彈性三級制</b><br>';
+  H+='<b>🔵 第二支柱：彈性三級制</b><br>';
   H+='今日的1 / 穩定前進 / 全力以赴——不強迫你每天最佳狀態，只要不斷鏈，你就贏了。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
-  H+='<b>🟢 第三本柱：如果能重來</b><br>';
-  H+='每天打卡後的反思問句：「如果今天重來一次，我會怎麼做更好？」不是懲罰自己，而是讓每一天成為明天的老師。</div>';
+  H+='<b>🎯 第三支柱：人生平衡輪</b><br>';
+  H+='人生像一個輪子，8 個維度決定是否穩定前進：<span style="color:var(--primary)">事業・財務・健康・關係・成長・娛樂・環境・靈性</span>。先診斷找出凹陷處，再用九宮格聚焦改善——從戰略診斷到戰術執行的完美閉環。</div>';
   H+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
   H+='<a href="https://www.books.com.tw/products/0010877157" target="_blank" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);text-decoration:none;border:1px solid var(--border)">📖 原著《彈性習慣》</a>';
+  H+='<span onclick="showBalanceWheel()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--primary)20;color:var(--primary);cursor:pointer;border:1px solid var(--primary);font-weight:700">🎯 平衡輪診斷</span>';
   H+='<span onclick="showIOSGuide()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);cursor:pointer;border:1px solid var(--border)">📱 安裝說明</span>';
   H+='</div></div>';
   H+='<div style="background:var(--card);border-radius:12px;padding:16px;margin-top:10px;border:1px solid var(--border)">';
   H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px">📝 漫談手記</div>';
-  H+='<div style="font-size:12px;color:var(--text);line-height:1.9">';
-  H+='我叫 Jerry，是這款 App 的唯一開發者。<br><br>';
-  H+='某天讀到大谷翔平高中時寫下的曼陀羅方格，把「拿下甲子園」這個大夢，拆解成 64 個每日行動——那一刻，我意識到：目標不是用來仰望的，而是用來每天踩一格的。<br><br>';
-  H+='我同時也深受 Stephen Guise 的《彈性習慣》影響。生活從來不是直線，真正能持續的系統，必須允許你在狀態差的日子仍能「贏」。於是有了「今日的1・穩定前進・全力以赴」——三個等級，無論哪天，你都不會空手而歸。<br><br>';
-  H+='漫打卡不是要你完美，是要你不中斷。</div>';
+  H+='<div style="font-size:12px;color:var(--text);line-height:2">';
+  H+='我是謙謙爸。我沒看過凌晨四點的洛杉磯，但我看過無數個天還沒亮的凌晨。<br>';
+  H+='在那段偷來的 me time 裡，我看著謙謙的睡臉，把那些模糊的生活願景，一筆一畫寫成了這款 App。<br>';
+  H+='這不是什麼改變世界的發明，這只是一個父親在現實與夢想的縫隙中，為自己、也為像你一樣的普通人，親手打造的一張安全網。<br><br>';
+  H+='你有沒有這種經驗——<br><br>';
+  H+='在 Notion 建了一張很完整的習慣追蹤表，欄位設計得很漂亮。用了兩週，某天因為太累沒填，然後就再也沒打開過。<br><br>';
+  H+='或者讀了《原子習慣》，劃了滿本書的重點，在手機裡下載了打卡 App，連勝到第 23 天，生病了一天，斷了——那個 App 就永遠停在通知裡，再也沒點開過。<br><br>';
+  H+='那不是你的問題。那是系統的問題。<br><br>';
+  H+='那些系統只允許你成功，不允許你是個普通人。一旦你有一天累了、忙了、病了，它就用一條斷掉的線告訴你：你失敗了。<br><br>';
+  H+='後來我讀了三本書，它們加在一起，讓我知道這個 App 該長什麼樣。<br><br>';
+  H+='《逆算手帳》說：先想清楚你想成為什麼樣的人，再回推今天要做什麼。目標不是壓力，是方向。<br><br>';
+  H+='大谷翔平的曼陀羅九宮格說：把那個方向拆成 64 個每日可執行的小格。目標不是用來仰望的，是用來每天踩一格的。<br><br>';
+  H+='Stephen Guise 的《彈性習慣》說：真正能持續的系統，必須允許你在狀態差的日子仍然贏。因為橡皮筋壓縮之後，會自然彈回。<br><br>';
+  H+='三件事合在一起，就是漫打卡的答案：<br><br>';
+  H+='知道你要去哪裡。把路拆成每天一格。允許自己今天只踩一格。<br><br>';
+  H+='做了，就是贏了。不管是哪一格。</div>';
   H+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
   H+='<span style="font-size:10px;color:var(--muted);font-style:italic">Handcrafted with ♥ by 謙謙爸</span>';
-  H+='<span style="font-size:6px;color:var(--border);letter-spacing:.5px;user-select:none" title="For Ken">For K. · 20230905 · ♾️</span>';
-  H+='<a href="mailto:mbindividual@gmail.com" style="font-size:10px;color:var(--primary);text-decoration:none">mbindividual@gmail.com</a>';
+  H+='/* TODO_EMAIL */<a href="mailto:mbindividual@gmail.com" style="font-size:10px;color:var(--primary);text-decoration:none">mbindividual@gmail.com</a>';
   H+='</div></div>';
   H+='<div style="height:30px"></div>';
   document.getElementById('main').innerHTML=H;
@@ -1270,7 +1063,7 @@ function rS(){
 function tDark(){document.body.classList.toggle('dark');var d=ld();d.s.dark=document.body.classList.contains('dark');sv(d);rS();}
 function tN(){var d=ld();if(!d.s)d.s={};if(!d.s.notif){if('Notification'in window){Notification.requestPermission().then(function(r){d.s.notif=(r==='granted');sv(d);rS();toast(r==='granted'?'✓ 通知已開啟':'請允許通知');});}else toast('不支援通知');}else{d.s.notif=false;sv(d);rS();toast('通知已關閉');}}
 function svT(v){var d=ld();d.s.time=v;sv(d);toast('✓ 已儲存');}
-function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('彈性習慣 🎯',{body:'記得完成今日習慣！今日的1 也算成功。'});toast('✓ 已發送');}else toast('請先開啟通知');}
+function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('漫打卡',{body:'今天的連勝，等你來守護。今日的1就夠了。'});toast('✓ 已發送');}else toast('請先開啟通知');}
 function dHS(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rS();}
 function rsM(){if(!confirm('確定重設？'))return;var d=ld();d.m=nm();sv(d);rS();toast('已重設');}
 function clL(){if(!confirm('確定清除？'))return;var d=ld();d.l={};sv(d);rS();toast('✓ 已清除');}
@@ -1355,104 +1148,81 @@ function eliteBurst(el){
   if(!el)return;
   var r=el.getBoundingClientRect();
   var cx=r.left+r.width/2,cy=r.top+r.height/2;
-  /* rhythm：依 Ken 的熵決定今日動畫節奏 */
-  var rhythm=todayRhythm(); // 0=calm 1=normal 2=energetic
-  var dotCount=rhythm===0?6:rhythm===1?12:18;
-  var duration=rhythm===0?900:rhythm===1?700:500;
-  var dist0=rhythm===0?25:rhythm===1?40:60;
   var ball=document.createElement('div');
   ball.className='elite-burst';
-  ball.style.cssText='left:'+(cx-30)+'px;top:'+(cy-30)+'px;animation:burst '+(duration/1000*0.8)+'s ease forwards';
+  ball.style.cssText='left:'+(cx-30)+'px;top:'+(cy-30)+'px;animation:burst .55s ease forwards';
   document.body.appendChild(ball);
-  setTimeout(function(){ball.remove();},duration);
+  setTimeout(function(){ball.remove();},600);
   var colors=['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'];
-  for(var i=0;i<dotCount;i++){
+  for(var i=0;i<12;i++){
     (function(idx){
       var dot=document.createElement('div');
       dot.className='confetti-dot';
-      var angle=idx*(360/dotCount),dist=dist0+Math.random()*20;
+      var angle=idx*(360/12),dist=40+Math.random()*30;
       var dx=Math.cos(angle*Math.PI/180)*dist,dy=Math.sin(angle*Math.PI/180)*dist;
       dot.style.cssText='left:'+(cx-4)+'px;top:'+(cy-4)+'px;background:'+colors[idx%colors.length]+';transform-origin:center';
       document.body.appendChild(dot);
       dot.animate([
         {transform:'translate(0,0) scale(1)',opacity:1},
         {transform:'translate('+dx+'px,'+dy+'px) scale(0)',opacity:0}
-      ],{duration:duration,easing:'ease-out'}).onfinish=function(){dot.remove();};
+      ],{duration:700,easing:'ease-out'}).onfinish=function(){dot.remove();};
     })(i);
   }
 }
 
-
-function miniBurst(el){
-  if(!el)return;
-  var r=el.getBoundingClientRect();
-  var cx=r.left+r.width/2,cy=r.top+r.height/2;
-  var colors=['#7c3aed','#a78bfa','#818cf8','#6ee7b7','#fde68a'];
-  for(var i=0;i<8;i++){
-    (function(idx){
-      var dot=document.createElement('div');
-      dot.className='confetti-dot';
-      var angle=idx*(360/8),dist=28+Math.random()*18;
-      var dx=Math.cos(angle*Math.PI/180)*dist,dy=Math.sin(angle*Math.PI/180)*dist;
-      dot.style.cssText='left:'+(cx-4)+'px;top:'+(cy-4)+'px;background:'+colors[idx%colors.length]+';width:6px;height:6px;border-radius:50%;position:fixed;z-index:9990;pointer-events:none;animation:confettiDot .7s ease forwards';
-      dot.style.setProperty('--dx',dx+'px');dot.style.setProperty('--dy',dy+'px');
-      document.body.appendChild(dot);
-      setTimeout(function(){dot.remove();},750);
-    })(i);
-  }
-  var glow=document.createElement('div');
-  glow.style.cssText='left:'+(cx-22)+'px;top:'+(cy-22)+'px;width:44px;height:44px;border-radius:50%;background:rgba(124,111,255,.25);position:fixed;z-index:9989;pointer-events:none;animation:miniGlow .6s ease forwards';
-  document.body.appendChild(glow);
-  setTimeout(function(){glow.remove();},650);
+/* ── 品牌 Slogan（每日輪換）── */
+var SLOGANS=[
+  '你不是意志力不夠。你只是還沒遇到設計給真實人類的系統。',
+  '不是你的問題，是系統的問題。',
+  '那些放棄的習慣，不是你的錯。',
+  '真正適合人類的習慣，允許你有不完美的一天。',
+  '意志力不是答案，彈性才是。'
+];
+function getDailySlogan(){
+  var d=new Date();
+  var idx=(d.getFullYear()*366+d.getMonth()*31+d.getDate())%SLOGANS.length;
+  return SLOGANS[idx];
 }
 
 /* ── 里程碑語錄庫 ── */
 var QUOTES=[
-  /* [0] 禮 ── 藏頭首字 */
-  {q:'禮物不是完美的結果，而是每天願意再試一次的勇氣。',src:'漫打卡'},
   {q:'彈性不是退縮，而是確保天天都能贏的聰明策略。',src:'彈性習慣'},
   {q:'你不是太弱，只是缺乏彈性而已。',src:'彈性習慣'},
   {q:'橡皮筋哲學：壓縮之後，自然彈回。習慣也是。',src:'彈性習慣'},
-  /* [4] 謙 ── 藏頭第二字 */
-  {q:'謙遜不是軟弱，是知道今日的1已經足夠的智慧。',src:'漫打卡'},
   {q:'做了就是1，就是完美的勝利。',src:'不完美主義'},
   {q:'不完美但持續，遠勝於完美但放棄。',src:'不完美主義'},
   {q:'前進永遠比等待完美時機更有力量。',src:'不完美主義'},
-  /* [8] K ── 藏頭第三字 */
-  {q:'Keep going — 不論多慢，只要不停下，就永遠在前進。',src:'漫打卡'},
-  {q:'預設值的力量：讓正確的行為變得更容易發生。',src:'推力'},
+  {q:'預設值的力量：讓預設幫你工作。',src:'推力'},
   {q:'簡化是最大的善意：把正確的行為變得容易發生。',src:'推力'},
   {q:'社會規範的力量：知道和你一樣的人怎麼做，會改變你的選擇。',src:'推力'},
-  /* [12] e ── 藏頭第四字 */
-  {q:'Elastic 是力量，不是退讓——橡皮筋壓縮後，自然彈回。',src:'彈性習慣'},
-  {q:'損失厭惡：人們為了避免損失所付出的努力，是追求獲得的兩倍以上。',src:'誘因設計'},
+  {q:'損失厭惡：人們為了避免失去所擁有，努力是獲得的兩倍以上。',src:'誘因設計'},
   {q:'要獎勵的不是結果，而是通往結果的正向故事。',src:'誘因設計'},
   {q:'訊號純度：小獎勵反而將行為商品化，消除內在動機。',src:'誘因設計'},
-  /* [16] n ── 藏頭第五字 */
-  {q:'Now 就是最好的起點，每一個今天的1，都是明天的基石。',src:'漫打卡'},
-  {q:'挑戰思維：把小障礙看成可以克服的小怪，而非無法改變的命運。',src:'遊戲力'},
+  {q:'挑戰思維：把困難看成可以克服的小怪，而非無法改變的難題。',src:'遊戲力'},
   {q:'韌性不是天生的，是用小勝利一點一滴累積出來的。',src:'遊戲力'},
   {q:'自我疏離：用第三人稱看自己的挑戰，就能降低焦慮、提升策略性思考。',src:'遊戲力'},
-  /* [20] 謙 ── 藏頭第六字（謙） */
-  {q:'謙謙之人不以完美為標準，以持續為勝利。',src:'漫打卡'},
   {q:'八角框架：當挑戰難度剛剛好，人們會進入心流狀態。',src:'遊戲化實戰全書'},
   {q:'白帽動力：被使命感驅動的行為，會讓人長期快樂且心甘情願。',src:'遊戲化實戰全書'},
   {q:'只要在前進，不論多慢，都會把癱在沙發上的傢伙遠遠甩在身後。',src:'不完美主義'},
-  /* [24] 謙 ── 藏頭第七字（謙） */
-  {q:'謙遜地接受每一個今日的1，是最聰明的長期策略。',src:'漫打卡'},
   {q:'漫打卡的組合是：彈性的強度，加上持續的溫柔。',src:'漫打卡'},
   {q:'今天的1，是明天繼續的基石。',src:'漫打卡'},
-  {q:'不要小看每天的微小彈性，小水滴也能穿石。',src:'彈性習慣'},
-  /* [27] 爸 ── 藏頭第八字（爸） */
-  {q:'爸爸說過：做了就是1，就是完美的勝利。這句話，送給你。',src:'漫打卡'},
-  {q:'曾經有過比今天更強的48天，就是你繼續下去的最好理由。',src:'漫打卡'},
-  {q:'未知性是最強的好奇心引擎：成長不是直線，是有驚喜的曲線。',src:'漫打卡'},
+  {q:'不小看每天的微小彈性，小水滴也能穿石。',src:'彈性習慣'},
+  {q:'曾經有過比今天更強的一天，就是你繼續下去的最好理由。',src:'漫打卡'},
+  {q:'未知性是最強的好奇心引擎：成長不是筆直線，是有驚喜的曲線。',src:'漫打卡'},
   {q:'更好的關鍵詞不是「變得更好」，而是「不要停下來」。',src:'不完美主義'},
-  {q:'預設值不只是設計，更是一種善意：幫助在漫不經心時做對的事。',src:'推力'},
+  {q:'預設值不只是設計，更是一種善意：幫助你在漫不經心的狀態下做對的事。',src:'推力'},
   {q:'第二天繼續，不是因為完美，而是因為沒有關係。',src:'漫打卡'},
-  {q:'習慣的社會證明：知道全世界有人和你一起做這件事，會讓你走得更遠。',src:'推力'},
+  {q:'習慣的社會證明：知道全世界有人和你一起在做這件事，會讓你走得更遠。',src:'推力'},
   {q:'從完成的那一刻起，這個習慣就屬於了你。',src:'漫打卡'},
-  {q:'自訂設計：自己設計的達成方式，使你對習慣更有所有權感。',src:'遊戲化實戰全書'}
+  {q:'自己設計的達成方式，使你對習慣更有所有權感。',src:'遊戲化實戰全書'},
+  {q:'你不是意志力不夠的人。你只是從來沒有一個設計給真實人類的習慣系統。',src:'漫打卡'},
+  {q:'彈性不是放棄，是讓你明天還能回來的設計。',src:'漫打卡'},
+  {q:'連勝不斷，不是因為你每天都很強，而是因為你允許自己有時候只做一件事。',src:'漫打卡'},
+  {q:'Mini 不是退而求其次，是今天最聰明的選擇。',src:'漫打卡'},
+  {q:'你選擇回來的每一天，都比昨天的自己更有說服力。',src:'漫打卡'},
+  {q:'習慣不需要完美的開始，只需要一個不完美的今天。',src:'漫打卡'},
+  {q:'讓系統幫你贏，不是靠意志力撐過去。',src:'漫打卡'},
+  {q:'最累的那天，也能留下一個記錄。這就是彈性的意義。',src:'漫打卡'}
 ];
 
 /* ── 里程碑系統 ── */
@@ -1464,10 +1234,10 @@ function checkMilestone(hid,streak){
   if(shown[key])return;
   shown[key]=true;localStorage.setItem('ms-shown',JSON.stringify(shown));
   var emoji=streak>=100?'🏆':streak>=66?'💎':streak>=30?'🌟':streak>=14?'🔥':'🎉';
-  var title=streak>=100?'傳奇習慣家！':streak>=66?'習慣大師！':streak>=30?'一個月不間斷！':streak>=14?'兩週連續！':'一週達成！';
+  var title=streak>=100?'不完美但持續，100次。':streak>=66?'科學說66天能養成習慣。你做到了。':streak>=30?'這個習慣，已經是你的一部分了。':streak>=14?'你是真的在做這件事。':'連勝開始了。';
   var sub=streak===66
-    ?'連續 66 天。你已成為不可阻擋的英雄。\n\n謙謙爸在寫下這行字的時候，禮謙你還不會走路。\n但爸爸相信，有一天你會打開這款 App，\n然後看見這句話：\n\n「每一個今日的1，都是爸爸送給你的禮物。」\n\n生日快樂，Ken。20230905 ❤️'
-    :(streak===14?'這 14 天你沒有停下來，一點一點累積起來的成果，值得為自己留下這段紀錄 ✨\n\n「不完美但持續」正是彈性習慣的核心精神！':'你已連續 '+streak+' 天完成習慣。\n「不完美但持續」正是彈性習慣的核心精神！');
+    ?'你已連續 66 天完成習慣！\n謙謙爸（開發者）留言：「成為不可阻擋的英雄，從每一個「今天的1」開始。你做到了。」/* TODO_66: 長文待改 */'
+    :'你已連續 '+streak+' 天完成習慣。\n「不完美但持續」正是彈性習慣的核心精神！';
   var q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
   document.getElementById('ms-emoji').textContent=emoji;
   document.getElementById('ms-title').textContent=title;
@@ -1478,91 +1248,174 @@ function checkMilestone(hid,streak){
   if(typeof gtag!=='undefined')gtag('event','milestone_reached',{streak:streak,habit_id:hid});
 }
 function closeMilestone(){document.getElementById('milestone-modal').classList.remove('open');}
-
-/* ── 失望之谷偵測（第8-13天）── */
-function checkValley(hid,streak){
-  if(streak<8||streak>13)return;
-  var key='valley-'+hid;
-  if(localStorage.getItem(key))return;
-  localStorage.setItem(key,'1');
-  var msgs=[
-    '你正在穿越失望之谷——這是所有真正改變發生前的沉默期。',
-    '第'+streak+'天，感覺不到變化很正常。努力被儲存起來了，不是消失了。',
-    '每一天的打卡，都是在為未來的你投資。收益尚未顯現，但它在複利成長中。'
-  ];
-  setTimeout(function(){toast('💙 '+msgs[streak%msgs.length]);},1200);
-}
-function showUpgrade(trigger){
-  trigger=trigger||'upgrade_card';
-  document.getElementById('upgrade-modal').style.display='flex';
-  if(typeof gtag==='undefined')return;
-  /* 同一天只送一次事件（去重） */
-  var dayKey='fd-'+td();
-  var alreadyToday=localStorage.getItem(dayKey);
-  /* 累計點擊次數（跨天） */
-  var fdTotal=parseInt(localStorage.getItem('fd-total')||'0')+1;
-  localStorage.setItem('fd-total',String(fdTotal));
-  if(!alreadyToday){
-    localStorage.setItem(dayKey,'1');
-    gtag('event','fake_door_click',{
-      trigger:trigger,
-      is_first:fdTotal===1,
-      total_clicks:fdTotal,
-      session:fdTotal<=3?'early':'repeat'
-    });
-  }
-}
+function showUpgrade(){document.getElementById('upgrade-modal').style.display='flex';if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'upgrade_card'});}
 function closeUpgrade(){document.getElementById('upgrade-modal').style.display='none';}
 
 /* ── iOS 安裝引導 ── */
 function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent);}
+function isAndroid(){return/android/i.test(navigator.userAgent);}
 function isInStandaloneMode(){return window.matchMedia('(display-mode: standalone)').matches||(window.navigator.standalone===true);}
 function showIOSGuide(){document.getElementById('ios-guide').classList.add('open');}
 function closeIOSGuide(){
-  getElementById('ios-guide').classList.remove('open');
+  document.getElementById('ios-guide').classList.remove('open');
 }
 
-/* ── 隱私政策 ── */
-function showPrivacy(){document.getElementById('privacy-modal').classList.add('open');}
-function acceptPrivacy(){
-  document.getElementById('privacy-modal').classList.remove('open');
-  localStorage.setItem('pv-ok','1');
-  if(typeof gtag!=='undefined')gtag('event','privacy_accepted');
+/* ── 人生平衡輪 ── */
+function showBalanceWheel(){
+  var dimensions=[
+    {name:'事業發展',icon:'💼',desc:'工作成就與職涯規劃'},
+    {name:'財務狀況',icon:'💰',desc:'收入穩定與理財規劃'},
+    {name:'身體健康',icon:'💪',desc:'體能狀態與健康習慣'},
+    {name:'人際關係',icon:'❤️',desc:'家庭朋友與社交圈'},
+    {name:'個人成長',icon:'📚',desc:'學習發展與技能提升'},
+    {name:'娛樂休閒',icon:'🎯',desc:'興趣愛好與生活樂趣'},
+    {name:'生活環境',icon:'🏠',desc:'居住環境與物質條件'},
+    {name:'心靈成長',icon:'🌱',desc:'價值觀與內在平靜'}
+  ];
+  
+  var formHTML='';
+  dimensions.forEach(function(dim,i){
+    formHTML+='<div class="balance-dimension">';
+    formHTML+='<div class="dimension-header">';
+    formHTML+='<div style="display:flex;align-items:center;gap:8px">';
+    formHTML+='<span style="font-size:16px">'+dim.icon+'</span>';
+    formHTML+='<div><div class="dimension-name">'+dim.name+'</div>';
+    formHTML+='<div style="font-size:10px;color:var(--muted)">'+dim.desc+'</div></div>';
+    formHTML+='</div>';
+    formHTML+='<div class="dimension-score" id="score-'+i+'">5</div>';
+    formHTML+='</div>';
+    formHTML+='<input type="range" min="1" max="10" value="5" class="dimension-slider" ';
+    formHTML+='oninput="document.getElementById(\'score-'+i+'\').textContent=this.value" ';
+    formHTML+='id="slider-'+i+'">';
+    formHTML+='</div>';
+  });
+  
+  document.getElementById('balance-wheel-form').innerHTML=formHTML;
+  document.getElementById('balance-wheel-modal').style.display='flex';
 }
 
-/* ── PWA 安裝 ── */
-var deferredPrompt=null;
-window.addEventListener('beforeinstallprompt',function(e){
-  e.preventDefault();deferredPrompt=e;
-  var b=localStorage.getItem('ib-dismissed');
-  if(!b){setTimeout(function(){document.getElementById('install-banner').classList.add('show');},800);}
-});
-function doInstall(){
-  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.choice.then(function(){deferredPrompt=null;});trackInstall();}
-  document.getElementById('install-banner').classList.remove('show');
+function closeBalanceWheel(){
+  document.getElementById('balance-wheel-modal').style.display='none';
 }
-function dismissBanner(){document.getElementById('install-banner').classList.remove('show');localStorage.setItem('ib-dismissed','1');}
-window.addEventListener('appinstalled',function(){document.getElementById('install-banner').classList.remove('show');trackInstall();});
 
-/* ── 初始化 ── */
-(function(){
-  var d=ld();
-  if(d.s&&d.s.dark)document.body.classList.add('dark');
-  go(0);
-  /* 隱私彈窗改為第一次打卡後出現，減少開場摩擦 */
-  /* 寫入簽名證明，備份 JSON 帶著走 */
-  var _sig=signatureProof(_ORIGIN);
-  localStorage.setItem('_sig',_sig);
-  var _d=ld();if(!_d._sig){_d._sig=_sig;sv(_d);}
-  /* 首次打卡後 0.8s 顯示安裝提示（iOS）*/
-  var _origTLv=tLv;
-  tLv=function(hid,lv){
-    _origTLv(hid,lv);
-    if(isIOS()&&!isInStandaloneMode()&&!localStorage.getItem('ios-shown')){
-      setTimeout(function(){showIOSGuide();localStorage.setItem('ios-shown','1');},800);
+function generateRecommendation(){
+  var dimensions=['事業發展','財務狀況','身體健康','人際關係','個人成長','娛樂休閒','生活環境','心靈成長'];
+  var scores=[];
+  var minScore=10,minIndex=0;
+  
+  for(var i=0;i<8;i++){
+    var score=parseInt(document.getElementById('slider-'+i).value);
+    scores.push(score);
+    if(score<minScore){
+      minScore=score;
+      minIndex=i;
     }
+  }
+  
+  var recommendation=dimensions[minIndex];
+  var suggestions={
+    '事業發展':'建議將「技能提升」或「工作效率優化」設為九宮格中心目標',
+    '財務狀況':'建議將「理財學習」或「收入提升計畫」設為九宮格中心目標',
+    '身體健康':'建議將「運動習慣」或「健康飲食」設為九宮格中心目標',
+    '人際關係':'建議將「社交互動」或「家庭時光」設為九宮格中心目標',
+    '個人成長':'建議將「閱讀學習」或「新技能培養」設為九宮格中心目標',
+    '娛樂休閒':'建議將「興趣培養」或「放鬆時光」設為九宮格中心目標',
+    '生活環境':'建議將「環境整理」或「生活品質提升」設為九宮格中心目標',
+    '心靈成長':'建議將「冥想練習」或「價值觀釐清」設為九宮格中心目標'
   };
-})();
+  
+  closeBalanceWheel();
+  
+  var modal='<div style="background:var(--app);border-radius:16px;padding:24px;text-align:center;max-width:350px">';
+  modal+='<div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:16px">🎯 平衡輪診斷結果</div>';
+  modal+='<div style="font-size:14px;color:var(--text);margin-bottom:12px">你最需要改善的領域：</div>';
+  modal+='<div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:16px">'+recommendation+'</div>';
+  modal+='<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:20px;background:var(--card);padding:12px;border-radius:8px">';
+  modal+=suggestions[recommendation];
+  modal+='</div>';
+  modal+='<button onclick="closeRecommendation()" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer">開始設定九宮格</button>';
+  modal+='</div>';
+  
+  var overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='recommendation-modal';
+  overlay.innerHTML=modal;
+  document.body.appendChild(overlay);
+}
+
+function closeRecommendation(){
+  var modal=document.getElementById('recommendation-modal');
+  if(modal)document.body.removeChild(modal);
+  // 可以在這裡導向九宮格設定頁面
+}
+
+/* ── 生活羅盤 ── */
+function showLifeCompass(){
+  var dimensions=[
+    {name:'事業',icon:'💼',color:'#3b82f6',desc:'工作成就'},
+    {name:'財務',icon:'💰',color:'#10b981',desc:'理財規劃'},
+    {name:'健康',icon:'💪',color:'#ef4444',desc:'身心狀態'},
+    {name:'關係',icon:'❤️',color:'#f59e0b',desc:'人際互動'},
+    {name:'成長',icon:'📚',color:'#8b5cf6',desc:'學習發展'},
+    {name:'娛樂',icon:'🎯',color:'#06b6d4',desc:'休閒樂趣'},
+    {name:'環境',icon:'🏠',color:'#84cc16',desc:'生活品質'},
+    {name:'心靈',icon:'🌱',color:'#f97316',desc:'內在平衡'}
+  ];
+  
+  var compassHTML='<div style="background:var(--app);border-radius:16px;padding:24px;text-align:center;max-width:380px">';
+  compassHTML+='<div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:20px">🧭 生活羅盤</div>';
+  
+  // 羅盤圓形佈局
+  compassHTML+='<div style="position:relative;width:280px;height:280px;margin:0 auto 20px;background:conic-gradient(';
+  for(var i=0;i<dimensions.length;i++){
+    compassHTML+=dimensions[i].color+' '+(i*45)+'deg '+(i*45+45)+'deg';
+    if(i<dimensions.length-1)compassHTML+=',';
+  }
+  compassHTML+=');border-radius:50%;display:flex;align-items:center;justify-content:center">';
+  
+  // 中心
+  compassHTML+='<div style="width:120px;height:120px;background:var(--app);border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--primary);font-size:14px;font-weight:700;color:var(--primary)">平衡輪</div>';
+  
+  // 8個維度標籤（圍繞圓形佈局）
+  for(var i=0;i<dimensions.length;i++){
+    var angle=i*45-90; // -90度讓第一個在頂部
+    var radian=angle*Math.PI/180;
+    var x=Math.cos(radian)*110;
+    var y=Math.sin(radian)*110;
+    
+    compassHTML+='<div style="position:absolute;left:'+(140+x-25)+'px;top:'+(140+y-15)+'px;width:50px;height:30px;background:'+dimensions[i].color+';color:#fff;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.1)">';
+    compassHTML+='<div style="text-align:center;line-height:1.2">'+dimensions[i].icon+'<br>'+dimensions[i].name+'</div>';
+    compassHTML+='</div>';
+  }
+  
+  compassHTML+='</div>';
+  
+  // 功能按鈕
+  compassHTML+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">';
+  compassHTML+='<button onclick="showBalanceWheel()" style="padding:8px;border-radius:8px;border:1px solid var(--primary);background:var(--pbg);color:var(--primary);font-size:11px;font-weight:700">平衡診斷</button>';
+  compassHTML+='<button onclick="goToMandala()" style="padding:8px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:11px;font-weight:700">設定九宮格</button>';
+  compassHTML+='</div>';
+  
+  compassHTML+='<button onclick="closeLifeCompass()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px">關閉</button>';
+  compassHTML+='</div>';
+  
+  var overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='compass-modal';
+  overlay.innerHTML=compassHTML;
+  document.body.appendChild(overlay);
+}
+
+function closeLifeCompass(){
+  var modal=document.getElementById('compass-modal');
+  if(modal)document.body.removeChild(modal);
+}
+
+function goToMandala(){
+  closeLifeCompass();
+  go(0); // 回到今日頁面，將來可以導向九宮格設定
+  // 可以觸發九宮格設定流程
+}
 </script>
 </body>
 </html>

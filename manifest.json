@@ -2,12 +2,12 @@
   "name": "漫打卡 Manda",
   "short_name": "漫打卡",
   "description": "融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#4f46e5",
   "theme_color": "#4f46e5",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "./",
   "lang": "zh-TW",
   "icons": [
     {

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.12 | 2026-04-21 | 開發者身份整合・版權簽名・漫談手記・66天彩蛋 -->
+<!-- 漫打卡 v1.14 | 2026-05-03 | PWA修復・震動回饋・平衡輪・羅盤介面 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -112,16 +112,28 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
 .hsrc{font-size:9px;padding:2px 6px;border-radius:20px}
 .hsk{font-size:10px;padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e}
 .hd{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 4px}
-.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
-.lb{padding:7px 3px;border-radius:7px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .12s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
-.lb:hover{border-color:var(--plight)}
-.lbn{font-size:10px;font-weight:700;display:block;color:var(--muted)}
-.lbv{font-size:9px;display:block;margin-top:1px;color:var(--muted)}
+.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
+.lb{padding:10px 6px;border-radius:12px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .15s ease-out;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,0.04)}
+.lb:hover{border-color:var(--primary);box-shadow:0 4px 8px rgba(79,70,229,0.1)}
+.lb:active{transform:scale(0.98)}
+.lbn{font-size:11px;font-weight:700;display:block;color:var(--muted);margin-bottom:3px}
+.lbv{font-size:10px;display:block;color:var(--muted);font-weight:600}
 
 /* Modal */
 #mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:flex-end}
 #mo.open{display:flex}
 #mb{background:var(--app);border-radius:18px 18px 0 0;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+
+/* 平衡輪彈窗 */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;justify-content:center;align-items:center;padding:20px}
+.modal-content{background:var(--app);border-radius:16px;padding:24px;width:100%;border:1px solid var(--border)}
+.balance-dimension{margin-bottom:16px;padding:12px;background:var(--card);border-radius:8px;border:1px solid var(--border)}
+.dimension-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.dimension-name{font-size:13px;font-weight:700;color:var(--text)}
+.dimension-score{font-size:16px;font-weight:800;color:var(--primary)}
+.dimension-slider{width:100%;height:6px;border-radius:3px;background:var(--border);appearance:none;cursor:pointer}
+.dimension-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--primary);cursor:pointer}
+.dimension-slider::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--primary);border:none;cursor:pointer}
 .mt{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px}
 .md{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.6}
 .ml{font-size:11px;color:var(--sub);margin-bottom:4px;display:block}
@@ -332,6 +344,25 @@ body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:ce
   </div>
 </div>
 
+<!-- 人生平衡輪彈窗 -->
+<div id="balance-wheel-modal" class="modal-overlay" style="display:none">
+  <div class="modal-content" style="max-width:400px;max-height:85vh;overflow-y:auto">
+    <div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:16px;text-align:center">🎯 人生平衡輪診斷</div>
+    <div style="font-size:12px;color:var(--sub);line-height:1.6;margin-bottom:16px;text-align:center">
+      為 8 個生命維度打分（1-10 分），找出最需要改善的領域
+    </div>
+    
+    <div id="balance-wheel-form">
+      <!-- 8 大維度評分 -->
+    </div>
+    
+    <div style="margin-top:20px;display:flex;gap:8px">
+      <button onclick="closeBalanceWheel()" style="flex:1;padding:12px;border-radius:10px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer">取消</button>
+      <button onclick="generateRecommendation()" style="flex:2;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer">生成建議</button>
+    </div>
+  </div>
+</div>
+
 <div id="app">
   <div id="bar"><h1 id="ttl">漫打卡</h1><p id="tsub"></p><p id="daily-slogan" style="font-size:11px;color:var(--primary);opacity:.75;margin-top:3px;font-style:italic;line-height:1.5"></p></div>
   <div id="main"></div>
@@ -384,14 +415,19 @@ function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 /* ── 語錄管理 ── */
 function addCQ(){
-  var v=document.getElementById('newQ').value.trim();
-  if(!v){toast('請輸入語錄內容');return;}
-  var d=ld();if(!d.customQ)d.customQ=[];
-  d.customQ.push(v);sv(d);rS();toast('✓ 已新增語錄');
+  // 免費版限制：觸發升級提示
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
 }
 function delCQ(i){
-  var d=ld();if(!d.customQ)return;
-  d.customQ.splice(i,1);sv(d);rS();toast('已刪除');
+  // 免費版限制：觸發升級提示  
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
+}
+function showQuoteUpgrade(){
+  // 語錄升級提示
+  if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'custom_quote'});
+  showUpgrade();
 }
 function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
 
@@ -617,6 +653,10 @@ function rH(){
       if(st>0)H+='<span class="hsk">🔥'+st+'天</span>';
       H+='<button class="hd" onclick="dH(\''+hb.id+'\')">✕</button>';
       H+='<button class="tbtn" style="padding:4px 10px;font-size:13px;margin-left:3px" onclick="toggleTimer(\''+hb.id+'\')" title="計時器">⏱</button></div>';
+      /* 打卡提示 */
+      if(lvl===0){
+        H+='<div style="font-size:11px;color:var(--sub);margin:6px 0 2px;text-align:center">👆 點擊下方按鈕打卡</div>';
+      }
       H+='<div class="lg">';
       [{lv:1,n:'今日的1'},{lv:2,n:'穩定前進'},{lv:3,n:'全力以赴'}].forEach(function(x){
         var ac=lvl>=x.lv,fd=lvl>x.lv;
@@ -643,11 +683,34 @@ function tLv(hid,lv){
   if(newLv>0){
     var hb=d.h.find(function(x){return x.id===hid;});
     trackHabit(hid,newLv,hb?hb.n:'');
-    /* Elite 動畫 */
+    
+    /* 打卡成功動畫和震動回饋 */
+    var btn=document.querySelector('[onclick="tLv(\''+hid+'\','+lv+')"]');
+    if(btn){
+      btn.style.transform='scale(0.95)';
+      btn.style.transition='transform 0.1s ease-out';
+      setTimeout(function(){
+        btn.style.transform='scale(1)';
+        btn.style.transition='transform 0.2s ease-out';
+      },100);
+    }
+    
+    /* 震動回饋 */
+    if('vibrate' in navigator){
+      var vibes=[30,80,120]; // 今日的1/穩定前進/全力以赴對應不同震動強度
+      navigator.vibrate(vibes[newLv-1]);
+    }
+    
+    /* Elite 特殊動畫 */
     if(newLv===3){
-      var btn=document.querySelector('[onclick="tLv(\''+hid+'\',3)"]');
       eliteBurst(btn);
     }
+    
+    /* 即時成就提示 */
+    var levelNames=['','今日的1','穩定前進','全力以赴'];
+    var levelEmojis=['','✨','🔥','💎'];
+    var achieveText=levelEmojis[newLv]+' '+levelNames[newLv]+' 完成！';
+    showInstantFeedback(achieveText,newLv);
   }
   rH();  /* 打卡完成：顯示隨機語錄 */
   if(newLv>0){
@@ -668,6 +731,19 @@ function tLv(hid,lv){
   }
 }
 function dH(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rH();}
+
+/* ── 即時打卡回饋 ── */
+function showInstantFeedback(text,level){
+  var colors=['','#7c3aed','#2563eb','#059669'];
+  var feedback=document.createElement('div');
+  feedback.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:'+colors[level]+';color:#fff;padding:12px 20px;border-radius:20px;font-size:16px;font-weight:700;z-index:9999;pointer-events:none;opacity:0;transition:all 0.3s ease-out';
+  feedback.textContent=text;
+  document.body.appendChild(feedback);
+  
+  setTimeout(function(){feedback.style.opacity='1';feedback.style.transform='translate(-50%,-50%) scale(1.1)';},10);
+  setTimeout(function(){feedback.style.opacity='0';feedback.style.transform='translate(-50%,-50%) scale(0.9)';},1200);
+  setTimeout(function(){document.body.removeChild(feedback);},1500);
+}
 
 /* ── 曼陀羅編輯 ── */
 function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">你最想改變的那件事，從這裡開始拆解。<br><br>把核心目標放在中心，拆解為 8 個行動領域，再各自展開 8 個具體行動——大谷翔平高一就用這套方法，把大夢變成每天踩得到的一格。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
@@ -851,6 +927,15 @@ function rS(){
     H+='<div style="font-size:12px;color:#92400e;line-height:1.7">';
     H+='iOS Safari 若 <b>連續 7 天</b>未開啟本 App，會自動清除離線快取。<br>';
     H+='建議：設定每日提醒通知，或定期使用「<b>匯出 JSON 備份</b>」保存資料。</div></div>';
+  }else if(isAndroid()){
+    H+='<div style="background:var(--pbg);border-radius:10px;padding:14px;margin-bottom:9px;border:1px solid var(--plight)">';
+    H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:6px">📱 安裝到 Android 手機</div>';
+    H+='<div style="font-size:12px;color:var(--primary);line-height:1.9">';
+    H+='① 點 Chrome 右上角的 <b>選單</b> 按鈕 <span style="font-size:16px">⋮</span><br>';
+    H+='② 選擇「<b>安裝應用程式</b>」或「<b>加到主螢幕</b>」<br>';
+    H+='③ 點選「<b>安裝</b>」完成';
+    H+='</div>';
+    H+='</div>';
   }else{
     H+='<div class="sblk"><div class="srow"><div><div class="slb">安裝到桌面</div><div class="ssub">離線可用，像原生 App</div></div>';
     H+='<button onclick="doInstall()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">安裝</button></div></div>';
@@ -883,23 +968,43 @@ function rS(){
     H+='<button onclick="dHS(\''+hb.id+'\')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✕</button></div>';
   });
   H+='</div>';
+  
+  /* 8大領域管理 */
+  H+='<div class="sec">8大領域管理</div>';
+  H+='<div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">🧭 生活羅盤</div><div class="ssub">8大維度平衡檢視與管理</div></div>';
+  H+='<button onclick="showLifeCompass()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">展開</button></div>';
+  H+='<div class="srow"><div><div class="slb">🎯 平衡輪診斷</div><div class="ssub">找出最需要改善的領域</div></div>';
+  H+='<button onclick="showBalanceWheel()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">診斷</button></div>';
+  H+='</div>';
+  
   /* 語錄管理 */
   H+='<div class="sec">語錄管理</div>';
   var cq=ld().customQ||[];
   H+='<div class="sblk">';
   H+='<div style="font-size:12px;color:var(--muted);padding:8px 4px 6px">內建 '+QUOTES.length+' 條 · 自訂 '+cq.length+' 條</div>';
+  
+  // 免費版限制：只能瀏覽，不能編輯
   if(cq.length>0){
     cq.forEach(function(q,i){
       H+='<div class="srow" style="align-items:flex-start;gap:8px">';
       H+='<div style="flex:1;font-size:12px;color:var(--text);line-height:1.6;padding:2px 0">「'+q+'」<span style="color:var(--muted)"> — 我的語錄</span></div>';
-      H+='<button onclick="delCQ('+i+')" style="flex-shrink:0;padding:3px 10px;border-radius:7px;border:1px solid #fca5a5;background:var(--app);color:var(--danger);font-size:11px;cursor:pointer;font-family:sans-serif">刪除</button>';
+      H+='<button onclick="showQuoteUpgrade()" style="flex-shrink:0;padding:3px 10px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:11px;cursor:pointer;font-family:sans-serif">Plus功能</button>';
       H+='</div>';
     });
   }
-  H+='<div style="display:flex;gap:8px;margin-top:8px">';
-  H+='<input id="newQ" type="text" placeholder="輸入新語錄…" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;background:var(--card);color:var(--text);font-family:sans-serif">';
-  H+='<button onclick="addCQ()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif">新增</button>';
+  
+  // 升級提示區域
+  H+='<div style="background:#fef3c7;border-radius:10px;padding:12px 14px;margin-top:8px;border:1px solid #fde68a">';
+  H+='<div style="display:flex;align-items:center;justify-content:space-between">';
+  H+='<div>';
+  H+='<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:3px">✨ 語錄客製化 Plus 功能</div>';
+  H+='<div style="font-size:11px;color:#92400e;line-height:1.5">新增專屬語錄，讓每次打卡都有獨特的激勵</div>';
   H+='</div>';
+  H+='<button onclick="showUpgrade()" style="padding:6px 12px;border-radius:7px;border:none;background:#92400e;color:#fff;font-size:11px;font-weight:700;cursor:pointer;font-family:sans-serif">升級</button>';
+  H+='</div>';
+  H+='</div>';
+  
   H+='</div>';
   /* 資料管理 */
   H+='<div class="sec">資料管理</div><div class="sblk">';
@@ -915,7 +1020,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.12</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.14</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-04-21 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
   H+='漫打卡建立在三個核心支柱之上：<br><br>';
@@ -923,10 +1028,11 @@ function rS(){
   H+='源自大谷翔平的圓夢計畫——把核心目標拆解為 8 個行動領域，再各自展開 8 個具體行動，合計 64 格行動清單。目標不再只是夢想，而是每天可執行的地圖。<br><br>';
   H+='<b>🔵 第二支柱：彈性三級制</b><br>';
   H+='今日的1 / 穩定前進 / 全力以赴——不強迫你每天最佳狀態，只要不斷鏈，你就贏了。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
-  H+='<b>🟢 第三支柱：如果能重來</b><br>';
-  H+='每天打卡後的反思問句：「如果今天重來一次，我會怎麼做更好？」不是懲罰自己，而是讓每一天成為明天的老師。</div>';
+  H+='<b>🎯 第三支柱：人生平衡輪</b><br>';
+  H+='人生像一個輪子，8 個維度決定是否穩定前進：<span style="color:var(--primary)">事業・財務・健康・關係・成長・娛樂・環境・靈性</span>。先診斷找出凹陷處，再用九宮格聚焦改善——從戰略診斷到戰術執行的完美閉環。</div>';
   H+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
   H+='<a href="https://www.books.com.tw/products/0010877157" target="_blank" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);text-decoration:none;border:1px solid var(--border)">📖 原著《彈性習慣》</a>';
+  H+='<span onclick="showBalanceWheel()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--primary)20;color:var(--primary);cursor:pointer;border:1px solid var(--primary);font-weight:700">🎯 平衡輪診斷</span>';
   H+='<span onclick="showIOSGuide()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);cursor:pointer;border:1px solid var(--border)">📱 安裝說明</span>';
   H+='</div></div>';
   H+='<div style="background:var(--card);border-radius:12px;padding:16px;margin-top:10px;border:1px solid var(--border)">';
@@ -1147,10 +1253,168 @@ function closeUpgrade(){document.getElementById('upgrade-modal').style.display='
 
 /* ── iOS 安裝引導 ── */
 function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent);}
+function isAndroid(){return/android/i.test(navigator.userAgent);}
 function isInStandaloneMode(){return window.matchMedia('(display-mode: standalone)').matches||(window.navigator.standalone===true);}
 function showIOSGuide(){document.getElementById('ios-guide').classList.add('open');}
 function closeIOSGuide(){
   document.getElementById('ios-guide').classList.remove('open');
+}
+
+/* ── 人生平衡輪 ── */
+function showBalanceWheel(){
+  var dimensions=[
+    {name:'事業發展',icon:'💼',desc:'工作成就與職涯規劃'},
+    {name:'財務狀況',icon:'💰',desc:'收入穩定與理財規劃'},
+    {name:'身體健康',icon:'💪',desc:'體能狀態與健康習慣'},
+    {name:'人際關係',icon:'❤️',desc:'家庭朋友與社交圈'},
+    {name:'個人成長',icon:'📚',desc:'學習發展與技能提升'},
+    {name:'娛樂休閒',icon:'🎯',desc:'興趣愛好與生活樂趣'},
+    {name:'生活環境',icon:'🏠',desc:'居住環境與物質條件'},
+    {name:'心靈成長',icon:'🌱',desc:'價值觀與內在平靜'}
+  ];
+  
+  var formHTML='';
+  dimensions.forEach(function(dim,i){
+    formHTML+='<div class="balance-dimension">';
+    formHTML+='<div class="dimension-header">';
+    formHTML+='<div style="display:flex;align-items:center;gap:8px">';
+    formHTML+='<span style="font-size:16px">'+dim.icon+'</span>';
+    formHTML+='<div><div class="dimension-name">'+dim.name+'</div>';
+    formHTML+='<div style="font-size:10px;color:var(--muted)">'+dim.desc+'</div></div>';
+    formHTML+='</div>';
+    formHTML+='<div class="dimension-score" id="score-'+i+'">5</div>';
+    formHTML+='</div>';
+    formHTML+='<input type="range" min="1" max="10" value="5" class="dimension-slider" ';
+    formHTML+='oninput="document.getElementById(\'score-'+i+'\').textContent=this.value" ';
+    formHTML+='id="slider-'+i+'">';
+    formHTML+='</div>';
+  });
+  
+  document.getElementById('balance-wheel-form').innerHTML=formHTML;
+  document.getElementById('balance-wheel-modal').style.display='flex';
+}
+
+function closeBalanceWheel(){
+  document.getElementById('balance-wheel-modal').style.display='none';
+}
+
+function generateRecommendation(){
+  var dimensions=['事業發展','財務狀況','身體健康','人際關係','個人成長','娛樂休閒','生活環境','心靈成長'];
+  var scores=[];
+  var minScore=10,minIndex=0;
+  
+  for(var i=0;i<8;i++){
+    var score=parseInt(document.getElementById('slider-'+i).value);
+    scores.push(score);
+    if(score<minScore){
+      minScore=score;
+      minIndex=i;
+    }
+  }
+  
+  var recommendation=dimensions[minIndex];
+  var suggestions={
+    '事業發展':'建議將「技能提升」或「工作效率優化」設為九宮格中心目標',
+    '財務狀況':'建議將「理財學習」或「收入提升計畫」設為九宮格中心目標',
+    '身體健康':'建議將「運動習慣」或「健康飲食」設為九宮格中心目標',
+    '人際關係':'建議將「社交互動」或「家庭時光」設為九宮格中心目標',
+    '個人成長':'建議將「閱讀學習」或「新技能培養」設為九宮格中心目標',
+    '娛樂休閒':'建議將「興趣培養」或「放鬆時光」設為九宮格中心目標',
+    '生活環境':'建議將「環境整理」或「生活品質提升」設為九宮格中心目標',
+    '心靈成長':'建議將「冥想練習」或「價值觀釐清」設為九宮格中心目標'
+  };
+  
+  closeBalanceWheel();
+  
+  var modal='<div style="background:var(--app);border-radius:16px;padding:24px;text-align:center;max-width:350px">';
+  modal+='<div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:16px">🎯 平衡輪診斷結果</div>';
+  modal+='<div style="font-size:14px;color:var(--text);margin-bottom:12px">你最需要改善的領域：</div>';
+  modal+='<div style="font-size:18px;font-weight:800;color:var(--primary);margin-bottom:16px">'+recommendation+'</div>';
+  modal+='<div style="font-size:12px;color:var(--text);line-height:1.6;margin-bottom:20px;background:var(--card);padding:12px;border-radius:8px">';
+  modal+=suggestions[recommendation];
+  modal+='</div>';
+  modal+='<button onclick="closeRecommendation()" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer">開始設定九宮格</button>';
+  modal+='</div>';
+  
+  var overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='recommendation-modal';
+  overlay.innerHTML=modal;
+  document.body.appendChild(overlay);
+}
+
+function closeRecommendation(){
+  var modal=document.getElementById('recommendation-modal');
+  if(modal)document.body.removeChild(modal);
+  // 可以在這裡導向九宮格設定頁面
+}
+
+/* ── 生活羅盤 ── */
+function showLifeCompass(){
+  var dimensions=[
+    {name:'事業',icon:'💼',color:'#3b82f6',desc:'工作成就'},
+    {name:'財務',icon:'💰',color:'#10b981',desc:'理財規劃'},
+    {name:'健康',icon:'💪',color:'#ef4444',desc:'身心狀態'},
+    {name:'關係',icon:'❤️',color:'#f59e0b',desc:'人際互動'},
+    {name:'成長',icon:'📚',color:'#8b5cf6',desc:'學習發展'},
+    {name:'娛樂',icon:'🎯',color:'#06b6d4',desc:'休閒樂趣'},
+    {name:'環境',icon:'🏠',color:'#84cc16',desc:'生活品質'},
+    {name:'心靈',icon:'🌱',color:'#f97316',desc:'內在平衡'}
+  ];
+  
+  var compassHTML='<div style="background:var(--app);border-radius:16px;padding:24px;text-align:center;max-width:380px">';
+  compassHTML+='<div style="font-size:16px;font-weight:800;color:var(--primary);margin-bottom:20px">🧭 生活羅盤</div>';
+  
+  // 羅盤圓形佈局
+  compassHTML+='<div style="position:relative;width:280px;height:280px;margin:0 auto 20px;background:conic-gradient(';
+  for(var i=0;i<dimensions.length;i++){
+    compassHTML+=dimensions[i].color+' '+(i*45)+'deg '+(i*45+45)+'deg';
+    if(i<dimensions.length-1)compassHTML+=',';
+  }
+  compassHTML+=');border-radius:50%;display:flex;align-items:center;justify-content:center">';
+  
+  // 中心
+  compassHTML+='<div style="width:120px;height:120px;background:var(--app);border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid var(--primary);font-size:14px;font-weight:700;color:var(--primary)">平衡輪</div>';
+  
+  // 8個維度標籤（圍繞圓形佈局）
+  for(var i=0;i<dimensions.length;i++){
+    var angle=i*45-90; // -90度讓第一個在頂部
+    var radian=angle*Math.PI/180;
+    var x=Math.cos(radian)*110;
+    var y=Math.sin(radian)*110;
+    
+    compassHTML+='<div style="position:absolute;left:'+(140+x-25)+'px;top:'+(140+y-15)+'px;width:50px;height:30px;background:'+dimensions[i].color+';color:#fff;border-radius:15px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.1)">';
+    compassHTML+='<div style="text-align:center;line-height:1.2">'+dimensions[i].icon+'<br>'+dimensions[i].name+'</div>';
+    compassHTML+='</div>';
+  }
+  
+  compassHTML+='</div>';
+  
+  // 功能按鈕
+  compassHTML+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px">';
+  compassHTML+='<button onclick="showBalanceWheel()" style="padding:8px;border-radius:8px;border:1px solid var(--primary);background:var(--pbg);color:var(--primary);font-size:11px;font-weight:700">平衡診斷</button>';
+  compassHTML+='<button onclick="goToMandala()" style="padding:8px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:11px;font-weight:700">設定九宮格</button>';
+  compassHTML+='</div>';
+  
+  compassHTML+='<button onclick="closeLifeCompass()" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px">關閉</button>';
+  compassHTML+='</div>';
+  
+  var overlay=document.createElement('div');
+  overlay.className='modal-overlay';
+  overlay.id='compass-modal';
+  overlay.innerHTML=compassHTML;
+  document.body.appendChild(overlay);
+}
+
+function closeLifeCompass(){
+  var modal=document.getElementById('compass-modal');
+  if(modal)document.body.removeChild(modal);
+}
+
+function goToMandala(){
+  closeLifeCompass();
+  go(0); // 回到今日頁面，將來可以導向九宮格設定
+  // 可以觸發九宮格設定流程
 }
 </script>
 </body>
