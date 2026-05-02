@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<!-- 漫打卡 Landing Page v1.0 | 2026-04-18 | by Jerry -->
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>漫打卡 — 今日的1就夠了</title>
+<meta name="description" content="不是你意志力不夠，是你的習慣系統不夠彈性。漫打卡結合曼陀羅九宮格與彈性三級打卡，讓習慣像橡皮筋一樣，壓縮後自動彈回。">
+<meta name="author" content="Jerry | 曼談人生">
+<meta property="og:title" content="漫打卡 — 今日的1就夠了">
+<meta property="og:description" content="不是你意志力不夠，是你的習慣系統不夠彈性。免安裝 PWA，現在就開始。">
+<meta name="theme-color" content="#0a0a12">
+
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-XXXXXXXXXX',{send_page_view:true});
+if(window.location.hostname==='localhost'||window.location.protocol==='file:'){
+  window['ga-disable-G-XXXXXXXXXX']=true;
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#0a0a12;
+  --surface:#13131f;
+  --card:#1a1a2e;
+  --border:rgba(255,255,255,.08);
+  --text:#f0eeff;
+  --sub:#8b8aaa;
+  --muted:#4a4a6a;
+  --accent:#7c6fff;
+  --accent2:#10c48a;
+  --accent3:#f5a623;
+  --glow:rgba(124,111,255,.15);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Noto Sans TC',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── 背景紋理 ── */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%,rgba(124,111,255,.07) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%,rgba(16,196,138,.05) 0%,transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── 通用 ── */
+.wrap{position:relative;z-index:1;max-width:740px;margin:0 auto;padding:0 20px}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;
+  background:rgba(10,10,18,.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{
+  font-family:'Noto Serif TC',serif;
+  font-size:17px;font-weight:900;
+  color:var(--text);
+  letter-spacing:.05em;
+}
+.nav-logo span{color:var(--accent)}
+.nav-cta{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  padding:8px 18px;
+  border-radius:20px;
+  font-size:13px;font-weight:700;
+  cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;
+  transition:opacity .2s;
+}
+.nav-cta:hover{opacity:.85}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;
+  padding:100px 20px 60px;
+}
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(124,111,255,.12);
+  border:1px solid rgba(124,111,255,.3);
+  color:#a89fff;
+  font-size:11px;letter-spacing:.12em;font-weight:700;
+  padding:6px 16px;border-radius:20px;
+  margin-bottom:32px;
+  animation:fadeUp .6s ease both;
+}
+.hero-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 6px var(--accent);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.hero-title{
+  font-family:'Noto Serif TC',serif;
+  font-size:clamp(28px,6vw,52px);
+  font-weight:900;
+  line-height:1.2;
+  margin-bottom:8px;
+  animation:fadeUp .6s .1s ease both;
+}
+.hero-title .hl{
+  color:transparent;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  -webkit-background-clip:text;
+  background-clip:text;
+}
+.hero-sub{
+  font-size:clamp(14px,2.5vw,18px);
+  font-weight:700;
+  color:var(--sub);
+  margin-bottom:20px;
+  animation:fadeUp .6s .15s ease both;
+}
+.hero-desc{
+  font-size:14px;
+  color:var(--sub);
+  max-width:480px;
+  line-height:1.9;
+  margin-bottom:40px;
+  animation:fadeUp .6s .2s ease both;
+}
+.hero-btns{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  margin-bottom:56px;
+  animation:fadeUp .6s .25s ease both;
+}
+.btn-main{
+  background:linear-gradient(135deg,var(--accent),#9b8fff);
+  color:#fff;border:none;
+  padding:15px 32px;border-radius:14px;
+  font-size:15px;font-weight:700;
+  cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;
+  box-shadow:0 8px 32px rgba(124,111,255,.3);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(124,111,255,.4)}
+.btn-ghost{
+  background:transparent;
+  color:var(--sub);
+  border:1px solid var(--border);
+  padding:15px 24px;border-radius:14px;
+  font-size:14px;cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;
+  transition:border-color .2s,color .2s;
+}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent)}
+
+/* stats */
+.hero-stats{
+  display:flex;gap:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:16px;
+  overflow:hidden;
+  animation:fadeUp .6s .3s ease both;
+}
+.stat{
+  flex:1;padding:16px 20px;text-align:center;
+  position:relative;
+}
+.stat+.stat::before{
+  content:'';position:absolute;left:0;top:20%;bottom:20%;
+  width:1px;background:var(--border);
+}
+.stat-n{
+  font-family:'Noto Serif TC',serif;
+  font-size:22px;font-weight:900;
+  color:var(--accent);
+  display:block;
+}
+.stat-l{font-size:10px;color:var(--muted);margin-top:3px;letter-spacing:.05em}
+
+/* ── SECTION 通用 ── */
+section{padding:80px 0;position:relative;z-index:1}
+.sec-label{
+  font-size:10px;letter-spacing:.18em;font-weight:700;
+  color:var(--accent);text-transform:uppercase;
+  margin-bottom:10px;
+}
+.sec-title{
+  font-family:'Noto Serif TC',serif;
+  font-size:clamp(20px,4vw,30px);font-weight:900;
+  margin-bottom:10px;color:var(--text);
+  line-height:1.3;
+}
+.sec-desc{font-size:13px;color:var(--sub);line-height:1.9;margin-bottom:36px}
+
+/* ── 三大支柱 ── */
+.pillars{display:flex;flex-direction:column;gap:14px}
+.pillar{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:22px 22px;
+  display:flex;gap:18px;align-items:flex-start;
+  transition:border-color .25s,transform .25s;
+  cursor:default;
+}
+.pillar:hover{border-color:rgba(124,111,255,.35);transform:translateX(4px)}
+.pillar-num{
+  font-family:'Noto Serif TC',serif;
+  font-size:28px;font-weight:900;
+  opacity:.15;flex-shrink:0;
+  line-height:1;
+  min-width:32px;
+}
+.p1 .pillar-num{color:var(--accent)}
+.p2 .pillar-num{color:var(--accent2)}
+.p3 .pillar-num{color:var(--accent3)}
+.pillar-body{}
+.pillar-tag{
+  display:inline-block;
+  font-size:10px;font-weight:700;letter-spacing:.1em;
+  padding:3px 10px;border-radius:20px;
+  margin-bottom:8px;
+}
+.p1 .pillar-tag{background:rgba(124,111,255,.15);color:#a89fff}
+.p2 .pillar-tag{background:rgba(16,196,138,.12);color:#5ee8b5}
+.p3 .pillar-tag{background:rgba(245,166,35,.12);color:#ffc96b}
+.pillar-t{font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px}
+.pillar-d{font-size:13px;color:var(--sub);line-height:1.75}
+
+/* ── 彈性三級 ── */
+.tiers{display:flex;flex-direction:column;gap:10px}
+.tier{
+  border-radius:14px;padding:18px 20px;
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:16px;
+  transition:transform .2s;
+}
+.tier:hover{transform:translateX(4px)}
+.t-mini{background:rgba(124,111,255,.1);border:1px solid rgba(124,111,255,.2)}
+.t-plus{background:rgba(16,196,138,.08);border:1px solid rgba(16,196,138,.18)}
+.t-elite{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.18)}
+.tier-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.td-mini{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+.td-plus{background:var(--accent2);box-shadow:0 0 10px var(--accent2)}
+.td-elite{background:var(--accent3);box-shadow:0 0 10px var(--accent3)}
+.tier-info .tier-name{font-size:14px;font-weight:700;color:var(--text)}
+.tier-info .tier-desc{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.6}
+.tier-badge{
+  font-size:10px;font-weight:700;
+  padding:4px 10px;border-radius:20px;
+  white-space:nowrap;
+}
+.tb-mini{background:rgba(124,111,255,.18);color:#b8adff}
+.tb-plus{background:rgba(16,196,138,.15);color:#6ee7b7}
+.tb-elite{background:rgba(245,166,35,.15);color:#fcd34d}
+
+/* ── 問卷 ── */
+.survey-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:28px 24px;
+}
+.survey-q{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.survey-hint{font-size:12px;color:var(--muted);margin-bottom:22px}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt{
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:14px 16px;
+  cursor:pointer;
+  display:flex;align-items:flex-start;gap:10px;
+  transition:background .2s,border-color .2s,transform .15s;
+  text-align:left;
+}
+.opt:hover{background:rgba(124,111,255,.1);border-color:rgba(124,111,255,.3);transform:translateY(-1px)}
+.opt.sel{background:rgba(124,111,255,.15);border-color:var(--accent)}
+.opt-ico{font-size:20px;flex-shrink:0;line-height:1.2}
+.opt-label{font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px}
+.opt-count{font-size:11px;color:var(--muted)}
+.opt-count b{color:var(--sub)}
+.survey-footer{margin-top:18px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.survey-submit{
+  background:var(--accent);color:#fff;border:none;
+  padding:12px 24px;border-radius:10px;
+  font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'Noto Sans TC',sans-serif;
+  opacity:0;pointer-events:none;
+  transition:opacity .3s;
+}
+.survey-submit.show{opacity:1;pointer-events:auto}
+.survey-note{font-size:11px;color:var(--muted)}
+.result-banner{
+  margin-top:16px;
+  background:rgba(16,196,138,.08);
+  border:1px solid rgba(16,196,138,.2);
+  border-radius:12px;
+  padding:16px 18px;
+  font-size:13px;color:var(--text);
+  line-height:1.8;
+  display:none;
+}
+.result-banner.show{display:block}
+.result-banner b{color:var(--accent2)}
+
+/* ── 分隔線 ── */
+.divider{
+  border:none;
+  border-top:1px solid var(--border);
+  margin:0;
+}
+
+/* ── FOOTER ── */
+footer{
+  position:relative;z-index:1;
+  padding:40px 24px;
+  text-align:center;
+  border-top:1px solid var(--border);
+}
+.footer-logo{
+  font-family:'Noto Serif TC',serif;
+  font-size:18px;font-weight:900;
+  color:var(--text);margin-bottom:8px;
+}
+.footer-logo span{color:var(--accent)}
+.footer-sub{font-size:11px;color:var(--muted);line-height:1.9}
+.footer-links{
+  display:flex;gap:20px;justify-content:center;
+  margin:16px 0 0;flex-wrap:wrap;
+}
+.footer-links a{font-size:12px;color:var(--muted);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--accent)}
+
+/* ── 動畫 ── */
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(18px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.fade-in{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+
+/* ── 響應式 ── */
+@media(max-width:480px){
+  .opts{grid-template-columns:1fr}
+  .hero-stats{flex-direction:column}
+  .stat+.stat::before{top:0;bottom:auto;left:20%;right:20%;width:auto;height:1px}
+  nav{padding:12px 16px}
+}
+</style>
+</head>
+<body>
+
+<h2 class="sr-only">漫打卡 — 彈性習慣打卡 PWA，今日的1就夠了</h2>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">漫打卡 <span>·</span> Manda</div>
+  <button class="nav-cta" onclick="goApp('nav_cta')">免安裝開始使用</button>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-badge">漫打卡 · Manda PWA · 免費使用</div>
+    <h1 class="hero-title">
+      不是你意志力不夠<br>
+      是習慣系統<span class="hl">不夠彈性</span>
+    </h1>
+    <p class="hero-sub">今日的1就夠了，連勝不斷裂</p>
+    <p class="hero-desc">
+      即使最累的那天，你也能完成「今日的1」。<br>
+      像橡皮筋一樣的習慣——壓縮後自動彈回。<br>
+      免安裝、無帳號、現在就能開始。
+    </p>
+    <div class="hero-btns">
+      <button class="btn-main" onclick="goApp('hero_main_cta')">免安裝，現在就開始 →</button>
+      <button class="btn-ghost" onclick="scrollTo('pillars')">了解三大支柱</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-n" id="total-votes">842</span>
+        <div class="stat-l">累計問卷參與</div>
+      </div>
+      <div class="stat">
+        <span class="stat-n">68%</span>
+        <div class="stat-l">第7天仍在使用</div>
+      </div>
+      <div class="stat">
+        <span class="stat-n">$0</span>
+        <div class="stat-l">免費開始使用</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider">
+
+<!-- 三大支柱 -->
+<section id="pillars">
+  <div class="wrap">
+    <div class="fade-in">
+      <div class="sec-label">核心設計</div>
+      <h2 class="sec-title">三個支柱，讓每天都能贏</h2>
+      <p class="sec-desc">融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡系統，搭配行為科學反思機制。</p>
+    </div>
+    <div class="pillars fade-in">
+      <div class="pillar p1">
+        <div class="pillar-num">01</div>
+        <div class="pillar-body">
+          <div class="pillar-tag">曼陀羅九宮格 OW64</div>
+          <div class="pillar-t">把夢想拆解成每天可執行的地圖</div>
+          <div class="pillar-d">源自大谷翔平的圓夢框架——把核心目標拆解為 8 個行動領域，再各自展開 8 個具體行動，合計 64 格行動清單。目標不再只是夢想，而是今天就能動的一步。</div>
+        </div>
+      </div>
+      <div class="pillar p2">
+        <div class="pillar-num">02</div>
+        <div class="pillar-body">
+          <div class="pillar-tag">彈性三級打卡制</div>
+          <div class="pillar-t">不強迫最佳狀態，只要不斷鏈就贏了</div>
+          <div class="pillar-d">今日的1 → 穩定前進 → 全力以赴。每天根據自己的狀態選強度。靈感來自 Stephen Guise《彈性習慣》——橡皮筋哲學，壓縮後自動彈回。</div>
+        </div>
+      </div>
+      <div class="pillar p3">
+        <div class="pillar-num">03</div>
+        <div class="pillar-body">
+          <div class="pillar-tag">如果能重來的反思</div>
+          <div class="pillar-t">把每次降級從失敗感變成自我理解</div>
+          <div class="pillar-d">每天打卡後的選填問句：「如果今天重來，我會怎麼做？」靈感來自曼陀羅九宮格反思欄。不是懲罰，而是讓每一天成為明天的老師。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- 彈性三級 -->
+<section>
+  <div class="wrap">
+    <div class="fade-in">
+      <div class="sec-label">彈性三級制</div>
+      <h2 class="sec-title">每天都能選自己的強度</h2>
+      <p class="sec-desc">不是失敗，是彈性。做了「今日的1」，就是今天的完美勝利。</p>
+    </div>
+    <div class="tiers fade-in">
+      <div class="tier t-mini">
+        <div class="tier-dot td-mini"></div>
+        <div class="tier-info">
+          <div class="tier-name">今日的1 · Mini</div>
+          <div class="tier-desc">最疲憊的日子，只做那最小的一件事。做了就是100分，連勝不中斷。</div>
+        </div>
+        <span class="tier-badge tb-mini">不斷鏈</span>
+      </div>
+      <div class="tier t-plus">
+        <div class="tier-dot td-plus"></div>
+        <div class="tier-info">
+          <div class="tier-name">穩定前進 · Plus</div>
+          <div class="tier-desc">恢復正常節奏即是勝利。橡皮筋哲學——壓縮後自動彈回到原來的位置。</div>
+        </div>
+        <span class="tier-badge tb-plus">穩定節奏</span>
+      </div>
+      <div class="tier t-elite">
+        <div class="tier-dot td-elite"></div>
+        <div class="tier-info">
+          <div class="tier-name">全力以赴 · Elite</div>
+          <div class="tier-desc">狀態好時的助推器，不是每天的標準。享受超越的感覺，但不以此為常態。</div>
+        </div>
+        <span class="tier-badge tb-elite">爆發日</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- 問卷 -->
+<section id="survey">
+  <div class="wrap">
+    <div class="fade-in">
+      <div class="sec-label">用戶問卷</div>
+      <h2 class="sec-title">你最想養成哪個習慣？</h2>
+      <p class="sec-desc">選出你一直想試的習慣，看看和你想法一樣的人有多少。</p>
+    </div>
+    <div class="survey-box fade-in">
+      <div class="survey-q">有沒有一個習慣，是你一直想試試看的？</div>
+      <div class="survey-hint">可複選 · 選完按送出查看即時統計</div>
+      <div class="opts" id="opts">
+        <div class="opt" data-i="0" data-name="閱讀習慣" onclick="tog(this)">
+          <div class="opt-ico">📚</div>
+          <div>
+            <div class="opt-label">閱讀習慣</div>
+            <div class="opt-count" id="c0">已有 <b id="n0">312</b> 人選擇</div>
+          </div>
+        </div>
+        <div class="opt" data-i="1" data-name="記錄生活" onclick="tog(this)">
+          <div class="opt-ico">📝</div>
+          <div>
+            <div class="opt-label">記錄生活</div>
+            <div class="opt-count" id="c1">已有 <b id="n1">198</b> 人選擇</div>
+          </div>
+        </div>
+        <div class="opt" data-i="2" data-name="運動健身" onclick="tog(this)">
+          <div class="opt-ico">🏃</div>
+          <div>
+            <div class="opt-label">運動健身</div>
+            <div class="opt-count" id="c2">已有 <b id="n2">445</b> 人選擇</div>
+          </div>
+        </div>
+        <div class="opt" data-i="3" data-name="早睡早起" onclick="tog(this)">
+          <div class="opt-ico">🌙</div>
+          <div>
+            <div class="opt-label">早睡早起</div>
+            <div class="opt-count" id="c3">已有 <b id="n3">267</b> 人選擇</div>
+          </div>
+        </div>
+        <div class="opt" data-i="4" data-name="情緒覺察" onclick="tog(this)">
+          <div class="opt-ico">🧘</div>
+          <div>
+            <div class="opt-label">情緒覺察</div>
+            <div class="opt-count" id="c4">已有 <b id="n4">189</b> 人選擇</div>
+          </div>
+        </div>
+        <div class="opt" data-i="5" data-name="健康飲食" onclick="tog(this)">
+          <div class="opt-ico">🥗</div>
+          <div>
+            <div class="opt-label">健康飲食</div>
+            <div class="opt-count" id="c5">已有 <b id="n5">231</b> 人選擇</div>
+          </div>
+        </div>
+      </div>
+      <div class="survey-footer">
+        <div class="survey-note">匿名統計 · 不收集個人資料</div>
+        <button class="survey-submit" id="sbtn" onclick="submitSurvey()">送出，看看我的同伴 →</button>
+      </div>
+      <div class="result-banner" id="rbanner"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<!-- CTA -->
+<section>
+  <div class="wrap" style="text-align:center">
+    <div class="fade-in">
+      <div class="sec-label">現在就開始</div>
+      <h2 class="sec-title">即使今天只做一件事<br>你也贏了</h2>
+      <p class="sec-desc" style="max-width:420px;margin:0 auto 36px">免安裝、無帳號、完全免費。把漫打卡加到手機主畫面，從今天的「今日的1」開始。</p>
+      <button class="btn-main" style="font-size:16px;padding:18px 40px" onclick="goApp('bottom_cta')">
+        免安裝，現在就開始 →
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">漫打卡 <span>·</span> Manda</div>
+  <div class="footer-sub">
+    © 2026 Jerry · 曼談人生<br>
+    PWA 免安裝 · 無帳號即用 · 資料存於本機
+  </div>
+  <div class="footer-links">
+    <a href="./app.html">進入 App</a>
+    <a href="#survey">參與問卷</a>
+    <a href="#pillars">了解設計</a>
+  </div>
+</footer>
+
+<script>
+/* ── 種子數據 ── */
+var SEED=[312,198,445,267,189,231];
+var counts=SEED.slice();
+var NAMES=['閱讀習慣','記錄生活','運動健身','早睡早起','情緒覺察','健康飲食'];
+var totalSeed=SEED.reduce(function(a,b){return a+b;},0);
+
+/* ── 讀取 localStorage 累計數據 ── */
+var stored=JSON.parse(localStorage.getItem('manda_lp_votes')||'{}');
+for(var k in stored){if(!isNaN(k))counts[+k]=(counts[+k]||0)+stored[k];}
+var totalVotes=totalSeed;
+for(var k in stored){totalVotes+=stored[k];}
+document.getElementById('total-votes').textContent=totalVotes;
+
+/* 更新畫面顯示 */
+function updCounts(){
+  for(var i=0;i<6;i++){document.getElementById('n'+i).textContent=counts[i];}
+}
+updCounts();
+
+/* ── 已投票：恢復狀態 ── */
+var voted=localStorage.getItem('manda_lp_voted');
+if(voted){
+  var vArr=JSON.parse(voted);
+  var opts=document.querySelectorAll('.opt');
+  vArr.forEach(function(i){opts[i].classList.add('sel');});
+  showResult(vArr);
+}
+
+/* ── 點選 ── */
+function tog(el){
+  if(localStorage.getItem('manda_lp_voted'))return;
+  el.classList.toggle('sel');
+  var any=document.querySelectorAll('.opt.sel').length>0;
+  var btn=document.getElementById('sbtn');
+  btn.className='survey-submit'+(any?' show':'');
+}
+
+/* ── 送出問卷 ── */
+function submitSurvey(){
+  var sels=[].slice.call(document.querySelectorAll('.opt.sel'))
+    .map(function(el){return +el.dataset.i;});
+  if(!sels.length)return;
+
+  /* 更新本地計數 */
+  var delta={};
+  sels.forEach(function(i){delta[i]=1;counts[i]++;});
+  localStorage.setItem('manda_lp_votes',JSON.stringify(delta));
+  localStorage.setItem('manda_lp_voted',JSON.stringify(sels));
+  updCounts();
+
+  /* 更新總數顯示 */
+  totalVotes+=sels.length;
+  document.getElementById('total-votes').textContent=totalVotes;
+
+  /* 隱藏按鈕 */
+  document.getElementById('sbtn').className='survey-submit';
+
+  /* GA4 事件 */
+  if(typeof gtag!=='undefined'){
+    sels.forEach(function(i){
+      gtag('event','survey_vote',{
+        habit_type:NAMES[i],
+        habit_index:i
+      });
+    });
+    gtag('event','survey_submit',{
+      selected_habits:sels.map(function(i){return NAMES[i];}).join(','),
+      selected_count:sels.length
+    });
+  }
+
+  showResult(sels);
+}
+
+/* ── 顯示結果 ── */
+function showResult(sels){
+  var top=sels.map(function(i){return{i:i,n:counts[i]};})
+    .sort(function(a,b){return b.n-a.n;})[0];
+  var first=sels[0];
+  var banner=document.getElementById('rbanner');
+  banner.className='result-banner show';
+  banner.innerHTML=
+    '你和其他 <b>'+counts[first]+'</b> 位用戶都想養成「'+NAMES[first]+'」✨<br>'+
+    '目前最多人想養：<b>'+NAMES[top.i]+'</b>（'+top.n+' 人）<br><br>'+
+    '<button onclick="goApp(\'survey_result_cta\')" style="background:var(--accent2);color:#0a0a12;border:none;padding:11px 22px;border-radius:10px;cursor:pointer;font-size:13px;font-weight:700;font-family:\'Noto Sans TC\',sans-serif">用漫打卡養成這個習慣 →</button>';
+}
+
+/* ── CTA 跳轉 ── */
+function goApp(src){
+  if(typeof gtag!=='undefined'){
+    gtag('event','cta_click',{button_id:src,destination:'app'});
+  }
+  setTimeout(function(){window.location.href='./app.html';},120);
+}
+
+/* ── 滾動到區塊 ── */
+function scrollTo(id){
+  var el=document.getElementById(id);
+  if(el)el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+/* ── Intersection Observer 淡入 ── */
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target);}
+  });
+},{threshold:0.12});
+document.querySelectorAll('.fade-in').forEach(function(el){io.observe(el);});
+</script>
+</body>
+</html>

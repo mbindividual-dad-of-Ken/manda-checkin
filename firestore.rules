@@ -1,0 +1,15 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 習慣打卡資料（Phase 2 雲端同步用）
+    match /habits/{document} {
+      allow read, write: if true;
+    }
+
+    // 其他集合預設禁止存取
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>漫打卡 — 畫面展示素材</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans TC',sans-serif;background:#0d0d14;color:#f0eeff;padding:40px 24px;min-height:100vh}
+h1{text-align:center;font-size:22px;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:.05em}
+.subtitle{text-align:center;font-size:13px;color:#6b6a85;margin-bottom:40px}
+
+/* 手機外框 */
+.phone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:32px;max-width:1200px;margin:0 auto}
+.phone-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.phone-label{font-size:12px;font-weight:700;color:#635aff;letter-spacing:.1em;text-transform:uppercase}
+.phone{width:260px;height:520px;background:#1e1e2e;border-radius:36px;padding:10px;box-shadow:0 30px 80px rgba(0,0,0,.6),inset 0 0 0 1px rgba(255,255,255,.08);position:relative;flex-shrink:0}
+.phone::before{content:'';position:absolute;top:14px;left:50%;transform:translateX(-50%);width:70px;height:5px;background:#2a2a3e;border-radius:3px;z-index:10}
+.screen{width:100%;height:100%;background:#fff;border-radius:27px;overflow:hidden;position:relative}
+.screen.dark{background:#1e293b}
+
+/* App 內部樣式（淺色主題） */
+:root{
+  --bg:#f0f0f0;--app:#fff;--card:#f9fafb;--border:#e5e7eb;
+  --text:#111;--sub:#6b7280;--muted:#aaa;
+  --primary:#4f46e5;--pbg:#ede9fe;--plight:#c7d2fe;
+  --danger:#ef4444;--warn:#d97706;
+  --accent2:#10b981;
+}
+.s-bar{padding:10px 13px 6px;border-bottom:1px solid var(--border);background:var(--app)}
+.s-bar h1{font-size:16px;font-weight:700;color:var(--text);font-family:'Noto Sans TC',sans-serif}
+.s-bar p{font-size:10px;color:var(--sub);margin-top:1px}
+.s-main{flex:1;overflow:hidden;padding:11px;background:var(--app)}
+.s-nav{display:flex;border-top:1px solid var(--border);background:var(--app)}
+.s-nb{flex:1;padding:6px 0 8px;font-size:9px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-family:'Noto Sans TC',sans-serif}
+.s-nb.on{color:var(--primary)}
+.s-ni{font-size:16px}
+.s-screen{display:flex;flex-direction:column;height:100%}
+
+/* 元件 */
+.sec{font-size:9px;font-weight:700;color:var(--sub);letter-spacing:.05em;text-transform:uppercase;margin:10px 0 5px}
+.pw{display:flex;align-items:center;gap:8px;padding:9px 11px;background:var(--card);border-radius:8px;margin-bottom:7px}
+.pbg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pf{height:100%;background:var(--primary);border-radius:3px}
+.hc{background:var(--app);border-radius:8px;border:1px solid var(--border);border-left:3px solid var(--primary);padding:9px 10px;margin-bottom:6px}
+.hr{display:flex;align-items:center;gap:5px;margin-bottom:6px}
+.hn{font-size:11px;font-weight:700;color:var(--text);flex:1}
+.hsk{font-size:9px;padding:2px 6px;border-radius:20px;background:#fef3c7;color:#92400e}
+.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.lb{padding:5px 2px;border-radius:6px;border:1.5px solid var(--border);text-align:center;background:var(--card)}
+.lb.ac{background:var(--pbg);border-color:var(--primary)}
+.lb.fd{opacity:.35;text-decoration:line-through}
+.lbn{font-size:9px;font-weight:700;display:block;color:var(--muted)}
+.lb.ac .lbn{color:var(--primary)}
+.lbv{font-size:8px;display:block;margin-top:1px;color:var(--muted)}
+.lb.ac .lbv{color:var(--primary)}
+.lb-hint{font-size:8px;color:var(--muted);text-align:center;padding:3px 0 1px}
+.rec{background:var(--pbg);border-radius:7px;border:1px solid var(--plight);padding:8px 9px;margin-top:7px}
+.rec-t{font-size:9px;font-weight:700;color:var(--primary);margin-bottom:5px}
+.rc-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px}
+.rchip{font-size:9px;padding:3px 8px;border-radius:20px;border:1.5px solid var(--plight);color:var(--primary);background:var(--app)}
+.rchip.on{background:var(--primary);color:#fff}
+.rchip.grn{border-color:#bbf7d0;color:#15803d}
+.rchip.grn.on{background:#16a34a;color:#fff}
+.rec-label{font-size:8px;color:var(--muted);margin-bottom:3px}
+.good-input{width:100%;border:1px solid var(--border);border-radius:6px;padding:4px 7px;font-size:9px;color:var(--text);background:var(--app);font-family:'Noto Sans TC',sans-serif}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:8px}
+.stat-card{background:var(--card);border-radius:8px;padding:8px 6px;text-align:center;border:1px solid var(--border)}
+.stat-num{font-size:20px;font-weight:700;color:var(--primary)}
+.stat-lbl{font-size:8px;color:var(--muted);margin-top:2px}
+.week-comp{background:var(--card);border-radius:8px;padding:8px 10px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border)}
+.wc-l{font-size:9px;color:var(--sub)}
+.wc-r{display:flex;align-items:baseline;gap:5px}
+.wc-n{font-size:18px;font-weight:800;color:var(--text)}
+.wc-d{font-size:9px;color:var(--accent2);font-weight:700}
+.mini-heat{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;margin-top:5px}
+.mh{aspect-ratio:1;border-radius:2px;background:var(--border)}
+/* 月曆 */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-m{font-size:11px;font-weight:700;color:var(--text)}
+.cal-btn{background:none;border:1px solid var(--border);border-radius:5px;padding:2px 7px;font-size:10px;color:var(--sub);cursor:pointer}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cdow{font-size:8px;color:var(--muted);text-align:center;padding:2px 0}
+.cd{font-size:9px;text-align:center;padding:4px 0;border-radius:5px;color:var(--text);position:relative}
+.cd.tod{background:var(--primary);color:#fff;font-weight:700}
+.cd.has{font-weight:700}
+.cdt{width:4px;height:4px;border-radius:50%;background:var(--primary);display:inline-block;margin:0 1px}
+.cdd{display:flex;justify-content:center;margin-top:1px}
+.cdet{background:var(--card);border-radius:8px;padding:8px 10px;margin-top:7px;border:1px solid var(--border)}
+.cdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}
+.lv-badge{font-size:9px;padding:2px 6px;border-radius:20px}
+/* 里程碑彈窗 */
+.ms-overlay{position:absolute;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.ms-box{background:#fff;border-radius:16px;padding:20px 16px;text-align:center;width:100%}
+.ms-emoji{font-size:40px;margin-bottom:6px}
+.ms-title{font-size:14px;font-weight:900;color:#111;margin-bottom:4px}
+.ms-sub{font-size:10px;color:#6b7280;line-height:1.7;margin-bottom:10px}
+.ms-quote{font-size:9px;color:var(--primary);font-style:italic;background:var(--pbg);border-radius:7px;padding:7px 9px;margin-bottom:10px;line-height:1.6}
+.ms-btn{background:var(--primary);color:#fff;border:none;border-radius:10px;padding:8px 16px;font-size:11px;font-weight:700;width:100%;font-family:'Noto Sans TC',sans-serif}
+.ms-skip{font-size:9px;color:var(--muted);margin-top:6px;cursor:pointer}
+/* 新增習慣 */
+.fi{width:100%;border:1.5px solid var(--border);border-radius:8px;padding:7px 10px;font-size:11px;color:var(--text);background:var(--app);font-family:'Noto Sans TC',sans-serif;margin-bottom:7px}
+.fi::placeholder{color:var(--muted)}
+.lrow{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.lrow-label{font-size:9px;font-weight:700;width:52px;flex-shrink:0}
+.sv{width:100%;background:var(--primary);color:#fff;border:none;border-radius:10px;padding:10px;font-size:12px;font-weight:700;font-family:'Noto Sans TC',sans-serif;margin-top:8px}
+/* 今日完成慶祝 */
+.all-done-ov{position:absolute;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:20}
+.all-done-box{text-align:center}
+/* 深色主題 */
+.dark-s .s-bar,.dark-s .s-main,.dark-s .s-nav,.dark-s .pw,.dark-s .hc,.dark-s .lb,.dark-s .stat-card,.dark-s .cdet,.dark-s .week-comp{background:#1e293b}
+.dark-s .hc{border-color:#334155}
+.dark-s .pw,.dark-s .stat-card,.dark-s .cdet,.dark-s .week-comp{border-color:#334155}
+.dark-s .hn,.dark-s .cal-m,.dark-s .ms-title,.dark-s .cd,.dark-s .stat-num,.dark-s .wc-n{color:#f1f5f9}
+.dark-s .s-bar h1,.dark-s .s-bar,.dark-s .s-nav{background:#1e293b;border-color:#334155}
+.dark-s .s-bar h1{color:#f1f5f9}
+.dark-s .s-bar p,.dark-s .lbn,.dark-s .lbv,.dark-s .s-nb,.dark-s .stat-lbl,.dark-s .cdow,.dark-s .sec{color:#64748b}
+.dark-s .lb{background:#293548;border-color:#334155}
+.dark-s .lb.ac{background:#1e1b4b;border-color:#818cf8}
+.dark-s .lb.ac .lbn,.dark-s .lb.ac .lbv{color:#818cf8}
+.dark-s .pbg,.dark-s .mh{background:#334155}
+.dark-s .rec{background:#1e1b4b;border-color:#312e81}
+.dark-s .rchip{background:#1e293b;color:#818cf8;border-color:#312e81}
+.dark-s .s-nb.on{color:#818cf8}
+.dark-s .pf{background:#818cf8}
+</style>
+</head>
+<body>
+<h1>漫打卡 · 畫面展示素材</h1>
+<p class="subtitle">下載後截圖使用 · 共 8 個畫面</p>
+
+<div class="phone-grid">
+
+<!-- ① 今日頁面（有習慣，打卡前） -->
+<div class="phone-wrap">
+  <div class="phone-label">① 今日頁面</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen">
+        <div class="s-bar"><h1>彈性習慣</h1><p>2026年4月18日（週五）</p></div>
+        <div class="s-main" style="overflow-y:auto">
+          <div class="sec" style="margin-top:0;display:flex;justify-content:space-between"><span>今日習慣</span><span style="color:#ef4444;font-size:9px">2 / 2 已滿 🔒</span></div>
+          <div class="pw">
+            <div style="flex:1"><div style="font-size:9px;color:var(--sub);margin-bottom:3px">完成 0/2</div><div class="pbg"><div class="pf" style="width:0%"></div></div></div>
+            <span style="font-size:13px;font-weight:700;color:var(--primary)">0%</span>
+          </div>
+          <!-- 習慣1 -->
+          <div class="hc" style="border-left-color:#7c3aed">
+            <div class="hr"><span style="font-size:15px">📚</span><span class="hn">閱讀</span><span class="hsk">🔥 12天</span></div>
+            <div class="lg">
+              <div class="lb"><span class="lbn">今日的1</span><span class="lbv">5 頁</span></div>
+              <div class="lb"><span class="lbn">穩定前進</span><span style="font-size:7px;background:#4f46e520;color:#4f46e5;padding:1px 4px;border-radius:6px;display:block;margin-top:1px">推薦</span><span class="lbv">20 頁</span></div>
+              <div class="lb"><span class="lbn">全力以赴</span><span class="lbv">50 頁</span></div>
+            </div>
+            <div class="lb-hint">選今天剛好能做到的那一個</div>
+          </div>
+          <!-- 習慣2 -->
+          <div class="hc" style="border-left-color:#16a34a">
+            <div class="hr"><span style="font-size:15px">🏃</span><span class="hn">運動</span><span class="hsk">🔥 5天</span></div>
+            <div class="lg">
+              <div class="lb"><span class="lbn">今日的1</span><span class="lbv">10 分鐘</span></div>
+              <div class="lb"><span class="lbn">穩定前進</span><span style="font-size:7px;background:#4f46e520;color:#4f46e5;padding:1px 4px;border-radius:6px;display:block;margin-top:1px">推薦</span><span class="lbv">30 分鐘</span></div>
+              <div class="lb"><span class="lbn">全力以赴</span><span class="lbv">60 分鐘</span></div>
+            </div>
+            <div class="lb-hint">選今天剛好能做到的那一個</div>
+          </div>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb on"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 打卡完成（Plus + 反思展開） -->
+<div class="phone-wrap">
+  <div class="phone-label">② 打卡完成 + 反思</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen">
+        <div class="s-bar"><h1>彈性習慣</h1><p>2026年4月18日（週五）</p></div>
+        <div class="s-main" style="overflow-y:auto">
+          <div class="sec" style="margin-top:0;display:flex;justify-content:space-between"><span>今日習慣</span></div>
+          <div class="pw">
+            <div style="flex:1"><div style="font-size:9px;color:var(--sub);margin-bottom:3px">完成 1/2</div><div class="pbg"><div class="pf" style="width:50%"></div></div></div>
+            <span style="font-size:13px;font-weight:700;color:var(--primary)">50%</span>
+          </div>
+          <div class="hc" style="border-left-color:#7c3aed">
+            <div class="hr"><span style="font-size:15px">📚</span><span class="hn">閱讀</span><span class="hsk">🔥 13天</span></div>
+            <div class="lg">
+              <div class="lb fd"><span class="lbn" style="color:#aaa">今日的1</span><span class="lbv" style="color:#aaa">5 頁</span></div>
+              <div class="lb ac"><span class="lbn">穩定前進</span><span class="lbv">20 頁</span></div>
+              <div class="lb"><span class="lbn">全力以赴</span><span class="lbv">50 頁</span></div>
+            </div>
+            <div class="lb-hint">選今天剛好能做到的那一個</div>
+            <!-- 反思區 -->
+            <div class="rec">
+              <div class="rec-t">💭 如果今天重來⋯⋯（選填）</div>
+              <div class="rec-label">情境描述</div>
+              <div class="rc-row">
+                <span class="rchip on">✓ 身體需要休息</span>
+                <span class="rchip">行程比預期忙</span>
+                <span class="rchip">心情不在狀態</span>
+              </div>
+              <div class="rec-label">心理定錨</div>
+              <div class="rc-row">
+                <span class="rchip grn on">✓ 習慣還在，沒有斷</span>
+                <span class="rchip grn">今天的1已經夠了</span>
+              </div>
+              <div class="rec-label">今天有什麼做得好的？（選填）</div>
+              <input class="good-input" placeholder="堅持做了穩定前進，很棒 👍">
+            </div>
+          </div>
+          <div class="hc" style="border-left-color:#16a34a">
+            <div class="hr"><span style="font-size:15px">🏃</span><span class="hn">運動</span><span class="hsk">🔥 5天</span></div>
+            <div class="lg">
+              <div class="lb"><span class="lbn">今日的1</span><span class="lbv">10 分鐘</span></div>
+              <div class="lb"><span class="lbn">穩定前進</span><span class="lbv">30 分鐘</span></div>
+              <div class="lb"><span class="lbn">全力以赴</span><span class="lbv">60 分鐘</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb on"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 全部完成慶祝 -->
+<div class="phone-wrap">
+  <div class="phone-label">③ 全部完成慶祝</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen" style="position:relative">
+        <div class="s-bar"><h1>彈性習慣</h1><p>2026年4月18日（週五）</p></div>
+        <div class="s-main">
+          <div class="pw">
+            <div style="flex:1"><div style="font-size:9px;color:var(--sub);margin-bottom:3px">完成 2/2</div><div class="pbg"><div class="pf" style="width:100%"></div></div></div>
+            <span style="font-size:13px;font-weight:700;color:var(--primary)">100%</span>
+          </div>
+          <div class="hc" style="border-left-color:#7c3aed">
+            <div class="hr"><span style="font-size:15px">📚</span><span class="hn">閱讀</span></div>
+            <div class="lg">
+              <div class="lb fd"><span class="lbn" style="color:#aaa">今日的1</span><span class="lbv">5頁</span></div>
+              <div class="lb ac"><span class="lbn">穩定前進</span><span class="lbv">20頁</span></div>
+              <div class="lb"><span class="lbn">全力以赴</span><span class="lbv">50頁</span></div>
+            </div>
+          </div>
+          <div class="hc" style="border-left-color:#16a34a">
+            <div class="hr"><span style="font-size:15px">🏃</span><span class="hn">運動</span></div>
+            <div class="lg">
+              <div class="lb fd"><span class="lbn" style="color:#aaa">今日的1</span><span class="lbv">10分</span></div>
+              <div class="lb fd"><span class="lbn" style="color:#aaa">穩定前進</span><span class="lbv">30分</span></div>
+              <div class="lb ac" style="border-color:#16a34a;background:#dcfce7"><span class="lbn" style="color:#16a34a">全力以赴</span><span class="lbv" style="color:#16a34a">60分</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- 慶祝覆蓋層 -->
+        <div class="all-done-ov">
+          <div class="all-done-box">
+            <div style="font-size:52px;margin-bottom:10px">🎉</div>
+            <div style="font-size:16px;font-weight:900;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">今天的你，</div>
+            <div style="font-size:16px;font-weight:900;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.5)">已經全力以赴了</div>
+          </div>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb on"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ④ 里程碑彈窗 -->
+<div class="phone-wrap">
+  <div class="phone-label">④ 里程碑達成</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen" style="position:relative">
+        <div class="s-bar"><h1>彈性習慣</h1><p>2026年4月18日</p></div>
+        <div class="s-main"></div>
+        <div class="ms-overlay">
+          <div class="ms-box">
+            <div class="ms-emoji">🔥</div>
+            <div class="ms-title">兩週連續！</div>
+            <div class="ms-sub">這 14 天你沒有停下來，<br>一點一點累積起來的成果，<br>值得為自己留下這段紀錄 ✨<br><br>「不完美但持續」正是彈性習慣的核心精神！</div>
+            <div class="ms-quote">「你不是太弱，只是缺乏彈性而已。」<br><span style="font-size:8px;color:var(--sub)">— 彈性習慣</span></div>
+            <button class="ms-btn">繼續保持 💪</button>
+            <div class="ms-skip">稍後再說</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑤ 月曆頁面 -->
+<div class="phone-wrap">
+  <div class="phone-label">⑤ 月曆頁面</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen">
+        <div class="s-bar"><h1>月曆</h1><p>點選日期查看紀錄</p></div>
+        <div class="s-main">
+          <div class="cal-nav">
+            <button class="cal-btn">◀</button>
+            <div class="cal-m">2026年 4月</div>
+            <button class="cal-btn">▶</button>
+          </div>
+          <div class="cgrid">
+            <div class="cdow">一</div><div class="cdow">二</div><div class="cdow">三</div><div class="cdow">四</div><div class="cdow">五</div><div class="cdow">六</div><div class="cdow">日</div>
+            <!-- 4月1日是週三，所以前兩格空 -->
+            <div class="cd" style="color:var(--muted)">31</div><div class="cd" style="color:var(--muted)">1</div>
+            <div class="cd has">2<div class="cdd"><span class="cdt" style="background:#7c3aed66"></span></div></div>
+            <div class="cd has">3<div class="cdd"><span class="cdt" style="background:#7c3aedbb"></span><span class="cdt" style="background:#16a34abb"></span></div></div>
+            <div class="cd has">4<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a"></span></div></div>
+            <div class="cd has">5<div class="cdd"><span class="cdt" style="background:#7c3aedbb"></span></div></div>
+            <div class="cd has">6<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a66"></span></div></div>
+            <div class="cd has">7<div class="cdd"><span class="cdt" style="background:#7c3aedbb"></span><span class="cdt" style="background:#16a34abb"></span></div></div>
+            <div class="cd has">8<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a"></span></div></div>
+            <div class="cd has">9<div class="cdd"><span class="cdt" style="background:#7c3aed66"></span></div></div>
+            <div class="cd has">10<div class="cdd"><span class="cdt" style="background:#7c3aedbb"></span><span class="cdt" style="background:#16a34abb"></span></div></div>
+            <div class="cd has">11<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a"></span></div></div>
+            <div class="cd has">12<div class="cdd"><span class="cdt" style="background:#7c3aed"></span></div></div>
+            <div class="cd has">13<div class="cdd"><span class="cdt" style="background:#7c3aedbb"></span><span class="cdt" style="background:#16a34abb"></span></div></div>
+            <div class="cd has">14<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a"></span></div></div>
+            <div class="cd has">15<div class="cdd"><span class="cdt" style="background:#7c3aed66"></span></div></div>
+            <div class="cd has">16<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34abb"></span></div></div>
+            <div class="cd has">17<div class="cdd"><span class="cdt" style="background:#7c3aed"></span><span class="cdt" style="background:#16a34a"></span></div></div>
+            <div class="cd tod">18</div>
+            <div class="cd" style="color:var(--muted)">19</div><div class="cd" style="color:var(--muted)">20</div><div class="cd" style="color:var(--muted)">21</div>
+          </div>
+          <div class="cdet">
+            <div style="font-size:11px;font-weight:700;color:var(--text);margin-bottom:6px">4月17日</div>
+            <div class="cdr"><span style="font-size:11px">📚 閱讀</span><span class="lv-badge" style="background:#7c3aed20;color:#7c3aed">全力以赴</span></div>
+            <div class="cdr"><span style="font-size:11px">🏃 運動</span><span class="lv-badge" style="background:#16a34a20;color:#16a34a">穩定前進</span></div>
+          </div>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb on"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑥ 統計頁面 -->
+<div class="phone-wrap">
+  <div class="phone-label">⑥ 統計頁面</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen">
+        <div class="s-bar"><h1>統計</h1><p>近 30 天習慣分析</p></div>
+        <div class="s-main" style="overflow-y:auto">
+          <div class="stat-grid">
+            <div class="stat-card"><div class="stat-num">2/2</div><div class="stat-lbl">今日完成</div></div>
+            <div class="stat-card"><div class="stat-num">17</div><div class="stat-lbl">🔥 最高連續</div></div>
+            <div class="stat-card"><div class="stat-num">24</div><div class="stat-lbl">📅 有記錄天</div></div>
+          </div>
+          <div class="week-comp">
+            <div class="wc-l">本週打卡天數</div>
+            <div class="wc-r"><span class="wc-n">6</span><span class="wc-d">↑ 比上週多 2 天</span></div>
+          </div>
+          <div class="sec">各習慣分析</div>
+          <div class="stat-card">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <span style="font-size:18px">📚</span>
+              <div style="flex:1"><div style="font-size:11px;font-weight:700;color:var(--text)">閱讀</div><div style="font-size:9px;color:var(--sub)">今日的1 5頁 / 穩定 20頁 / Elite 50頁</div></div>
+              <div style="text-align:right"><div style="font-size:18px;font-weight:700;color:#7c3aed">80%</div><div style="font-size:8px;color:var(--muted)">完成率</div></div>
+            </div>
+            <div style="display:flex;gap:5px;margin-bottom:8px">
+              <div style="flex:1;background:var(--card);border-radius:6px;padding:6px;text-align:center"><div style="font-size:15px;font-weight:700;color:#7c3aed">17</div><div style="font-size:8px;color:var(--muted)">目前連續</div></div>
+              <div style="flex:1;background:var(--card);border-radius:6px;padding:6px;text-align:center"><div style="font-size:15px;font-weight:700;color:#7c3aed">17</div><div style="font-size:8px;color:var(--muted)">最長連續</div></div>
+              <div style="flex:1;background:var(--card);border-radius:6px;padding:6px;text-align:center"><div style="font-size:15px;font-weight:700;color:#7c3aed">24</div><div style="font-size:8px;color:var(--muted)">完成天數</div></div>
+            </div>
+            <div class="mini-heat">
+              <div class="mh" style="background:#7c3aed66"></div><div class="mh" style="background:#7c3aedbb"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aedbb"></div><div class="mh" style="background:#7c3aed"></div><div class="mh"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aedbb"></div><div class="mh" style="background:#7c3aed"></div>
+              <div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aed66"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aedbb"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aed66"></div><div class="mh" style="background:#7c3aed"></div><div class="mh" style="background:#7c3aedbb"></div><div class="mh" style="background:#7c3aed"></div>
+            </div>
+          </div>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb on"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑦ 新增習慣頁 -->
+<div class="phone-wrap">
+  <div class="phone-label">⑦ 新增習慣</div>
+  <div class="phone">
+    <div class="screen">
+      <div class="s-screen">
+        <div class="s-bar"><h1>新增習慣</h1><p>習慣空間：1 / 2</p></div>
+        <div class="s-main" style="overflow-y:auto">
+          <div class="sec" style="margin-top:0">名稱與圖示</div>
+          <div style="display:flex;gap:6px;margin-bottom:7px">
+            <input class="fi" style="flex:1;margin-bottom:0" placeholder="習慣名稱" value="冥想">
+            <input class="fi" style="width:44px;margin-bottom:0;text-align:center" value="🧘">
+          </div>
+          <div class="sec">單位</div>
+          <input class="fi" style="width:130px" value="分鐘">
+          <div class="sec">三層彈性等級</div>
+          <div style="background:var(--pbg);border-radius:7px;padding:8px 10px;margin-bottom:8px;border-left:3px solid var(--primary);font-size:9px;color:var(--primary);line-height:1.7">即使只完成 <b>今日的1</b>，也算沒斷鏈 🔗</div>
+          <div class="lrow"><div class="lrow-label" style="color:#7c3aed;font-weight:700">今日的1</div><input class="fi" style="margin-bottom:0;flex:1" value="2"><div style="font-size:9px;color:var(--muted)">分鐘</div></div>
+          <div style="font-size:9px;color:var(--muted);padding:1px 0 6px">💡 建議設定為狀況不好時也能做到的一小步</div>
+          <div class="lrow"><div class="lrow-label" style="color:#2563eb;font-weight:700">穩定前進</div><input class="fi" style="margin-bottom:0;flex:1" value="10"><div style="font-size:9px;color:var(--muted)">分鐘</div></div>
+          <div style="height:4px"></div>
+          <div class="lrow"><div class="lrow-label" style="color:#059669;font-weight:700">全力以赴</div><input class="fi" style="margin-bottom:0;flex:1" value="30"><div style="font-size:9px;color:var(--muted)">分鐘</div></div>
+          <div class="sec">錨點時刻（選填）</div>
+          <input class="fi" placeholder="例如：睡前刷完牙之後..." value="睡前刷完牙之後">
+          <div class="sec">身分標語（選填）</div>
+          <div style="display:flex;align-items:center;gap:4px">
+            <span style="font-size:10px;color:var(--sub)">我正在成為一個</span>
+            <input class="fi" style="flex:1;margin-bottom:0" value="內心平靜">
+            <span style="font-size:10px;color:var(--sub)">的人</span>
+          </div>
+          <button class="sv">儲存習慣</button>
+        </div>
+        <div class="s-nav">
+          <div class="s-nb"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb on"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ⑧ 深色模式今日 -->
+<div class="phone-wrap">
+  <div class="phone-label">⑧ 深色模式</div>
+  <div class="phone" style="background:#0f172a">
+    <div class="screen dark" style="background:#1e293b">
+      <div class="s-screen dark-s">
+        <div class="s-bar" style="background:#1e293b;border-color:#334155"><h1 style="color:#f1f5f9">彈性習慣</h1><p style="color:#64748b">2026年4月18日（週五）</p></div>
+        <div class="s-main" style="background:#1e293b;overflow-y:auto">
+          <div class="sec" style="color:#64748b;margin-top:0">今日習慣</div>
+          <div class="pw" style="background:#293548;border:1px solid #334155">
+            <div style="flex:1"><div style="font-size:9px;color:#64748b;margin-bottom:3px">完成 1/2</div><div class="pbg" style="background:#334155"><div class="pf" style="width:50%;background:#818cf8"></div></div></div>
+            <span style="font-size:13px;font-weight:700;color:#818cf8">50%</span>
+          </div>
+          <div class="hc" style="background:#293548;border-color:#334155;border-left:3px solid #818cf8">
+            <div class="hr"><span style="font-size:15px">📚</span><span class="hn" style="color:#f1f5f9">閱讀</span><span class="hsk">🔥 17天</span></div>
+            <div class="lg">
+              <div class="lb fd" style="background:#293548;border-color:#334155"><span class="lbn" style="color:#64748b">今日的1</span><span class="lbv" style="color:#64748b">5 頁</span></div>
+              <div class="lb ac" style="background:#1e1b4b;border-color:#818cf8"><span class="lbn" style="color:#818cf8">穩定前進</span><span class="lbv" style="color:#818cf8">20 頁</span></div>
+              <div class="lb" style="background:#293548;border-color:#334155"><span class="lbn" style="color:#64748b">全力以赴</span><span class="lbv" style="color:#64748b">50 頁</span></div>
+            </div>
+          </div>
+          <div class="hc" style="background:#293548;border-color:#334155;border-left:3px solid #10b981">
+            <div class="hr"><span style="font-size:15px">🏃</span><span class="hn" style="color:#f1f5f9">運動</span><span class="hsk">🔥 5天</span></div>
+            <div class="lg">
+              <div class="lb" style="background:#293548;border-color:#334155"><span class="lbn" style="color:#64748b">今日的1</span><span class="lbv" style="color:#64748b">10 分</span></div>
+              <div class="lb" style="background:#293548;border-color:#334155"><span class="lbn" style="color:#64748b">穩定前進</span><span class="lbv" style="color:#64748b">30 分</span></div>
+              <div class="lb" style="background:#293548;border-color:#334155"><span class="lbn" style="color:#64748b">全力以赴</span><span class="lbv" style="color:#64748b">60 分</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="s-nav" style="background:#1e293b;border-color:#334155">
+          <div class="s-nb on" style="color:#818cf8"><span class="s-ni">🏠</span>今日</div>
+          <div class="s-nb" style="color:#64748b"><span class="s-ni">📅</span>月曆</div>
+          <div class="s-nb" style="color:#64748b"><span class="s-ni">📊</span>統計</div>
+          <div class="s-nb" style="color:#64748b"><span class="s-ni">➕</span>新增</div>
+          <div class="s-nb" style="color:#64748b"><span class="s-ni">⚙️</span>設定</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end phone-grid -->
+
+<div style="text-align:center;margin-top:48px;padding:24px;border-top:1px solid rgba(255,255,255,.08)">
+  <div style="font-size:13px;color:#6b6a85">漫打卡 · Manda PWA · © 2026 Jerry · 曼談人生</div>
+  <div style="font-size:11px;color:#3d3c55;margin-top:4px">截圖時建議用 2x 或 3x 倍率以確保清晰度</div>
+</div>
+
+</body>
+</html>

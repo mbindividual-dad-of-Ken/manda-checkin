@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<!-- 漫打卡 v1.10 | 2026-04-21 | 開發者身份整合・版權簽名・漫談手記・66天彩蛋 -->
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>漫打卡 Manda</title>
+<meta name="author" content="Jerry | 曼談人生">
+<meta name="description" content="漫打卡 — 融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA">
+<meta name="copyright" content="© 2026 Jerry. All Rights Reserved.">
+
+<!-- PWA 核心 -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#4f46e5">
+
+<!-- iOS PWA 支援 -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="漫打卡 Manda">
+<link rel="apple-touch-icon" href="./icons/icon-192.png">
+
+<!-- Android / Chrome -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="漫打卡 Manda">
+
+<!-- Google Analytics 4 (GA4) — 將 G-XXXXXXXXXX 換成你的 Measurement ID -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());
+gtag('config','G-XXXXXXXXXX',{send_page_view:true});
+/* 若尚未填入 ID，禁用送出避免污染 */
+if(window.location.hostname==='localhost'||window.location.protocol==='file:'){
+  window['ga-disable-G-XXXXXXXXXX']=true;
+}
+</script>
+<style>
+:root{
+  --bg:#f0f0f0;--app:#fff;--card:#f9fafb;--border:#e5e7eb;
+  --text:#111;--sub:#6b7280;--muted:#aaa;
+  --primary:#4f46e5;--pbg:#ede9fe;--plight:#c7d2fe;
+  --danger:#ef4444;--warn:#d97706;
+}
+body.dark{
+  --bg:#0f172a;--app:#1e293b;--card:#293548;--border:#334155;
+  --text:#f1f5f9;--sub:#94a3b8;--muted:#64748b;
+  --primary:#818cf8;--pbg:#1e1b4b;--plight:#312e81;
+  --danger:#f87171;--warn:#fbbf24;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;background:var(--bg);display:flex;justify-content:center;min-height:100vh;transition:background .3s,color .3s}
+#app{width:100%;max-width:420px;background:var(--app);min-height:100vh;display:flex;flex-direction:column;transition:background .3s}
+#bar{padding:14px 16px 8px;border-bottom:1px solid var(--border)}
+#bar h1{font-size:20px;font-weight:700;color:var(--text)}
+#bar p{font-size:12px;color:var(--sub);margin-top:2px}
+#main{flex:1;overflow-y:auto;padding:14px}
+#nav{display:flex;border-top:1px solid var(--border)}
+.nb{flex:1;padding:8px 0 10px;border:none;background:var(--app);cursor:pointer;font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s,background .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.nb.on{color:var(--primary)}
+.ni{font-size:18px}
+.sec{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
+.sec:first-child{margin-top:0}
+
+/* Steps */
+.steps{display:flex;align-items:center;margin-bottom:14px}
+.si{flex:1;display:flex;align-items:center;gap:4px}
+.sd{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.sd.done{background:var(--primary);color:#fff}
+.sd.go{background:var(--primary);color:#fff;box-shadow:0 0 0 4px var(--plight)}
+.sd.wait{background:var(--card);color:var(--muted);border:1px solid var(--border)}
+.sl{font-size:10px;color:var(--muted)}
+.sl.go{color:var(--primary);font-weight:700}
+.sline{width:14px;height:2px;background:var(--border);flex-shrink:0;margin:0 2px}
+
+/* Mandala */
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:12px}
+.mc{border-radius:9px;border:1.5px solid var(--border);padding:7px 5px;cursor:pointer;min-height:68px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--card);transition:border-color .15s}
+.mc:hover{border-color:var(--plight)}
+.mc.fill{background:var(--app)}
+.mc.core{background:var(--primary);border-color:var(--primary)}
+.mc .tag{font-size:8px;color:var(--muted);margin-bottom:2px}
+.mc.core .tag{color:rgba(255,255,255,.65)}
+.mc .val{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
+.mc.core .val{color:#fff}
+.mc .ph{font-size:20px;color:var(--border)}
+
+/* Sub-grid */
+.sb{border-radius:10px;border:1px solid var(--border);margin-bottom:9px;overflow:hidden}
+.sbh{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--card);border-bottom:1px solid var(--border)}
+.sbd{width:8px;height:8px;border-radius:50%}
+.sbt{flex:1;font-size:13px;font-weight:600;color:var(--text)}
+.sbb{font-size:10px;padding:2px 8px;border-radius:20px}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:7px}
+.sc{border-radius:7px;border:1px solid var(--border);padding:6px 4px;min-height:52px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;background:var(--card);transition:border-color .15s}
+.sc:hover{border-color:var(--plight)}
+.sc.scc{cursor:default}
+.scv{font-size:10px;font-weight:600;color:var(--text);line-height:1.3}
+.scl{font-size:9px;margin-top:2px;padding:1px 5px;border-radius:10px}
+.scu{font-size:9px;color:var(--muted);margin-top:2px}
+.scp{font-size:18px;color:var(--border)}
+
+/* Progress */
+.pw{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card);border-radius:10px;margin-bottom:9px}
+.pbg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.pf{height:100%;background:var(--primary);border-radius:3px;transition:width .3s}
+
+/* Habit card */
+.hc{background:var(--app);border-radius:10px;border:1px solid var(--border);border-left:4px solid var(--primary);padding:11px 12px;margin-bottom:8px}
+.hr{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.hn{font-size:13px;font-weight:700;color:var(--text);flex:1}
+.hsrc{font-size:9px;padding:2px 6px;border-radius:20px}
+.hsk{font-size:10px;padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e}
+.hd{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 4px}
+.lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.lb{padding:7px 3px;border-radius:7px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .12s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.lb:hover{border-color:var(--plight)}
+.lbn{font-size:10px;font-weight:700;display:block;color:var(--muted)}
+.lbv{font-size:9px;display:block;margin-top:1px;color:var(--muted)}
+
+/* Modal */
+#mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:flex-end}
+#mo.open{display:flex}
+#mb{background:var(--app);border-radius:18px 18px 0 0;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
+.mt{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px}
+.md{font-size:12px;color:var(--sub);margin-bottom:14px;line-height:1.6}
+.ml{font-size:11px;color:var(--sub);margin-bottom:4px;display:block}
+.mi{width:100%;padding:10px 11px;border-radius:9px;border:1.5px solid var(--border);font-size:14px;color:var(--text);background:var(--card);margin-bottom:12px;font-family:sans-serif}
+.mi:focus{outline:none;border-color:var(--plight)}
+.msel{width:100%;padding:9px 11px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;color:var(--text);background:var(--card);margin-bottom:12px;font-family:sans-serif}
+.mh{font-size:11px;color:var(--sub);background:var(--card);padding:9px 11px;border-radius:9px;margin-bottom:12px;line-height:1.6}
+.mbtns{display:flex;gap:7px}
+.mbtn{flex:1;padding:11px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;cursor:pointer;font-family:sans-serif;background:var(--app);color:var(--text);font-weight:600}
+.mbtn:hover{background:var(--card)}
+.mbtn.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
+.mbtn.red{color:var(--danger);border-color:#fca5a5}
+.swrow{display:flex;gap:7px;margin-bottom:13px;flex-wrap:wrap}
+.sw{width:30px;height:30px;border-radius:6px;cursor:pointer;border:3px solid transparent;transition:all .12s}
+.sw.on{border-color:var(--text);transform:scale(1.15)}
+
+/* Calendar */
+.cn{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.cnb{background:var(--app);border:1.5px solid var(--border);border-radius:8px;padding:5px 13px;cursor:pointer;font-size:13px;color:var(--text);font-family:sans-serif}
+.cnb:hover{background:var(--card)}
+.cm{font-size:14px;font-weight:700;color:var(--text)}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:11px}
+.cdow{font-size:9px;text-align:center;color:var(--muted);padding:3px 0;font-weight:700}
+.cd{aspect-ratio:1;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;cursor:pointer;color:var(--text)}
+.cd:hover{background:var(--card)}
+.cd.tod{font-weight:700;box-shadow:inset 0 0 0 2px var(--primary)}
+.cd.oth{opacity:.28;pointer-events:none}
+.cd.sel{background:var(--pbg);font-weight:700}
+.cdd{display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;justify-content:center;max-width:24px}
+.cdt{width:3px;height:3px;border-radius:50%;flex-shrink:0}
+.cdet{background:var(--card);border-radius:10px;padding:12px;border:1px solid var(--border)}
+.cdr{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.cdr:last-child{border-bottom:none}
+
+/* Add habit */
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px}
+.chip{font-size:11px;padding:5px 11px;border-radius:20px;border:1.5px solid var(--border);cursor:pointer;background:var(--card);color:var(--sub);transition:all .12s}
+.chip:hover{border-color:var(--plight)}
+.chip.on{background:var(--pbg);color:var(--primary);border-color:var(--plight)}
+.fi{width:100%;padding:9px 11px;border-radius:9px;border:1.5px solid var(--border);font-size:13px;color:var(--text);background:var(--card);margin-bottom:9px;font-family:sans-serif}
+.fi:focus{outline:none;border-color:var(--plight)}
+.cg{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:11px}
+.cs{aspect-ratio:1;border-radius:5px;cursor:pointer;border:3px solid transparent;transition:all .12s}
+.cs.on{border-color:var(--text);transform:scale(1.12)}
+.lrow{display:grid;grid-template-columns:46px 1fr 38px;gap:5px;align-items:center;margin-bottom:6px}
+.sv{width:100%;padding:12px;background:var(--primary);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;margin-top:9px;font-family:sans-serif}
+.sv:hover{opacity:.9}
+
+/* Settings */
+.sblk{background:var(--card);border-radius:10px;padding:3px 13px;margin-bottom:9px;border:1px solid var(--border)}
+.srow{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border)}
+.srow:last-child{border-bottom:none}
+.slb{font-size:13px;color:var(--text);font-weight:500}
+.ssub{font-size:10px;color:var(--muted);margin-top:2px}
+.tgl{width:38px;height:22px;border-radius:11px;background:var(--muted);cursor:pointer;position:relative;transition:background .2s;flex-shrink:0;border:none}
+.tgl.on{background:var(--primary)}
+.tglk{position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.tgl.on .tglk{left:19px}
+
+/* Stats */
+.stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px}
+.stat-card{background:var(--card);border-radius:10px;padding:12px 14px;margin-bottom:8px;border:1px solid var(--border)}
+.stat-num{font-size:28px;font-weight:700;color:var(--primary)}
+.stat-lbl{font-size:11px;color:var(--sub);margin-top:2px}
+.lvl-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lvl-lbl{font-size:11px;color:var(--sub);width:32px;flex-shrink:0}
+.lvl-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden}
+.lvl-bar{height:100%;border-radius:4px;transition:width .5s}
+.lvl-cnt{font-size:11px;color:var(--sub);width:28px;text-align:right;flex-shrink:0}
+.mini-heat{display:grid;grid-template-columns:repeat(10,1fr);gap:2px;margin-top:6px}
+.mh-cell{aspect-ratio:1;border-radius:2px}
+
+/* Timer */
+.timer-bar{margin-top:9px;padding:10px 12px;background:var(--card);border-radius:9px;border:1px solid var(--border)}
+.timer-display{font-size:28px;font-weight:700;text-align:center;letter-spacing:2px;margin-bottom:8px;font-variant-numeric:tabular-nums;color:var(--text)}
+.timer-controls{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.tbtn{padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;font-size:13px;font-weight:600;font-family:sans-serif;color:var(--text);transition:all .12s}
+.tbtn:hover{background:var(--card)}
+.tbtn.start{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tbtn.stop{background:var(--danger);color:#fff;border-color:var(--danger)}
+.timer-presets{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.tpreset{padding:4px 10px;border-radius:20px;border:1px solid var(--border);background:var(--card);cursor:pointer;font-size:11px;color:var(--sub);font-family:sans-serif}
+.tpreset:hover{border-color:var(--plight);color:var(--primary)}
+.tpreset.on{background:var(--pbg);color:var(--primary);border-color:var(--plight)}
+.timer-mode-btns{display:flex;margin-bottom:9px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.tmode{flex:1;padding:6px;border:none;background:var(--card);cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);font-family:sans-serif}
+.tmode.on{background:var(--primary);color:#fff}
+
+#toast{position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:#1f2937;color:#fff;font-size:13px;padding:9px 20px;border-radius:25px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9999}
+#toast.show{opacity:1}
+.empty{text-align:center;padding:36px 20px;color:var(--muted);font-size:13px;line-height:1.8}
+
+
+/* ── Skeleton 骨架屏 ── */
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+.ske{border-radius:8px;background:linear-gradient(90deg,var(--border) 25%,var(--card) 50%,var(--border) 75%);background-size:800px 100%;animation:shimmer 1.4s infinite linear}
+.ske-title{height:18px;width:55%;margin-bottom:10px}
+.ske-sub{height:12px;width:35%;margin-bottom:16px}
+.ske-card{height:80px;margin-bottom:10px}
+.ske-row{height:52px;margin-bottom:8px}
+.ske-stat{height:64px;border-radius:10px}
+
+/* ── Ripple 觸控回饋 ── */
+.ripple-host{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+@keyframes ripple-out{to{transform:scale(4);opacity:0}}
+.ripple-wave{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:ripple-out .5s linear;pointer-events:none}
+
+/* ── 成就動畫 ── */
+@keyframes burst{0%{transform:scale(0);opacity:1}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1.5);opacity:0}}
+@keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(80px) rotate(360deg);opacity:0}}
+@keyframes milestone-in{0%{transform:translateY(40px) scale(.9);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}}
+.elite-burst{pointer-events:none;position:fixed;z-index:9990;width:60px;height:60px;border-radius:50%;background:radial-gradient(circle,#fbbf24,#f59e0b)}
+.confetti-dot{pointer-events:none;position:fixed;z-index:9989;width:8px;height:8px;border-radius:2px}
+
+/* 里程碑彈窗 */
+#milestone-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9995;justify-content:center;align-items:center;padding:20px}
+#milestone-modal.open{display:flex}
+#milestone-box{background:var(--app);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center;animation:milestone-in .35s ease}
+.ms-emoji{font-size:56px;margin-bottom:10px}
+.ms-title{font-size:20px;font-weight:800;color:var(--text);margin-bottom:6px}
+.ms-sub{font-size:13px;color:var(--sub);line-height:1.7;margin-bottom:20px}
+.ms-btn{display:block;width:100%;padding:13px;background:var(--primary);color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif;margin-bottom:9px}
+.ms-skip{font-size:12px;color:var(--muted);cursor:pointer;text-decoration:underline}
+
+/* iOS 安裝引導彈窗 */
+#ios-guide{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9994;justify-content:center;align-items:flex-end;padding-bottom:env(safe-area-inset-bottom,0)}
+#ios-guide.open{display:flex}
+#ios-box{background:var(--app);border-radius:20px 20px 0 0;padding:24px 20px 28px;width:100%;max-width:420px}
+.ios-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:14px;text-align:center}
+.ios-step{display:flex;align-items:flex-start;gap:12px;margin-bottom:14px}
+.ios-num{width:26px;height:26px;border-radius:50%;background:var(--primary);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.ios-txt{font-size:14px;color:var(--text);line-height:1.6}
+.ios-txt b{color:var(--primary)}
+.ios-close{display:block;width:100%;padding:12px;background:var(--card);color:var(--text);border:1.5px solid var(--border);border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;font-family:sans-serif;margin-top:6px;text-align:center}
+
+/* PWA：iOS safe area (瀏海/圓角手機) */
+#app{padding-bottom:env(safe-area-inset-bottom,0px)}
+#nav{padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* PWA 安裝橫幅 */
+#install-banner{display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--primary);color:#fff;padding:12px 16px 16px;z-index:9998;align-items:center;gap:12px;box-shadow:0 -4px 20px rgba(0,0,0,.2)}
+#install-banner.show{display:flex}
+#install-banner img{width:36px;height:36px;border-radius:8px;flex-shrink:0}
+#install-banner .ib-text{flex:1;font-size:13px;line-height:1.4}
+#install-banner .ib-title{font-weight:700;margin-bottom:2px}
+#install-banner .ib-sub{opacity:.8;font-size:11px}
+#install-banner .ib-btns{display:flex;gap:7px;flex-shrink:0}
+#install-banner .ib-btn{padding:7px 13px;border-radius:8px;border:none;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif}
+#install-banner .ib-install{background:#fff;color:var(--primary)}
+#install-banner .ib-dismiss{background:rgba(255,255,255,.2);color:#fff}
+</style>
+</head>
+<body>
+<!-- PWA 安裝橫幅（Android Chrome 自動觸發，iOS 顯示手動說明） -->
+<div id="install-banner">
+  <img src="./icons/icon-192.png" alt="icon">
+  <div class="ib-text">
+    <div class="ib-title">安裝彈性習慣 App</div>
+    <div class="ib-sub">加入桌面，離線也能使用</div>
+  </div>
+  <div class="ib-btns">
+    <button class="ib-btn ib-install" onclick="doInstall()">安裝</button>
+    <button class="ib-btn ib-dismiss" onclick="dismissBanner()">略過</button>
+  </div>
+</div>
+
+<!-- 里程碑成就彈窗 -->
+<div id="milestone-modal">
+  <div id="milestone-box">
+    <div class="ms-emoji" id="ms-emoji">🎉</div>
+    <div class="ms-title" id="ms-title">太厲害了！</div>
+    <div class="ms-sub" id="ms-sub">你已連續完成習慣 7 天！</div>
+    <div id="ms-quote" style="margin:14px 0 4px;padding:12px 14px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary);font-size:12px;color:var(--primary);line-height:1.7;font-style:italic;text-align:left"></div>
+    <div id="ms-quote-src" style="font-size:10px;color:var(--muted);text-align:right;margin-bottom:8px"></div>
+    <button class="ms-btn" onclick="closeMilestone()">繼續保持 💪</button>
+    <div class="ms-skip" onclick="closeMilestone()">稍後再說</div>
+  </div>
+</div>
+
+<!-- iOS 安裝引導彈窗 -->
+<!-- Fake Door 升級彈窗 -->
+<div id="upgrade-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9996;justify-content:center;align-items:center;padding:20px">
+  <div style="background:var(--app);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center">
+    <div style="font-size:48px;margin-bottom:10px">✨</div>
+    <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">Plus 方案即將推出</div>
+    <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">無限習慣對數、雲端同步備份、完整歷史紀錄、成就分享卡片，所有功能都在路上了。<br><br>感謝你的支持！上線第一時間通知你。</div>
+    <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">我知道了，期待上線</button>
+    <div onclick="closeUpgrade()" style="margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer">稍後再看</div>
+  </div>
+</div>
+
+<div id="ios-guide">
+  <div id="ios-box">
+    <div class="ios-title">📱 把 App 加到主畫面</div>
+    <div class="ios-step">
+      <div class="ios-num">1</div>
+      <div class="ios-txt">點 Safari 下方的 <b>分享按鈕</b> <span style="font-size:18px">⎙</span></div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-num">2</div>
+      <div class="ios-txt">向下滑，選擇「<b>加入主畫面</b>」</div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-num">3</div>
+      <div class="ios-txt">點右上角「<b>新增</b>」，完成！可像 App 一樣開啟</div>
+    </div>
+    <button class="ios-close" onclick="closeIOSGuide()">好，我知道了</button>
+  </div>
+</div>
+
+<div id="app">
+  <div id="bar"><h1 id="ttl">漫打卡</h1><p id="tsub"></p><p id="daily-slogan" style="font-size:11px;color:var(--primary);opacity:.75;margin-top:3px;font-style:italic;line-height:1.5"></p></div>
+  <div id="main"></div>
+  <div id="nav">
+    <button class="nb on" id="nb0" onclick="go(0)"><span class="ni">🏠</span>今日</button>
+    <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>月曆</button>
+    <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>統計</button>
+    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">➕</span>新增</button>
+    <button class="nb" id="nb4" onclick="go(4)"><span class="ni">⚙️</span>設定</button>
+  </div>
+</div>
+<div id="mo" onclick="if(event.target===this)cm()"><div id="mb"></div></div>
+<div id="toast"></div>
+<script>
+/* ── 開發者版權簽名 ── */
+// 版權所有 © 2026 Jerry. All Rights Reserved.
+// 本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
+// MANDALA_TALKS_DNA: Elastic-OW64-Resilience-2026
+var APP_AUTHOR='Jerry',MANDALA_TALKS_DNA='Elastic-OW64-Resilience-2026';
+var SK='eh3',CL=['#7c3aed','#2563eb','#0f766e','#16a34a','#d97706','#dc2626','#db2777','#4b5563'];
+var CO=[0,1,2,3,-1,4,5,6,7],tab=0,cY,cM,cSel,aC='#7c3aed';
+var TPLS=[
+  {n:'閱讀',i:'📚',u:'頁',a:5,b:20,c:50,col:'#7c3aed'},
+  {n:'運動',i:'🏃',u:'分鐘',a:10,b:30,c:60,col:'#16a34a'},
+  {n:'冥想',i:'🧘',u:'分鐘',a:2,b:10,c:30,col:'#2563eb'},
+  {n:'喝水',i:'💧',u:'杯',a:2,b:4,c:8,col:'#0f766e'},
+  {n:'寫作',i:'✍️',u:'字',a:100,b:500,c:1000,col:'#d97706'}
+];
+
+/* ── 資料 ── */
+function ld(){
+  try{
+    var d=JSON.parse(localStorage.getItem(SK)||'{}');
+    if(!d.h)d.h=[];if(!d.l)d.l={};if(!d.s)d.s={};
+    if(!d.m)d.m=nm();if(!d.ts)d.ts={};
+    return d;
+  }catch(e){return{h:[],l:{},s:{},m:nm(),ts:{}};}
+}
+function sv(d){localStorage.setItem(SK,JSON.stringify(d));}
+function nm(){
+  return{core:'',
+    cells:Array(8).fill(0).map(function(){return{t:'',c:'',hid:''};}),
+    subs:Array(8).fill(0).map(function(){return{cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};})
+  };
+}
+function td(){var d=new Date();return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function ds(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
+function p2(n){return String(n).padStart(2,'0');}
+function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── 語錄管理 ── */
+function addCQ(){
+  var v=document.getElementById('newQ').value.trim();
+  if(!v){toast('請輸入語錄內容');return;}
+  var d=ld();if(!d.customQ)d.customQ=[];
+  d.customQ.push(v);sv(d);rS();toast('✓ 已新增語錄');
+}
+function delCQ(i){
+  var d=ld();if(!d.customQ)return;
+  d.customQ.splice(i,1);sv(d);rS();toast('已刪除');
+}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2200);}
+
+/* ── 統計輔助 ── */
+function sk(logs,hid){
+  var s=0,c=new Date();c.setDate(c.getDate()-1);
+  for(var i=0;i<365;i++){
+    var x=ds(c);
+    if(logs[x]&&(logs[x][hid]||0)>=1){s++;c.setDate(c.getDate()-1);}else break;
+  }
+  return s;
+}
+function maxStreak(logs,hid){
+  var max=0,cur=0,c=new Date();
+  for(var i=0;i<365;i++){
+    var x=ds(c);
+    if(logs[x]&&(logs[x][hid]||0)>=1){cur++;if(cur>max)max=cur;}else cur=0;
+    c.setDate(c.getDate()-1);
+  }
+  return max;
+}
+function last30Stats(logs,hid){
+  var byLevel=[0,0,0],c=new Date();
+  for(var i=0;i<30;i++){
+    var lv=(logs[ds(c)]||{})[hid]||0;
+    if(lv>=1)byLevel[lv-1]++;
+    c.setDate(c.getDate()-1);
+  }
+  var total=byLevel[0]+byLevel[1]+byLevel[2];
+  return{total:total,rate:Math.round(total/30*100),byLevel:byLevel};
+}
+function fsrc(m,hid){
+  for(var ci=0;ci<8;ci++)if(m.subs[ci])for(var si=0;si<8;si++)if(m.subs[ci].cells[si]&&m.subs[ci].cells[si].hid===hid)return m.cells[ci]?m.cells[ci].t:'';
+  return '';
+}
+
+/* ── 導覽 ── */
+function go(t){
+  tab=t;
+  for(var i=0;i<5;i++)document.getElementById('nb'+i).classList.remove('on');
+  document.getElementById('nb'+t).classList.add('on');
+  cm();
+  /* 骨架屏：先渲染佔位，再填入真實內容 */
+  var skeletons={
+    0:'<div class="ske ske-title"></div><div class="ske ske-sub"></div><div class="ske ske-card"></div><div class="ske ske-card"></div><div class="ske ske-card"></div>',
+    1:'<div class="ske ske-title"></div><div class="ske ske-card" style="height:220px"></div>',
+    2:'<div class="ske ske-title"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"><div class="ske ske-stat"></div><div class="ske ske-stat"></div><div class="ske ske-stat"></div></div><div class="ske ske-card"></div><div class="ske ske-card"></div>',
+    3:'<div class="ske ske-title"></div><div class="ske ske-row"></div><div class="ske ske-row"></div><div class="ske ske-row"></div>',
+    4:'<div class="ske ske-title"></div><div class="ske ske-card"></div><div class="ske ske-card"></div>'
+  };
+  document.getElementById('main').innerHTML=skeletons[t]||'';
+  requestAnimationFrame(function(){
+    if(t===0)rH();else if(t===1)rC();else if(t===2)rSt();else if(t===3)rA();else rS();
+  });
+}
+function cm(){document.getElementById('mo').classList.remove('open');}
+function om(html){
+  document.getElementById('mb').innerHTML=html;
+  document.getElementById('mo').classList.add('open');
+  setTimeout(function(){var f=document.querySelector('#mb input[type=text]');if(f)f.focus();},100);
+}
+
+/* ── 音效（Web Audio API）── */
+function playBeep(){
+  try{
+    var ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [880,1100,1320].forEach(function(freq,i){
+      var osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq;osc.type='sine';
+      var t=ctx.currentTime+i*0.18;
+      gain.gain.setValueAtTime(0.3,t);
+      gain.gain.exponentialRampToValueAtTime(0.001,t+0.14);
+      osc.start(t);osc.stop(t+0.14);
+    });
+  }catch(e){}
+}
+
+/* ── 計時器 ── */
+var timers={},shownTimers={};
+function getTimer(hid){
+  if(!timers[hid]){
+    var d=ld(),ts=(d.ts&&d.ts[hid])||{};
+    timers[hid]={mode:ts.mode||'countdown',running:false,elapsed:0,target:ts.target||600,startAt:null,interval:null,alerted:false};
+  }
+  return timers[hid];
+}
+function saveTimerSettings(hid){
+  var tm=timers[hid];if(!tm)return;
+  var d=ld();if(!d.ts)d.ts={};
+  d.ts[hid]={mode:tm.mode,target:tm.target};sv(d);
+}
+function timerFmt(secs){
+  var m=Math.floor(Math.abs(secs)/60),s=Math.abs(secs)%60;
+  return(secs<0?'-':'')+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+function timerTick(hid){
+  var tm=getTimer(hid);if(!tm.running)return;
+  var now=Date.now(),elapsed=tm.elapsed+Math.floor((now-tm.startAt)/1000);
+  var el=document.getElementById('tdisplay-'+hid);
+  if(!el){clearInterval(tm.interval);tm.running=false;return;}
+  if(tm.mode==='countdown'){
+    var rem=tm.target-elapsed;
+    el.textContent=timerFmt(rem);
+    el.style.color=rem<=0?'var(--danger)':'var(--text)';
+    if(rem<=0&&!tm.alerted){
+      tm.alerted=true;playBeep();
+      if('Notification'in window&&Notification.permission==='granted')
+        new Notification('計時完成！',{body:'習慣計時結束 ⏰'});
+    }
+  }else{el.textContent=timerFmt(elapsed);el.style.color='var(--text)';}
+}
+function startTimer(hid){var tm=getTimer(hid);if(tm.running)return;tm.running=true;tm.startAt=Date.now();tm.alerted=false;tm.interval=setInterval(function(){timerTick(hid);},500);renderTimerBtn(hid);}
+function pauseTimer(hid){var tm=getTimer(hid);if(!tm.running)return;tm.elapsed+=Math.floor((Date.now()-tm.startAt)/1000);clearInterval(tm.interval);tm.running=false;renderTimerBtn(hid);}
+function resetTimer(hid){
+  var tm=getTimer(hid);clearInterval(tm.interval);
+  tm.running=false;tm.elapsed=0;tm.startAt=null;tm.alerted=false;
+  var el=document.getElementById('tdisplay-'+hid);
+  if(el){el.textContent=tm.mode==='countdown'?timerFmt(tm.target):'00:00';el.style.color='var(--text)';}
+  renderTimerBtn(hid);
+}
+function renderTimerBtn(hid){
+  var tm=getTimer(hid),btn=document.getElementById('tstart-'+hid);if(!btn)return;
+  if(tm.running){btn.textContent='暫停';btn.className='tbtn stop';btn.onclick=function(){pauseTimer(hid);};}
+  else{btn.textContent='開始';btn.className='tbtn start';btn.onclick=function(){startTimer(hid);};}
+}
+function setTimerMode(hid,mode){
+  var tm=getTimer(hid);resetTimer(hid);tm.mode=mode;saveTimerSettings(hid);
+  var el=document.getElementById('tdisplay-'+hid);
+  if(el)el.textContent=mode==='countdown'?timerFmt(tm.target):'00:00';
+  ['countdown','stopwatch'].forEach(function(m){var b=document.getElementById('tmode-'+hid+'-'+m);if(b)b.className='tmode'+(tm.mode===m?' on':'');});
+  var pre=document.getElementById('tpresets-'+hid);if(pre)pre.style.display=mode==='countdown'?'flex':'none';
+}
+function setPreset(hid,secs){
+  var tm=getTimer(hid);resetTimer(hid);tm.target=secs;saveTimerSettings(hid);
+  var el=document.getElementById('tdisplay-'+hid);if(el)el.textContent=timerFmt(secs);
+  document.querySelectorAll('.tpreset[data-hid="'+hid+'"]').forEach(function(b){b.classList.toggle('on',parseInt(b.dataset.secs)===secs);});
+}
+function renderTimerHTML(hid){
+  var tm=getTimer(hid);
+  var presets=[[60,'1分'],[120,'2分'],[300,'5分'],[600,'10分'],[1200,'20分'],[1800,'30分'],[3600,'60分']];
+  var h='<div class="timer-bar" id="timerbar-'+hid+'">';
+  h+='<div class="timer-mode-btns">';
+  h+='<button class="tmode'+(tm.mode==='countdown'?' on':'')+'" id="tmode-'+hid+'-countdown" onclick="setTimerMode(\''+hid+'\',\'countdown\')">⏳ 倒數</button>';
+  h+='<button class="tmode'+(tm.mode==='stopwatch'?' on':'')+'" id="tmode-'+hid+'-stopwatch" onclick="setTimerMode(\''+hid+'\',\'stopwatch\')">⏱ 碼錶</button>';
+  h+='</div>';
+  h+='<div class="timer-display" id="tdisplay-'+hid+'">'+(tm.mode==='countdown'?timerFmt(tm.target):timerFmt(tm.elapsed))+'</div>';
+  h+='<div class="timer-controls">';
+  h+='<button class="'+(tm.running?'tbtn stop':'tbtn start')+'" id="tstart-'+hid+'" onclick="'+(tm.running?'pauseTimer':'startTimer')+'(\''+hid+'\')">'+(tm.running?'暫停':'開始')+'</button>';
+  h+='<button class="tbtn" onclick="resetTimer(\''+hid+'\')">重置</button>';
+  h+='</div>';
+  h+='<div class="timer-presets" id="tpresets-'+hid+'" style="display:'+(tm.mode==='countdown'?'flex':'none')+'">';
+  presets.forEach(function(p){h+='<div class="tpreset'+(tm.target===p[0]?' on':'')+'" data-hid="'+hid+'" data-secs="'+p[0]+'" onclick="setPreset(\''+hid+'\','+p[0]+')">'+p[1]+'</div>';});
+  h+='</div></div>';
+  return h;
+}
+function toggleTimer(hid){
+  if(shownTimers[hid]){var bar=document.getElementById('timerbar-'+hid);if(bar)bar.parentNode.removeChild(bar);shownTimers[hid]=false;}
+  else{var card=document.getElementById('hcard-'+hid);if(card)card.insertAdjacentHTML('beforeend',renderTimerHTML(hid));shownTimers[hid]=true;}
+}
+
+/* ── 今日頁面 ── */
+function rH(){
+  var d=ld(),t=td(),log=d.l[t]||{},m=d.m,n=new Date(),days=['日','一','二','三','四','五','六'];
+  document.getElementById('ttl').textContent='彈性習慣';
+  document.getElementById('tsub').textContent=n.getFullYear()+'年'+(n.getMonth()+1)+'月'+n.getDate()+'日（週'+days[n.getDay()]+'）';
+  document.getElementById('daily-slogan').textContent=getDailySlogan();
+  var hasA=m.cells.some(function(c){return c&&c.t;});
+  var H='<div id="checkin-quote" style="display:none;margin:0 0 10px;padding:10px 14px;background:var(--pbg);border-radius:10px;border-left:3px solid var(--primary);font-size:12px;line-height:1.7"></div>';
+  H+='<div class="steps">';
+  var st=[{n:1,l:'核心目標',d:!!m.core},{n:2,l:'行動領域',d:hasA},{n:3,l:'連結習慣',d:d.h.length>0}];
+  st.forEach(function(s,i){
+    var a=!s.d&&(i===0||(i>0&&st[i-1].d));
+    H+='<div class="si"><div class="sd '+(s.d?'done':a?'go':'wait')+'">'+(s.d?'✓':s.n)+'</div><div class="sl'+(a?' go':'')+'">'+s.l+'</div></div>';
+    if(i<2)H+='<div class="sline"></div>';
+  });
+  H+='</div>';
+  H+='<div class="sec">曼陀羅九宮格</div>';
+  H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">核心目標 ⟶ 8 個行動領域 ⟶ 64 個具體行動（OW64 法則）</div>';
+  H+='<div class="mgrid">';
+  CO.forEach(function(ci){
+    if(ci===-1){H+='<div class="mc core" onclick="oCore()"><div class="tag">核心目標</div><div class="val">'+(m.core?e(m.core):'點此設定')+'</div></div>';}
+    else{
+      var cell=m.cells[ci]||{},bc=cell.c||(cell.t?'#4f46e5':'var(--border)');
+      H+='<div class="mc'+(cell.t?' fill':'')+'" style="border-color:'+bc+'" onclick="oCell('+ci+')">';
+      if(cell.t)H+='<div class="tag">領域</div><div class="val">'+e(cell.t)+'</div>';
+      else H+='<div class="ph">'+(m.core?'＋':'')+'</div>';
+      H+='</div>';
+    }
+  });
+  H+='</div>';
+  var filled=[];for(var k=0;k<8;k++)if(m.cells[k]&&m.cells[k].t)filled.push(k);
+  if(filled.length){
+    H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">點執行格填入行動並連結習慣</div>';
+    filled.forEach(function(ci){
+      var cell=m.cells[ci],sub=m.subs[ci],bc=cell.c||'#4f46e5';
+      var lc=sub?sub.cells.filter(function(c){return c&&c.hid;}).length:0;
+      H+='<div class="sb"><div class="sbh"><div class="sbd" style="background:'+bc+'"></div><div class="sbt">'+e(cell.t)+'</div><div class="sbb" style="background:'+bc+'20;color:'+bc+'">'+(lc?lc+'個習慣':'未連結')+'</div></div>';
+      H+='<div class="sgrid">';
+      CO.forEach(function(sci){
+        if(sci===-1){H+='<div class="sc scc" style="background:'+bc+'15;border-color:'+bc+'"><div class="scv" style="color:'+bc+'">'+e(cell.t)+'</div></div>';}
+        else{
+          var sc=(sub&&sub.cells[sci])||{},lh=sc.hid?d.h.find(function(x){return x.id===sc.hid;}):null;
+          H+='<div class="sc" onclick="oSub('+ci+','+sci+')">';
+          if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+lh.i+' '+lh.n+'</div>';else H+='<div class="scu">未連結</div>';}
+          else H+='<div class="scp">＋</div>';
+          H+='</div>';
+        }
+      });
+      H+='</div></div>';
+    });
+  }
+  if(d.h.length){
+    var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
+    var pct=Math.round(done/d.h.length*100);
+    H+='<div class="sec" style="margin-top:14px">今日習慣</div>';
+    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">完成 '+done+'/'+d.h.length+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
+    d.h.forEach(function(hb){
+      var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#4f46e5',src=fsrc(m,hb.id);
+      H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
+      H+='<div class="hr"><span style="font-size:17px">'+hb.i+'</span><span class="hn">'+e(hb.n)+'</span>';
+      if(src)H+='<span class="hsrc" style="background:'+col+'20;color:'+col+'">'+e(src)+'</span>';
+      if(st>0)H+='<span class="hsk">🔥'+st+'天</span>';
+      H+='<button class="hd" onclick="dH(\''+hb.id+'\')">✕</button>';
+      H+='<button class="tbtn" style="padding:4px 10px;font-size:13px;margin-left:3px" onclick="toggleTimer(\''+hb.id+'\')" title="計時器">⏱</button></div>';
+      H+='<div class="lg">';
+      [{lv:1,n:'今日的1'},{lv:2,n:'穩定前進'},{lv:3,n:'全力以赴'}].forEach(function(x){
+        var ac=lvl>=x.lv,fd=lvl>x.lv;
+        var bg=ac?col+(x.lv===1?'22':x.lv===2?'44':'66'):'var(--card)';
+        var bc2=ac?col:'var(--border)';
+        H+='<div class="lb" style="background:'+bg+';border-color:'+bc2+';'+(fd?'opacity:.38;text-decoration:line-through':'')+'" onclick="tLv(\''+hb.id+'\','+x.lv+')">';
+        H+='<span class="lbn" style="color:'+(ac?col:'var(--muted)')+'">'+x.n+'</span>';
+        if(x.lv===2&&lvl===0){H+='<span style="font-size:9px;background:#4f46e520;color:#4f46e5;padding:1px 5px;border-radius:8px;display:block;margin-top:2px">推薦</span>';}
+        H+='<span class="lbv" style="color:'+(ac?col:'var(--muted)')+'">'+hb['v'+x.lv]+' '+hb.u+'</span></div>';
+      });
+      H+='</div></div>';
+    });
+  }else{H+='<div class="empty">到「新增」頁面加入第一個習慣</div>';}
+  H+='<div style="height:20px"></div>';
+  document.getElementById('main').innerHTML=H;
+}
+function tLv(hid,lv){
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  var cur=d.l[t][hid]||0;
+  var newLv=cur>=lv?lv-1:lv;
+  d.l[t][hid]=newLv;sv(d);
+  /* GA4 追蹤：只在打卡（非取消）時發送 */
+  if(newLv>0){
+    var hb=d.h.find(function(x){return x.id===hid;});
+    trackHabit(hid,newLv,hb?hb.n:'');
+    /* Elite 動畫 */
+    if(newLv===3){
+      var btn=document.querySelector('[onclick="tLv(\''+hid+'\',3)"]');
+      eliteBurst(btn);
+    }
+  }
+  rH();  /* 打卡完成：顯示隨機語錄 */
+  if(newLv>0){
+    var allQ=QUOTES.concat((ld().customQ||[]).map(function(q){return{q:q,src:'我的語錄'};}));
+    var rq=allQ[Math.floor(Math.random()*allQ.length)];
+    var qEl=document.getElementById('checkin-quote');
+    if(qEl){
+      qEl.innerHTML='<span style="font-style:italic;color:var(--primary)">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>';
+      qEl.style.display='block';
+      clearTimeout(qEl._t);
+      qEl._t=setTimeout(function(){qEl.style.display='none';},5000);
+    }
+  }
+  /* 里程碑檢查（打卡後計算連續天數）*/
+  if(newLv>0){
+    var streak=sk(d.l,hid);
+    checkMilestone(hid,streak);
+  }
+}
+function dH(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rH();}
+
+/* ── 曼陀羅編輯 ── */
+function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">設定你最重要的人生目標，所有行動圍繞它展開。<br><br>大谷翔平高一時就用這套方法——把最大的夢想寫在中心，再拆解為 <b>8 個支擐條件</b>，每個條件再展開 <b>8 個具體行動</b>，合計 64 格行動計畫（OW64）。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
+function svCore(){var d=ld();d.m.core=document.getElementById('xc').value.trim();sv(d);cm();rH();}
+function oCell(ci){
+  var d=ld(),cell=d.m.cells[ci]||{};
+  var sw=CL.map(function(c){return '<div class="sw'+(cell.c===c?' on':'')+'" style="background:'+c+'" onclick="pSw(this,\''+c+'\')"></div>';}).join('');
+  om('<div class="mt">② 行動領域</div><div class="md">為了達成核心目標，需要哪些面向的努力？<span style="color:var(--primary)">這格代表方向，在執行格連結習慣。</span><br><br><b>OW64 四方向參考：</b><br>❤️ 心（不輕易放棄）· ⭐ 技（專業技能）· 💪 體（身體健康）· 🌱 活（生活準則）</div><label class="ml">領域名稱</label><input type="text" class="mi" id="xct" value="'+e(cell.t||'')+'" placeholder="例如：體能訓練"/><label class="ml">代表色</label><div class="swrow" id="xsw">'+sw+'</div><div class="mbtns">'+(cell.t?'<button class="mbtn red" onclick="dCell('+ci+')">刪除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCell('+ci+')">儲存</button></div>');
+}
+function pSw(el,c){document.querySelectorAll('#xsw .sw').forEach(function(s){s.classList.remove('on');});el.classList.add('on');}
+function svCell(ci){var d=ld(),v=document.getElementById('xct').value.trim(),s=document.querySelector('#xsw .sw.on');d.m.cells[ci]={t:v,c:s?s.style.background:CL[ci%8],hid:''};sv(d);cm();rH();}
+function dCell(ci){var d=ld();d.m.cells[ci]={t:'',c:'',hid:''};d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};sv(d);cm();rH();}
+function oSub(ci,sci){
+  var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};
+  var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#4f46e5';
+  var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+h.i+' '+h.n+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 全力以赴:'+h.v3+' '+h.u+'</option>';}).join('');
+  var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「新增」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/全力以赴 打卡。</div>';
+  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」的具體行動</div><label class="ml">行動描述</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：每天重量訓練 30 分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
+}
+function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,hid:hid};sv(d);cm();rH();}
+function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',hid:''};sv(d);cm();rH();}
+
+/* ── 月曆 ── */
+function rC(){
+  document.getElementById('ttl').textContent='月曆';
+  document.getElementById('tsub').textContent='點選日期查看紀錄';
+  var n=new Date();if(!cY){cY=n.getFullYear();cM=n.getMonth();}if(!cSel)cSel=td();
+  var d=ld(),t=td(),mons=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  var H='<div class="cn"><button class="cnb" onclick="cMv(-1)">◀</button><div class="cm">'+cY+'年 '+mons[cM]+'</div><button class="cnb" onclick="cMv(1)">▶</button></div>';
+  H+='<div class="cgrid">';
+  ['一','二','三','四','五','六','日'].forEach(function(w){H+='<div class="cdow">'+w+'</div>';});
+  var f=new Date(cY,cM,1),sd=(f.getDay()+6)%7,dim=new Date(cY,cM+1,0).getDate(),pv=new Date(cY,cM,0).getDate();
+  for(var i=0;i<sd;i++)H+='<div class="cd oth">'+(pv-sd+1+i)+'</div>';
+  for(var dy=1;dy<=dim;dy++){
+    var dstr=cY+'-'+p2(cM+1)+'-'+p2(dy);
+    var lg=d.l[dstr]||{};
+    var cls='cd'+(dstr===t?' tod':'')+(dstr===cSel?' sel':'')+(dstr>t?' oth':'');
+    /* 修正：顯示全部習慣圓點（不再限制前5個）*/
+    var dots='';
+    if(dstr<=t)d.h.forEach(function(hb){if((lg[hb.id]||0)>=1)dots+='<div class="cdt" style="background:'+(hb.col||'#4f46e5')+'"></div>';});
+    H+='<div class="'+cls+'" onclick="cSl(\''+dstr+'\')">'+dy+(dots?'<div class="cdd">'+dots+'</div>':'')+'</div>';
+  }
+  var rm=42-(sd+dim);for(var j=1;j<=rm;j++)H+='<div class="cd oth">'+j+'</div>';
+  H+='</div>';
+  var sl=d.l[cSel]||{},sp=cSel.split('-');
+  H+='<div class="cdet"><div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px">'+parseInt(sp[1])+'月'+parseInt(sp[2])+'日</div>';
+  if(!d.h.length)H+='<div style="font-size:13px;color:var(--muted)">尚無習慣</div>';
+  else d.h.forEach(function(hb){
+    var lv=sl[hb.id]||0,col=hb.col||'#4f46e5';
+    var b=lv===0?'<span style="font-size:11px;color:var(--muted)">未完成</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'全力以赴')+'</span>';
+    H+='<div class="cdr"><span style="font-size:13px;color:var(--text)">'+hb.i+' '+e(hb.n)+'</span>'+b+'</div>';
+  });
+  H+='</div><div style="height:20px"></div>';
+  document.getElementById('main').innerHTML=H;
+}
+function cMv(dir){cM+=dir;if(cM>11){cM=0;cY++;}else if(cM<0){cM=11;cY--;}rC();}
+function cSl(s){cSel=s;rC();}
+
+/* ── 統計頁面 ── */
+function rSt(){
+  document.getElementById('ttl').textContent='統計';
+  document.getElementById('tsub').textContent='近 30 天習慣分析';
+  var d=ld(),t=td();
+  if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">新增習慣後即可查看統計 📊</div>';return;}
+  var todayLog=d.l[t]||{};
+  var todayDone=d.h.filter(function(h){return(todayLog[h.id]||0)>=1;}).length;
+  var allStreaks=d.h.map(function(h){return sk(d.l,h.id);});
+  var bestStreak=Math.max.apply(null,allStreaks.concat([0]));
+  var totalDays=Object.keys(d.l).filter(function(k){return Object.keys(d.l[k]).some(function(hid){return(d.l[k][hid]||0)>=1;});}).length;
+  var H='';
+  /* 總覽三格 */
+  H+='<div class="stat-grid">';
+  H+='<div class="stat-card" style="text-align:center"><div class="stat-num" style="font-size:24px">'+todayDone+'/'+d.h.length+'</div><div class="stat-lbl">今日完成</div></div>';
+  H+='<div class="stat-card" style="text-align:center"><div class="stat-num">'+bestStreak+'</div><div class="stat-lbl">🔥 最高連續</div></div>';
+  H+='<div class="stat-card" style="text-align:center"><div class="stat-num">'+totalDays+'</div><div class="stat-lbl">📅 有記錄天</div></div>';
+  H+='</div>';
+  /* 各習慣卡片 */
+  H+='<div class="sec">各習慣分析</div>';
+  d.h.forEach(function(hb){
+    var col=hb.col||'#4f46e5';
+    var curStr=sk(d.l,hb.id),maxStr=maxStreak(d.l,hb.id);
+    var stats=last30Stats(d.l,hb.id);
+    H+='<div class="stat-card">';
+    /* 習慣標題列 */
+    H+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
+    H+='<span style="font-size:20px">'+hb.i+'</span>';
+    H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 全力以赴 '+hb.v3+' '+hb.u+'</div></div>';
+    H+='<div style="text-align:right"><div style="font-size:22px;font-weight:700;color:'+col+'">'+stats.rate+'%</div><div style="font-size:10px;color:var(--muted)">完成率</div></div>';
+    H+='</div>';
+    /* Streak 三格 */
+    H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
+    H+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">目前連續</div></div>';
+    H+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+maxStr+'</div><div style="font-size:10px;color:var(--muted)">最長連續</div></div>';
+    H+='<div style="flex:1;background:var(--card);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">完成天數</div></div>';
+    H+='</div>';
+    /* 等級分佈長條 */
+    if(stats.total>0){
+      [['今日的1',0,col+'77'],['穩定前進',1,col+'bb'],['全力以赴',2,col]].forEach(function(lv){
+        var cnt=stats.byLevel[lv[1]],pct=Math.round(cnt/30*100);
+        H+='<div class="lvl-row"><div class="lvl-lbl">'+lv[0]+'</div><div class="lvl-bar-bg"><div class="lvl-bar" style="width:'+pct+'%;background:'+lv[2]+'"></div></div><div class="lvl-cnt">'+cnt+'天</div></div>';
+      });
+    }else{
+      H+='<div style="font-size:12px;color:var(--muted);text-align:center;padding:6px 0">近 30 天尚無記錄</div>';
+    }
+    /* 30天熱力格 */
+    H+='<div style="font-size:10px;color:var(--muted);margin-top:9px;margin-bottom:4px">近 30 天打卡紀錄</div>';
+    H+='<div class="mini-heat">';
+    var c30=new Date();
+    for(var i=29;i>=0;i--){
+      var dd=new Date(c30);dd.setDate(c30.getDate()-i);
+      var lv=(d.l[ds(dd)]||{})[hb.id]||0;
+      var bg=lv===0?'var(--border)':lv===1?col+'55':lv===2?col+'99':col;
+      H+='<div class="mh-cell" style="background:'+bg+'" title="'+ds(dd)+(lv>0?' ('+(lv===1?'今日的1':lv===2?'穩定前進':'全力以赴')+')':'')+'"></div>';
+    }
+    H+='</div>';
+    H+='</div>';
+  });
+  H+='<div style="height:20px"></div>';
+  document.getElementById('main').innerHTML=H;
+  bindRipples();
+}
+
+/* ── 新增習慣 ── */
+function rA(){
+  document.getElementById('ttl').textContent='新增習慣';
+  document.getElementById('tsub').textContent='建立習慣後可在執行格連結';
+  aC=aC||'#7c3aed';
+  var cs=CL.map(function(c){return '<div class="cs'+(aC===c?' on':'')+'" style="background:'+c+'" onclick="aPC(this,\''+c+'\')"></div>';}).join('');
+  var chips=TPLS.map(function(t,i){return '<div class="chip" onclick="aTpl('+i+',this)">'+t.i+' '+t.n+'</div>';}).join('');
+  var H='<div class="sec" style="margin-top:0">快速模板</div><div class="chips">'+chips+'</div>';
+  H+='<div class="sec">名稱與圖示</div><div style="display:flex;gap:7px;margin-bottom:9px"><input type="text" class="fi" id="an" placeholder="習慣名稱" style="flex:1;margin-bottom:0"/><input type="text" class="fi" id="ai" placeholder="📚" style="width:54px;margin-bottom:0;text-align:center"/></div>';
+  H+='<div class="sec">單位</div><input type="text" class="fi" id="au" placeholder="頁、分鐘、杯..." style="width:150px"/>';
+  H+='<div class="sec">顏色</div><div class="cg" id="acg">'+cs+'</div>';
+  H+='<div class="sec">三層彈性等級</div>';
+  H+='<div style="background:var(--pbg);border-radius:9px;padding:10px 12px;margin-bottom:11px;border-left:4px solid var(--primary);font-size:12px;color:var(--primary);line-height:1.7">即使只完成 <b>今日的1</b>，也算沒斷鏈 🔗<br>依當天狀態選完成度，不必每天都 Elite。</div>';
+  [['今日的1','#7c3aed'],['穩定前進','#2563eb'],['全力以赴','#059669']].forEach(function(lv,i){
+    H+='<div class="lrow"><div style="font-size:12px;font-weight:700;color:'+lv[1]+'">'+lv[0]+'</div><input type="number" class="fi" id="av'+(i+1)+'" placeholder="數量" min="1" style="margin-bottom:0"/><div style="font-size:12px;color:var(--muted)" id="au'+(i+1)+'">-</div></div>';
+  });
+  H+='<button class="sv" onclick="svH()">儲存習慣</button><div style="height:30px"></div>';
+  document.getElementById('main').innerHTML=H;
+  document.getElementById('au').addEventListener('input',function(){var v=this.value;[1,2,3].forEach(function(n){var el=document.getElementById('au'+n);if(el)el.textContent=v||'-';});});
+}
+function aPC(el,c){aC=c;document.querySelectorAll('#acg .cs').forEach(function(s){s.classList.remove('on');});el.classList.add('on');}
+function aTpl(i,el){
+  var t=TPLS[i];document.querySelectorAll('.chips .chip').forEach(function(c){c.classList.remove('on');});el.classList.add('on');
+  document.getElementById('an').value=t.n;document.getElementById('ai').value=t.i;document.getElementById('au').value=t.u;
+  document.getElementById('av1').value=t.a;document.getElementById('av2').value=t.b;document.getElementById('av3').value=t.c;
+  [1,2,3].forEach(function(n){var el=document.getElementById('au'+n);if(el)el.textContent=t.u;});
+  aC=t.col;document.querySelectorAll('#acg .cs').forEach(function(s){s.classList.toggle('on',s.style.background===t.col||s.style.backgroundColor===t.col);});
+}
+function svH(){
+  var n=document.getElementById('an').value.trim(),i=document.getElementById('ai').value.trim()||'⭐';
+  var u=document.getElementById('au').value.trim();
+  var v1=parseInt(document.getElementById('av1').value)||0,v2=parseInt(document.getElementById('av2').value)||0,v3=parseInt(document.getElementById('av3').value)||0;
+  if(!n||!u||!v1||!v2||!v3){toast('請填入所有欄位');return;}
+  var d=ld();if(d.h.length>=2){toast('免費版最多 2 個習慣，升級 Plus 可無限新增 →');if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'habit_limit'});return;}d.h.push({id:'h'+Date.now(),n:n,i:i,u:u,v1:v1,v2:v2,v3:v3,col:aC});sv(d);toast('✓ 已新增「'+n+'」');go(0);
+}
+
+/* ── 設定 ── */
+function rS(){
+  document.getElementById('ttl').textContent='設定';document.getElementById('tsub').textContent='';
+  var d=ld(),s=d.s||{},isDark=document.body.classList.contains('dark');
+  var H='';
+  /* 安裝 App */
+  H+='<div class="sec" style="margin-top:0">安裝 App</div>';
+  if(isInStandaloneMode()){
+    H+='<div class="sblk"><div class="srow"><div><div class="slb">✅ 已安裝</div><div class="ssub">正以 App 模式運行</div></div></div></div>';
+  }else if(isIOS()){
+    H+='<div style="background:var(--pbg);border-radius:10px;padding:14px;margin-bottom:9px;border:1px solid var(--plight)">';
+    H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:6px">📱 安裝到 iPhone / iPad</div>';
+    H+='<div style="font-size:12px;color:var(--primary);line-height:1.9">';
+    H+='① 點 Safari 下方的 <b>分享</b> 按鈕 <span style="font-size:16px">⬆</span><br>';
+    H+='② 選擇「<b>加入主畫面</b>」<br>';
+    H+='③ 點右上角「<b>新增</b>」完成安裝';
+    H+='</div>';
+    H+='<div onclick="showIOSGuide()" style="margin-top:10px;font-size:12px;color:var(--primary);cursor:pointer;text-decoration:underline">查看圖文說明 →</div>';
+    H+='</div>';
+    /* iOS 7天快取警告 */
+    H+='<div style="background:#fef3c7;border-radius:10px;padding:12px 14px;margin-top:8px;border:1px solid #fde68a">';
+    H+='<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">⚠️ Safari 快取自動清除說明</div>';
+    H+='<div style="font-size:12px;color:#92400e;line-height:1.7">';
+    H+='iOS Safari 若 <b>連續 7 天</b>未開啟本 App，會自動清除離線快取。<br>';
+    H+='建議：設定每日提醒通知，或定期使用「<b>匯出 JSON 備份</b>」保存資料。</div></div>';
+  }else{
+    H+='<div class="sblk"><div class="srow"><div><div class="slb">安裝到桌面</div><div class="ssub">離線可用，像原生 App</div></div>';
+    H+='<button onclick="doInstall()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--primary);background:var(--pbg);cursor:pointer;font-size:12px;color:var(--primary);font-family:sans-serif;font-weight:700">安裝</button></div></div>';
+  }
+  /* 升級 Plus */
+  H+='<div onclick="showUpgrade()" style="cursor:pointer;background:var(--pbg);border-radius:12px;padding:13px 16px;margin-bottom:12px;border:1.5px solid var(--plight);display:flex;align-items:center;justify-content:space-between">';
+  H+='<div><div style="font-size:13px;font-weight:700;color:var(--primary)">✨ 升級 Plus</div><div style="font-size:11px;color:var(--sub);margin-top:2px">無限習慣 》 雲端備份 》 完整統計</div></div>';
+  H+='<div style="font-size:18px;color:var(--primary)">›</div>';
+  H+="</div>";
+  /* 外觀 */
+  H+='<div class="sec">外觀</div><div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">暗色模式</div><div class="ssub">切換深色 / 淺色主題</div></div><button class="tgl'+(isDark?' on':'')+'" onclick="tDark()"><div class="tglk"></div></button></div>';
+  H+='</div>';
+  /* 通知 */
+  H+='<div class="sec">每日提醒</div><div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">開啟通知</div><div class="ssub">瀏覽器桌面通知</div></div><button class="tgl'+(s.notif?' on':'')+'" onclick="tN()"><div class="tglk"></div></button></div>';
+  if(s.notif)H+='<div class="srow"><div class="slb">提醒時間</div><input type="time" value="'+(s.time||'08:00')+'" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--card);color:var(--text)" onchange="svT(this.value)"/></div>';
+  H+='<div class="srow"><div class="slb">測試通知</div><button onclick="tstN()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">發送</button></div></div>';
+  /* 資料備份 */
+  H+='<div class="sec">資料備份</div><div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">匯出 JSON 備份</div><div class="ssub">完整備份（可還原）</div></div><button onclick="expJSON()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">匯出</button></div>';
+  H+='<div class="srow"><div><div class="slb">匯出 CSV 記錄</div><div class="ssub">打卡記錄表格格式</div></div><button onclick="expCSV()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">匯出</button></div>';
+  H+='<div class="srow"><div><div class="slb">匯入 JSON 備份</div><div class="ssub">從備份檔還原資料</div></div><label style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">選擇檔案<input type="file" accept=".json" style="display:none" onchange="impJSON(this)"></label></div>';
+  H+='</div>';
+  /* 習慣清單 */
+  H+='<div class="sec">習慣清單（'+d.h.length+'）</div><div class="sblk">';
+  if(!d.h.length)H+='<div style="padding:12px 0;font-size:12px;color:var(--muted)">尚無習慣</div>';
+  d.h.forEach(function(hb){
+    H+='<div class="srow"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:'+(hb.col||'#4f46e5')+'"></div><div><div class="slb">'+hb.i+' '+e(hb.n)+'</div><div class="ssub">今日的1:'+hb.v1+' 穩定前進:'+hb.v2+' 全力以赴:'+hb.v3+' '+hb.u+'</div></div></div>';
+    H+='<button onclick="dHS(\''+hb.id+'\')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✕</button></div>';
+  });
+  H+='</div>';
+  /* 語錄管理 */
+  H+='<div class="sec">語錄管理</div>';
+  var cq=ld().customQ||[];
+  H+='<div class="sblk">';
+  H+='<div style="font-size:12px;color:var(--muted);padding:8px 4px 6px">內建 '+QUOTES.length+' 條 · 自訂 '+cq.length+' 條</div>';
+  if(cq.length>0){
+    cq.forEach(function(q,i){
+      H+='<div class="srow" style="align-items:flex-start;gap:8px">';
+      H+='<div style="flex:1;font-size:12px;color:var(--text);line-height:1.6;padding:2px 0">「'+q+'」<span style="color:var(--muted)"> — 我的語錄</span></div>';
+      H+='<button onclick="delCQ('+i+')" style="flex-shrink:0;padding:3px 10px;border-radius:7px;border:1px solid #fca5a5;background:var(--app);color:var(--danger);font-size:11px;cursor:pointer;font-family:sans-serif">刪除</button>';
+      H+='</div>';
+    });
+  }
+  H+='<div style="display:flex;gap:8px;margin-top:8px">';
+  H+='<input id="newQ" type="text" placeholder="輸入新語錄…" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:12px;background:var(--card);color:var(--text);font-family:sans-serif">';
+  H+='<button onclick="addCQ()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif">新增</button>';
+  H+='</div>';
+  H+='</div>';
+  /* 資料管理 */
+  H+='<div class="sec">資料管理</div><div class="sblk">';
+  H+='<div class="srow"><div><div class="slb" style="color:var(--danger)">重設曼陀羅</div><div class="ssub">清除所有格子</div></div><button onclick="rsM()" style="padding:5px 13px;border-radius:8px;border:1.5px solid #fca5a5;background:var(--app);cursor:pointer;font-size:12px;color:var(--danger);font-family:sans-serif">重設</button></div>';
+  H+='<div class="srow"><div><div class="slb" style="color:var(--danger)">清除打卡記錄</div><div class="ssub">保留習慣與曼陀羅</div></div><button onclick="clL()" style="padding:5px 13px;border-radius:8px;border:1.5px solid #fca5a5;background:var(--app);cursor:pointer;font-size:12px;color:var(--danger);font-family:sans-serif">清除</button></div>';
+  H+='</div>';
+  /* 關於 */
+  H+='<div class="sec">關於</div>';
+  H+='<div onclick="showUpgrade()" style="cursor:pointer;background:linear-gradient(135deg,#4f46e5,#7c3aed);border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between">';
+  H+='<div><div style="font-size:13px;font-weight:800;color:#fff">✨ 升級 Plus 方案</div><div style="font-size:11px;color:rgba(255,255,255,.8);margin-top:3px">無限習慣 》 雲端備份 》 成就分享</div></div>';
+  H+='<div style="font-size:22px;color:#fff">›</div>';
+  H+="</div>";
+  H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
+  H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
+  H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.10</div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-04-21 · by Jerry</div></div></div>';
+  H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
+  H+='漫打卡建立在三個核心支柱之上：<br><br>';
+  H+='<b>🟣 第一支柱：曼陀羅九宮格（OW64）</b><br>';
+  H+='源自大谷翔平的圓夢計畫——把核心目標拆解為 8 個行動領域，再各自展開 8 個具體行動，合計 64 格行動清單。目標不再只是夢想，而是每天可執行的地圖。<br><br>';
+  H+='<b>🔵 第二支柱：彈性三級制</b><br>';
+  H+='今日的1 / 穩定前進 / 全力以赴——不強迺你每天最佳狀態，只要不斷鏈，你就贏了。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
+  H+='<b>🟢 第三支柱：如果能重來</b><br>';
+  H+='每天打卡後的反思問句：「如果今天重來一次，我會怎麼做更好？」不是懲罰自己，而是讓每一天成為明天的老師。</div>';
+  H+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
+  H+='<a href="https://www.books.com.tw/products/0010877157" target="_blank" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);text-decoration:none;border:1px solid var(--border)">📖 原著《彈性習慣》</a>';
+  H+='<span onclick="showIOSGuide()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);cursor:pointer;border:1px solid var(--border)">📱 安裝說明</span>';
+  H+='</div></div>';
+  H+='<div style="background:var(--card);border-radius:12px;padding:16px;margin-top:10px;border:1px solid var(--border)">';
+  H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px">📝 漫談手記</div>';
+  H+='<div style="font-size:12px;color:var(--text);line-height:1.9">';
+  H+='我叫 Jerry，是這款 App 的唯一開發者。<br><br>';
+  H+='某天讀到大谷翔平高中時寫下的曼陀羅方格，把「拿下甲子園」這個大夢，拆解成 64 個每日行動——那一刻，我意識到：目標不是用來仰望的，而是用來每天踩一格的。<br><br>';
+  H+='我同時也深受 Stephen Guise 的《彈性習慣》影響。生活從來不是直線，真正能持續的系統，必須允許你在狀態差的日子仍能「贏」。於是有了「今日的1・穩定前進・全力以赴」——三個等級，無論哪天，你都不會空手而歸。<br><br>';
+  H+='漫打卡不是要你完美，是要你不中斷。</div>';
+  H+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
+  H+='<span style="font-size:10px;color:var(--muted);font-style:italic">Handcrafted with ♥ by Jerry</span>';
+  H+='<a href="mailto:mbindividual@gmail.com" style="font-size:10px;color:var(--primary);text-decoration:none">mbindividual@gmail.com</a>';
+  H+='</div></div>';
+  H+='<div style="height:30px"></div>';
+  document.getElementById('main').innerHTML=H;
+}
+function tDark(){document.body.classList.toggle('dark');var d=ld();d.s.dark=document.body.classList.contains('dark');sv(d);rS();}
+function tN(){var d=ld();if(!d.s)d.s={};if(!d.s.notif){if('Notification'in window){Notification.requestPermission().then(function(r){d.s.notif=(r==='granted');sv(d);rS();toast(r==='granted'?'✓ 通知已開啟':'請允許通知');});}else toast('不支援通知');}else{d.s.notif=false;sv(d);rS();toast('通知已關閉');}}
+function svT(v){var d=ld();d.s.time=v;sv(d);toast('✓ 已儲存');}
+function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('彈性習慣 🎯',{body:'記得完成今日習慣！今日的1 也算成功。'});toast('✓ 已發送');}else toast('請先開啟通知');}
+function dHS(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rS();}
+function rsM(){if(!confirm('確定重設？'))return;var d=ld();d.m=nm();sv(d);rS();toast('已重設');}
+function clL(){if(!confirm('確定清除？'))return;var d=ld();d.l={};sv(d);rS();toast('✓ 已清除');}
+
+/* ── 匯出 / 匯入 ── */
+function expJSON(){
+  var d=ld();
+  var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='彈性習慣備份_'+td()+'.json';a.click();URL.revokeObjectURL(a.href);
+  toast('✓ 備份已下載');
+}
+function expCSV(){
+  var d=ld();
+  var rows=[['日期'].concat(d.h.map(function(h){return h.n;}))];
+  Object.keys(d.l).sort().forEach(function(date){
+    var row=[date];
+    d.h.forEach(function(hb){
+      var lv=(d.l[date]||{})[hb.id]||0;
+      row.push(lv===0?'':lv===1?'今日的1':lv===2?'穩定前進':'全力以赴');
+    });
+    rows.push(row);
+  });
+  var csv='\uFEFF'+rows.map(function(r){return r.join(',');}).join('\n');
+  var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  a.download='彈性習慣記錄_'+td()+'.csv';a.click();URL.revokeObjectURL(a.href);
+  toast('✓ CSV 已下載');
+}
+function impJSON(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(ev){
+    try{
+      var data=JSON.parse(ev.target.result);
+      if(!data.h||!data.l)throw new Error();
+      if(confirm('確定匯入？現有資料將被覆蓋。')){sv(data);toast('✓ 匯入成功');go(0);}
+    }catch(err){toast('❌ 檔案格式錯誤');}
+  };
+  reader.readAsText(file);input.value='';
+}
+
+/* ── Ripple 觸控回饋 ── */
+function addRipple(e){
+  var el=e.currentTarget;
+  var r=el.getBoundingClientRect();
+  var size=Math.max(r.width,r.height);
+  var x=(e.clientX||r.left+r.width/2)-r.left-size/2;
+  var y=(e.clientY||r.top+r.height/2)-r.top-size/2;
+  var wave=document.createElement('span');
+  wave.className='ripple-wave';
+  wave.style.cssText='width:'+size+'px;height:'+size+'px;left:'+x+'px;top:'+y+'px';
+  el.appendChild(wave);
+  wave.addEventListener('animationend',function(){wave.remove();});
+}
+/* 動態綁定 ripple 到 nav 按鈕和習慣卡片（每次 rH 後呼叫）*/
+function bindRipples(){
+  document.querySelectorAll('.nb,.lb,.sv,.mbtn').forEach(function(el){
+    el.removeEventListener('click',addRipple);
+    el.addEventListener('click',addRipple);
+  });
+}
+
+/* ── GA4：自訂事件追蹤 ── */
+function trackHabit(hid,lv,habitName){
+  if(typeof gtag==='undefined')return;
+  var lvName=lv===1?'今日的1':lv===2?'穩定前進':'全力以赴';
+  gtag('event','habit_complete',{
+    habit_id:hid,
+    habit_name:habitName||hid,
+    level_type:lvName,
+    platform:isInStandaloneMode()?'PWA_installed':'PWA_browser'
+  });
+}
+function trackInstall(){
+  if(typeof gtag==='undefined')return;
+  gtag('event','pwa_install',{platform:navigator.platform||'unknown'});
+}
+
+/* ── Elite 爆炸動畫 ── */
+function eliteBurst(el){
+  if(!el)return;
+  var r=el.getBoundingClientRect();
+  var cx=r.left+r.width/2,cy=r.top+r.height/2;
+  var ball=document.createElement('div');
+  ball.className='elite-burst';
+  ball.style.cssText='left:'+(cx-30)+'px;top:'+(cy-30)+'px;animation:burst .55s ease forwards';
+  document.body.appendChild(ball);
+  setTimeout(function(){ball.remove();},600);
+  var colors=['#4f46e5','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'];
+  for(var i=0;i<12;i++){
+    (function(idx){
+      var dot=document.createElement('div');
+      dot.className='confetti-dot';
+      var angle=idx*(360/12),dist=40+Math.random()*30;
+      var dx=Math.cos(angle*Math.PI/180)*dist,dy=Math.sin(angle*Math.PI/180)*dist;
+      dot.style.cssText='left:'+(cx-4)+'px;top:'+(cy-4)+'px;background:'+colors[idx%colors.length]+';transform-origin:center';
+      document.body.appendChild(dot);
+      dot.animate([
+        {transform:'translate(0,0) scale(1)',opacity:1},
+        {transform:'translate('+dx+'px,'+dy+'px) scale(0)',opacity:0}
+      ],{duration:700,easing:'ease-out'}).onfinish=function(){dot.remove();};
+    })(i);
+  }
+}
+
+/* ── 品牌 Slogan（每日輪換）── */
+var SLOGANS=[
+  '你不是意志力不夠。你只是還沒遇到設計給真實人類的系統。',
+  '不是你的問題，是系統的問題。',
+  '那些放棄的習慣，不是你的錯。',
+  '真正適合人類的習慣，允許你有不完美的一天。',
+  '意志力不是答案，彈性才是。'
+];
+function getDailySlogan(){
+  var d=new Date();
+  var idx=(d.getFullYear()*366+d.getMonth()*31+d.getDate())%SLOGANS.length;
+  return SLOGANS[idx];
+}
+
+/* ── 里程碑語錄庫 ── */
+var QUOTES=[
+  {q:'彈性不是退縮，而是確保天天都能贏的聰明策略。',src:'彈性習慣'},
+  {q:'你不是太弱，只是缺乏彈性而已。',src:'彈性習慣'},
+  {q:'橡皮筋哲學：壓縮之後，自然彈回。習慣也是。',src:'彈性習慣'},
+  {q:'做了就是1，就是完美的勝利。',src:'不完美主義'},
+  {q:'不完美但持續，遠勝於完美但放棄。',src:'不完美主義'},
+  {q:'前進永遠比等待完美時機更有力量。',src:'不完美主義'},
+  {q:'預設值的力量：讓預設幫你工作。',src:'推力'},
+  {q:'簡化是最大的善意：把正確的行為變得容易發生。',src:'推力'},
+  {q:'社會規範的力量：知道和你一樣的人怎麼做，會改變你的選擇。',src:'推力'},
+  {q:'損失厭惡：人們為了避免失去所擁有，努力是獲得的兩倍以上。',src:'誘因設計'},
+  {q:'要獎勵的不是結果，而是通往結果的正向故事。',src:'誘因設計'},
+  {q:'訊號純度：小獎勵反而將行為商品化，消除內在動機。',src:'誘因設計'},
+  {q:'挑戰思維：把困難看成可以克服的小怪，而非無法改變的難題。',src:'遊戲力'},
+  {q:'韌性不是天生的，是用小勝利一點一滴累積出來的。',src:'遊戲力'},
+  {q:'自我疏離：用第三人稱看自己的挑戰，就能降低焦慮、提升策略性思考。',src:'遊戲力'},
+  {q:'八角框架：當挑戰難度剛剛好，人們會進入心流狀態。',src:'遊戲化實戰全書'},
+  {q:'白帽動力：被使命感驅動的行為，會讓人長期快樂且心甘情願。',src:'遊戲化實戰全書'},
+  {q:'只要在前進，不論多慢，都會把癱在沙發上的傢伙遠遠甩在身後。',src:'不完美主義'},
+  {q:'漫打卡的組合是：彈性的強度，加上持續的溫柔。',src:'漫打卡'},
+  {q:'今天的1，是明天繼續的基石。',src:'漫打卡'},
+  {q:'不小看每天的微小彈性，小水滴也能穿石。',src:'彈性習慣'},
+  {q:'曾經有過比今天更強的一天，就是你繼續下去的最好理由。',src:'漫打卡'},
+  {q:'未知性是最強的好奇心引擎：成長不是筆直線，是有驚喜的曲線。',src:'漫打卡'},
+  {q:'更好的關鍵詞不是「變得更好」，而是「不要停下來」。',src:'不完美主義'},
+  {q:'預設值不只是設計，更是一種善意：幫助你在漫不經心的狀態下做對的事。',src:'推力'},
+  {q:'第二天繼續，不是因為完美，而是因為沒有關係。',src:'漫打卡'},
+  {q:'習慣的社會證明：知道全世界有人和你一起在做這件事，會讓你走得更遠。',src:'推力'},
+  {q:'從完成的那一刻起，這個習慣就屬於了你。',src:'漫打卡'},
+  {q:'自己設計的達成方式，使你對習慣更有所有權感。',src:'遊戲化實戰全書'},
+  {q:'你不是意志力不夠的人。你只是從來沒有一個設計給真實人類的習慣系統。',src:'漫打卡'},
+  {q:'彈性不是放棄，是讓你明天還能回來的設計。',src:'漫打卡'},
+  {q:'連勝不斷，不是因為你每天都很強，而是因為你允許自己有時候只做一件事。',src:'漫打卡'},
+  {q:'Mini 不是退而求其次，是今天最聰明的選擇。',src:'漫打卡'},
+  {q:'你選擇回來的每一天，都比昨天的自己更有說服力。',src:'漫打卡'},
+  {q:'習慣不需要完美的開始，只需要一個不完美的今天。',src:'漫打卡'},
+  {q:'讓系統幫你贏，不是靠意志力撐過去。',src:'漫打卡'},
+  {q:'最累的那天，也能留下一個記錄。這就是彈性的意義。',src:'漫打卡'}
+];
+
+/* ── 里程碑系統 ── */
+var MILESTONES=[7,14,30,66,100];
+function checkMilestone(hid,streak){
+  if(MILESTONES.indexOf(streak)===-1)return;
+  var shown=JSON.parse(localStorage.getItem('ms-shown')||'{}');
+  var key=hid+'-'+streak;
+  if(shown[key])return;
+  shown[key]=true;localStorage.setItem('ms-shown',JSON.stringify(shown));
+  var emoji=streak>=100?'🏆':streak>=66?'💎':streak>=30?'🌟':streak>=14?'🔥':'🎉';
+  var title=streak>=100?'傳奇習慣家！':streak>=66?'習慣大師！':streak>=30?'一個月不間斷！':streak>=14?'兩週連續！':'一週達成！';
+  var sub=streak===66
+    ?'你已連續 66 天完成習慣！\nJerry（開發者）留言：「成為不可阻擋的英雄，從每一個「今天的1」開始。你做到了。」'
+    :'你已連續 '+streak+' 天完成習慣。\n「不完美但持續」正是彈性習慣的核心精神！';
+  var q=QUOTES[Math.floor(Math.random()*QUOTES.length)];
+  document.getElementById('ms-emoji').textContent=emoji;
+  document.getElementById('ms-title').textContent=title;
+  document.getElementById('ms-sub').textContent=sub;
+  document.getElementById('ms-quote').textContent='「'+q.q+'」';
+  document.getElementById('ms-quote-src').textContent='— '+q.src;
+  document.getElementById('milestone-modal').classList.add('open');
+  if(typeof gtag!=='undefined')gtag('event','milestone_reached',{streak:streak,habit_id:hid});
+}
+function closeMilestone(){document.getElementById('milestone-modal').classList.remove('open');}
+function showUpgrade(){document.getElementById('upgrade-modal').style.display='flex';if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'upgrade_card'});}
+function closeUpgrade(){document.getElementById('upgrade-modal').style.display='none';}
+
+/* ── iOS 安裝引導 ── */
+function isIOS(){return/iphone|ipad|ipod/i.test(navigator.userAgent);}
+function isInStandaloneMode(){return window.matchMedia('(display-mode: standalone)').matches||(window.navigator.standalone===true);}
+function showIOSGuide(){document.getElementById('ios-guide').classList.add('open');}
+function closeIOSGuide(){
+  document.getElementById('ios-guid

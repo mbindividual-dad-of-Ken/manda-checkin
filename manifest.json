@@ -1,0 +1,29 @@
+{
+  "name": "彈性習慣",
+  "short_name": "彈性習慣",
+  "description": "漫打卡 — 融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA",
+  "author": "Jerry",
+  "developer": "Jerry | 曼談人生",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#4f46e5",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "lang": "zh-TW",
+  "icons": [
+    {
+      "src": "./icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["health", "lifestyle", "productivity"],
+  "screenshots": []
+}
