@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.26 | 2026-05-04 | 溫暖日系視覺升級 E方向 -->
+<!-- 漫打卡 v1.28 | 2026-05-18 | 系統深色模式・微慶祝機制・隱私承諾・卡關慶祝閉環 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -47,7 +47,6 @@ if(window.location.hostname==='localhost'||window.location.protocol==='file:'){
   --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;
   --shadow-sm:0 1px 3px rgba(42,33,24,.06);
   --shadow-md:0 4px 12px rgba(42,33,24,.10);
-  --shadow-lg:0 8px 24px rgba(42,33,24,.14);
 }
 body.dark{
   --bg:#1c1510;--app:#242018;--card:#2e2820;--border:#3d3428;
@@ -56,17 +55,62 @@ body.dark{
   --danger:#e05040;--warn:#e08840;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:center;min-height:100vh;transition:background .3s,color .3s}
-#app{width:100%;max-width:420px;background:var(--app);min-height:100vh;display:flex;flex-direction:column;transition:background .3s;box-shadow:var(--shadow-lg)}
-#bar{padding:16px 16px 10px;border-bottom:1px solid var(--border);background:var(--app)}
-#bar h1{font-size:22px;font-weight:700;color:var(--text);font-family:var(--serif);letter-spacing:.02em}
-#bar p{font-size:12px;color:var(--sub);margin-top:3px;font-style:italic;letter-spacing:.01em}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;justify-content:center;min-height:100vh;transition:background .3s,color .3s}
+
+/* ── 卡關層 overlay ── */
+#stuck-overlay{display:none;position:fixed;inset:0;background:rgba(42,33,24,.55);z-index:900;justify-content:center;align-items:flex-end;backdrop-filter:blur(4px)}
+#stuck-overlay.open{display:flex}
+#stuck-box{background:var(--app);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:420px;box-shadow:0 -8px 32px rgba(42,33,24,.18)}
+.stuck-step{display:none}
+.stuck-step.active{display:block}
+.stuck-title{font-family:'Noto Serif TC',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
+.stuck-sub{font-size:13px;color:var(--sub);margin-bottom:22px;line-height:1.6}
+.emotion-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.emotion-btn{padding:14px 10px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
+.emotion-btn:active{transform:scale(.97)}
+.emotion-btn.selected{border-color:var(--primary);background:var(--pbg)}
+.emotion-emoji{font-size:26px;display:block;margin-bottom:4px}
+.emotion-label{font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif}
+.stuck-action-card{background:var(--pbg);border-radius:16px;padding:20px;margin-bottom:20px;border:1.5px solid var(--plight)}
+.stuck-action-habit{font-size:13px;color:var(--primary);font-weight:700;margin-bottom:4px;font-family:'Noto Sans TC',sans-serif}
+.stuck-action-text{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:8px}
+.stuck-action-mini{font-size:12px;color:var(--sub);padding:6px 12px;background:var(--card);border-radius:20px;display:inline-block}
+.stuck-done-emoji{font-size:52px;text-align:center;display:block;margin-bottom:12px}
+.stuck-done-title{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px}
+.stuck-done-sub{font-size:14px;color:var(--sub);text-align:center;line-height:1.7}
+.stuck-btn-primary{width:100%;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .2s}
+.stuck-btn-primary:active{opacity:.85}
+.stuck-btn-ghost{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;margin-top:8px}
+
+/* ── 卡關入口按鈕（主畫面）── */
+#stuck-gate{margin-bottom:14px;padding:14px 16px;border-radius:16px;border:1.5px dashed var(--border);background:transparent;cursor:pointer;text-align:left;width:100%;transition:all .2s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:12px}
+#stuck-gate:active{background:var(--pbg);border-color:var(--primary)}
+#stuck-gate .sg-icon{font-size:24px;flex-shrink:0}
+#stuck-gate .sg-text{flex:1}
+#stuck-gate .sg-label{font-size:13px;font-weight:600;color:var(--sub);font-family:'Noto Serif TC',serif}
+#stuck-gate .sg-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* ── 方向感語氣條（取代進度條上方） ── */
+.direction-bar{padding:12px 14px;background:var(--pbg);border-radius:12px;margin-bottom:12px;border-left:3px solid var(--primary)}
+.direction-q{font-family:'Noto Serif TC',serif;font-size:14px;color:var(--primary);font-weight:600}
+.direction-status{font-size:12px;color:var(--sub);margin-top:3px}
+
+/* ── 晚間提示條 ── */
+#evening-nudge{display:none;margin-bottom:12px;padding:12px 14px;background:var(--card);border-radius:12px;border:1px solid var(--border);align-items:center;gap:10px}
+#evening-nudge.show{display:flex}
+#evening-nudge .en-icon{font-size:20px;flex-shrink:0}
+#evening-nudge .en-text{flex:1;font-size:12px;color:var(--sub);line-height:1.5}
+#evening-nudge .en-close{font-size:16px;color:var(--muted);cursor:pointer;padding:4px}
+#app{width:100%;max-width:420px;background:var(--app);min-height:100vh;display:flex;flex-direction:column;transition:background .3s}
+#bar{padding:14px 16px 8px;border-bottom:1px solid var(--border)}
+#bar h1{font-size:20px;font-weight:700;color:var(--text)}
+#bar p{font-size:12px;color:var(--sub);margin-top:2px}
 #main{flex:1;overflow-y:auto;padding:14px}
-#nav{display:flex;border-top:1px solid var(--border);background:var(--app)}
-.nb{flex:1;padding:9px 0 11px;border:none;background:transparent;cursor:pointer;font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;font-family:var(--sans);letter-spacing:.02em}
+#nav{display:flex;border-top:1px solid var(--border)}
+.nb{flex:1;padding:8px 0 10px;border:none;background:var(--app);cursor:pointer;font-size:10px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;transition:color .2s,background .3s;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
 .nb.on{color:var(--primary)}
-.ni{font-size:19px}
-.sec{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.08em;text-transform:uppercase;margin:16px 0 8px;font-family:var(--sans)}
+.ni{font-size:18px}
+.sec{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.05em;text-transform:uppercase;margin:14px 0 7px}
 .sec:first-child{margin-top:0}
 
 /* Steps */
@@ -81,55 +125,55 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
 .sline{width:14px;height:2px;background:var(--border);flex-shrink:0;margin:0 2px}
 
 /* Mandala */
-.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:14px}
-.mc{border-radius:12px;border:1.5px solid var(--border);padding:8px 6px;cursor:pointer;min-height:70px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--card);transition:border-color .2s,box-shadow .2s;box-shadow:var(--shadow-sm)}
-.mc:hover{border-color:var(--plight);box-shadow:var(--shadow-md)}
+.mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin-bottom:12px}
+.mc{border-radius:9px;border:1.5px solid var(--border);padding:7px 5px;cursor:pointer;min-height:68px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;background:var(--card);transition:border-color .15s}
+.mc:hover{border-color:var(--plight)}
 .mc.fill{background:var(--app)}
-.mc.core{background:var(--primary);border-color:var(--primary);box-shadow:0 4px 12px rgba(196,118,58,.3)}
+.mc.core{background:var(--primary);border-color:var(--primary)}
 .mc .tag{font-size:8px;color:var(--muted);margin-bottom:2px}
-.mc.core .tag{color:rgba(255,255,255,.7)}
-.mc .val{font-size:11px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--sans)}
+.mc.core .tag{color:rgba(255,255,255,.65)}
+.mc .val{font-size:11px;font-weight:600;color:var(--text);line-height:1.3}
 .mc.core .val{color:#fff}
 .mc .ph{font-size:20px;color:var(--border)}
 
 /* Sub-grid */
-.sb{border-radius:14px;border:1px solid var(--border);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow-sm)}
-.sbh{display:flex;align-items:center;gap:8px;padding:10px 13px;background:var(--card);border-bottom:1px solid var(--border)}
+.sb{border-radius:10px;border:1px solid var(--border);margin-bottom:9px;overflow:hidden}
+.sbh{display:flex;align-items:center;gap:7px;padding:9px 12px;background:var(--card);border-bottom:1px solid var(--border)}
 .sbd{width:8px;height:8px;border-radius:50%}
-.sbt{flex:1;font-size:13px;font-weight:600;color:var(--text);font-family:var(--sans)}
+.sbt{flex:1;font-size:13px;font-weight:600;color:var(--text)}
 .sbb{font-size:10px;padding:2px 8px;border-radius:20px}
-.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:8px}
-.sc{border-radius:10px;border:1px solid var(--border);padding:7px 5px;min-height:54px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;background:var(--card);transition:border-color .2s,box-shadow .2s,background .2s}
-.sc:hover{border-color:var(--plight);box-shadow:var(--shadow-sm)}
+.sgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;padding:7px}
+.sc{border-radius:7px;border:1px solid var(--border);padding:6px 4px;min-height:52px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;cursor:pointer;background:var(--card);transition:border-color .15s}
+.sc:hover{border-color:var(--plight)}
 .sc.scc{cursor:default}
-.scv{font-size:10px;font-weight:600;color:var(--text);line-height:1.3;font-family:var(--sans)}
+.scv{font-size:10px;font-weight:600;color:var(--text);line-height:1.3}
 .scl{font-size:9px;margin-top:2px;padding:1px 5px;border-radius:10px}
 .scu{font-size:9px;color:var(--muted);margin-top:2px}
 .scp{font-size:18px;color:var(--border)}
 
 /* Progress */
 .pw{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--card);border-radius:10px;margin-bottom:9px}
-.pbg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.pbg{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
 .pf{height:100%;background:var(--primary);border-radius:3px;transition:width .3s}
 
 /* Habit card */
-.hc{background:var(--app);border-radius:14px;border:1px solid var(--border);border-left:4px solid var(--primary);padding:12px 13px;margin-bottom:9px;box-shadow:var(--shadow-sm)}
-.hr{display:flex;align-items:center;gap:6px;margin-bottom:9px}
-.hn{font-size:13px;font-weight:700;color:var(--text);flex:1;font-family:var(--sans)}
+.hc{background:var(--app);border-radius:10px;border:1px solid var(--border);border-left:4px solid var(--primary);padding:11px 12px;margin-bottom:8px}
+.hr{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.hn{font-size:13px;font-weight:700;color:var(--text);flex:1}
 .hsrc{font-size:9px;padding:2px 6px;border-radius:20px}
-.hsk{font-size:10px;padding:2px 7px;border-radius:20px;background:#fef3e8;color:#9a5c20}
+.hsk{font-size:10px;padding:2px 7px;border-radius:20px;background:#fef3c7;color:#92400e}
 .hd{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);padding:2px 4px}
 .lg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}
-.lb{padding:10px 6px;border-radius:12px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .2s ease-out;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;box-shadow:0 1px 3px rgba(42,33,24,.06)}
-.lb:hover{border-color:var(--primary);box-shadow:0 4px 10px rgba(196,118,58,.15)}
-.lb:active{transform:scale(0.97)}
-.lbn{font-size:11px;font-weight:700;display:block;color:var(--muted);margin-bottom:3px;font-family:var(--sans)}
+.lb{padding:10px 6px;border-radius:12px;border:2px solid var(--border);cursor:pointer;text-align:center;background:var(--card);transition:all .15s ease-out;position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent;box-shadow:0 2px 4px rgba(0,0,0,0.04)}
+.lb:hover{border-color:var(--primary);box-shadow:0 4px 8px rgba(79,70,229,0.1)}
+.lb:active{transform:scale(0.98)}
+.lbn{font-size:11px;font-weight:700;display:block;color:var(--muted);margin-bottom:3px}
 .lbv{font-size:10px;display:block;color:var(--muted);font-weight:600}
 
 /* Modal */
-#mo{display:none;position:fixed;inset:0;background:rgba(42,33,24,.5);z-index:999;justify-content:center;align-items:flex-end}
+#mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;justify-content:center;align-items:flex-end}
 #mo.open{display:flex}
-#mb{background:var(--app);border-radius:20px 20px 0 0;padding:22px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto;box-shadow:0 -8px 32px rgba(42,33,24,.15)}
+#mb{background:var(--app);border-radius:18px 18px 0 0;padding:20px;width:100%;max-width:420px;max-height:88vh;overflow-y:auto}
 
 /* 平衡輪彈窗 */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;justify-content:center;align-items:center;padding:20px}
@@ -251,6 +295,10 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
 /* ── 成就動畫 ── */
 @keyframes burst{0%{transform:scale(0);opacity:1}60%{transform:scale(1.2);opacity:1}100%{transform:scale(1.5);opacity:0}}
 @keyframes confetti-fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(80px) rotate(360deg);opacity:0}}
+@keyframes miniGlow{0%{transform:scale(0);opacity:1}100%{transform:scale(2.5);opacity:0}}
+@keyframes stuckFlash{0%{opacity:0}30%{opacity:1}100%{opacity:0}}
+@keyframes stuckMsgIn{0%{opacity:0;transform:translate(-50%,-42%)}100%{opacity:1;transform:translate(-50%,-50%)}}
+@keyframes stuckMsgOut{0%{opacity:1;transform:translate(-50%,-50%)}100%{opacity:0;transform:translate(-50%,-58%)}}
 @keyframes milestone-in{0%{transform:translateY(40px) scale(.9);opacity:0}100%{transform:translateY(0) scale(1);opacity:1}
 @keyframes slideUp{0%{transform:translateY(60px);opacity:0}100%{transform:translateY(0);opacity:1}}
 @keyframes fadeIn{0%{opacity:0}100%{opacity:1}}
@@ -389,6 +437,46 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
   </div>
 </div>
 <div id="mo" onclick="if(event.target===this)cm()"><div id="mb"></div></div>
+
+<!-- 卡關層 overlay -->
+<div id="stuck-overlay" onclick="if(event.target===this)closeStuck()">
+<div id="stuck-box">
+  <!-- Step 1: 情緒快照 -->
+  <div class="stuck-step active" id="stuck-s1">
+    <div class="stuck-title">你現在比較像哪個？</div>
+    <div class="stuck-sub">選一個就好，沒有對錯。</div>
+    <div class="emotion-grid">
+      <button class="emotion-btn" onclick="selectEmotion(this,'overwhelmed')"><span class="emotion-emoji">😵</span><span class="emotion-label">腦袋太亂</span></button>
+      <button class="emotion-btn" onclick="selectEmotion(this,'tired')"><span class="emotion-emoji">😴</span><span class="emotion-label">太累了</span></button>
+      <button class="emotion-btn" onclick="selectEmotion(this,'scared')"><span class="emotion-emoji">😰</span><span class="emotion-label">害怕開始</span></button>
+      <button class="emotion-btn" onclick="selectEmotion(this,'lost')"><span class="emotion-emoji">🤷</span><span class="emotion-label">不知先做哪個</span></button>
+      <button class="emotion-btn" onclick="selectEmotion(this,'big')" style="grid-column:span 2"><span class="emotion-emoji">😤</span><span class="emotion-label">感覺事情太大做不完</span></button>
+    </div>
+    <button class="stuck-btn-ghost" onclick="closeStuck()">先不用，謝謝</button>
+  </div>
+  <!-- Step 2: 推薦行動 -->
+  <div class="stuck-step" id="stuck-s2">
+    <div class="stuck-title" id="stuck-s2-title">那我們先做這個：</div>
+    <div class="stuck-sub" id="stuck-s2-sub"></div>
+    <div class="stuck-action-card">
+      <div class="stuck-action-habit" id="stuck-habit-name"></div>
+      <div class="stuck-action-text" id="stuck-action-text"></div>
+      <div class="stuck-action-mini" id="stuck-action-mini"></div>
+    </div>
+    <button class="stuck-btn-primary" onclick="stuckDone()">好，我去做了 →</button>
+    <button class="stuck-btn-ghost" onclick="closeStuck()">今天先跳過</button>
+  </div>
+  <!-- Step 3: 完成陪伴 -->
+  <div class="stuck-step" id="stuck-s3">
+    <span class="stuck-done-emoji">✨</span>
+    <div class="stuck-done-title">你已經開始了。</div>
+    <div class="stuck-done-sub">要不要繼續都可以，<br>但今天的你已經動了。<br><br>很小也算。</div>
+    <div style="height:20px"></div>
+    <button class="stuck-btn-primary" onclick="stuckFinish()">打卡記錄這一步</button>
+    <button class="stuck-btn-ghost" onclick="closeStuck()">稍後再打卡</button>
+  </div>
+</div>
+</div>
 <div id="toast"></div>
 <script>
 /* ── 開發者版權簽名 ── */
@@ -657,13 +745,28 @@ function rH(){
   if(d.h.length){
     var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
     var pct=Math.round(done/d.h.length*100);
+    var allDone=done===d.h.length;
+    /* ── 卡關入口按鈕 ── */
+    if(!allDone){
+      H+='<button id="stuck-gate" onclick="openStuck()">';
+      H+='<div class="sg-icon">🌀</div>';
+      H+='<div class="sg-text"><div class="sg-label">現在卡住了？點這裡</div><div class="sg-sub">幫你找到下一個最小行動</div></div>';
+      H+='<div style="font-size:16px;color:var(--muted)">›</div>';
+      H+='</button>';
+    }
+    /* ── 方向感語氣條 ── */
+    var dirQ=allDone?'今天有輕輕靠近了 ✓':'今天有沒有輕輕靠近？';
+    var dirS=allDone?'所有習慣都完成了，很棒。':done>0?'已經開始了，繼續就好。':'還有空間，隨時都可以開始。';
+    H+='<div class="direction-bar"><div class="direction-q">'+dirQ+'</div><div class="direction-status">'+dirS+'</div></div>';
+    /* ── 晚間未打卡提示 ── */
+    H+='<div id="evening-nudge"><div class="en-icon">🌙</div><div class="en-text">今天還有習慣沒靠近，睡前還有時間。</div><div class="en-close" onclick="this.parentElement.classList.remove(\'show\')">✕</div></div>';
     /* ① 失控日按鈕 */
     var allMax=d.h.every(function(hx){return(log[hx.id]||0)>=1;});
     if(!allMax){
       H+='<button onclick="triggerBadDay()" id="bad-day-btn" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px">😮‍💨 今天有點難——切換失控日模式</button>';
     }
     H+='<div class="sec" style="margin-top:14px">今日習慣</div>';
-    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">完成 '+done+'/'+d.h.length+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
+    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">已靠近 '+done+'/'+d.h.length+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
     d.h.forEach(function(hb){
       var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#c4763a',src=fsrc(m,hb.id);
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
@@ -742,9 +845,11 @@ function tLv(hid,lv){
       }
     }
     
-    /* Elite 特殊動畫 */
-    if(newLv===3){
-      eliteBurst(btn);
+    /* 慶祝動畫：依等級分層 */
+    if(newLv===1){
+      miniCelebrate(btn); /* 溫柔光點 — 今日的1 */
+    }else if(newLv===3){
+      eliteBurst(btn);    /* 爆炸粒子 — 全力以赴 */
     }
     
     /* 即時成就提示 */
@@ -1138,7 +1243,7 @@ function rS(){
   H+="</div>";
   /* 外觀 */
   H+='<div class="sec">外觀</div><div class="sblk">';
-  H+='<div class="srow"><div><div class="slb">暗色模式</div><div class="ssub">切換深色 / 淺色主題</div></div><button class="tgl'+(isDark?' on':'')+'" onclick="tDark()"><div class="tglk"></div></button></div>';
+  H+='<div class="srow"><div><div class="slb">暗色模式</div><div class="ssub">手動切換，或跟隨系統設定</div></div><button class="tgl'+(isDark?' on':'')+'" onclick="tDark()"><div class="tglk"></div></button></div>';
   H+='</div>';
   /* 通知 */
   H+='<div class="sec">每日提醒</div><div class="sblk">';
@@ -1211,8 +1316,9 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.26</div>';
-  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-03 · by 謙謙爸</div></div></div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.28</div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-18 · by 謙謙爸</div></div></div>';
+  H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
   H+='漫打卡建立在三個核心支柱之上：<br><br>';
   H+='<b>🟣 第一支柱：曼陀羅九宮格（OW64）</b><br>';
@@ -1263,7 +1369,13 @@ function rS(){
   H+='<div style="height:30px"></div>';
   document.getElementById('main').innerHTML=H;
 }
-function tDark(){document.body.classList.toggle('dark');var d=ld();d.s.dark=document.body.classList.contains('dark');sv(d);rS();}
+function tDark(){
+  document.body.classList.toggle('dark');
+  var d=ld();
+  d.s.dark=document.body.classList.contains('dark');
+  d.s.darkManual=true; /* 標記為手動設定 */
+  sv(d);rS();
+}
 function tN(){var d=ld();if(!d.s)d.s={};if(!d.s.notif){if('Notification'in window){Notification.requestPermission().then(function(r){d.s.notif=(r==='granted');sv(d);rS();toast(r==='granted'?'✓ 通知已開啟':'請允許通知');});}else toast('不支援通知');}else{d.s.notif=false;sv(d);rS();toast('通知已關閉');}}
 function svT(v){var d=ld();d.s.time=v;sv(d);toast('✓ 已儲存');}
 function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('漫打卡',{body:(function(){
@@ -1365,7 +1477,7 @@ function eliteBurst(el){
   ball.style.cssText='left:'+(cx-30)+'px;top:'+(cy-30)+'px;animation:burst .55s ease forwards';
   document.body.appendChild(ball);
   setTimeout(function(){ball.remove();},600);
-  var colors=['#c4763a','#f59e0b','#10b981','#ef4444','#d4845a','#06b6d4'];
+  var colors=['#c4763a','#f59e0b','#10b981','#ef4444','#8b5cf6','#06b6d4'];
   for(var i=0;i<12;i++){
     (function(idx){
       var dot=document.createElement('div');
@@ -1382,6 +1494,52 @@ function eliteBurst(el){
   }
 }
 
+/* ── 微慶祝：今日的1 完成（溫柔版）── */
+function miniCelebrate(el){
+  if(!el)return;
+  var r=el.getBoundingClientRect();
+  var cx=r.left+r.width/2,cy=r.top+r.height/2;
+  /* 溫柔光暈 */
+  var glow=document.createElement('div');
+  glow.style.cssText='position:fixed;left:'+(cx-24)+'px;top:'+(cy-24)+'px;width:48px;height:48px;border-radius:50%;background:radial-gradient(circle,rgba(196,118,58,.5),transparent);pointer-events:none;z-index:9990;animation:miniGlow .6s ease-out forwards';
+  document.body.appendChild(glow);
+  setTimeout(function(){glow.remove();},700);
+  /* 3顆小光點 */
+  var cols=['#fcd34d','#f59e0b','#c4763a'];
+  for(var i=0;i<3;i++){
+    (function(idx){
+      var dot=document.createElement('div');
+      dot.style.cssText='position:fixed;left:'+(cx-3)+'px;top:'+(cy-3)+'px;width:6px;height:6px;border-radius:50%;background:'+cols[idx]+';pointer-events:none;z-index:9990';
+      document.body.appendChild(dot);
+      var angle=(idx*120-90)*Math.PI/180,dist=22+idx*6;
+      dot.animate([
+        {transform:'translate(0,0) scale(1)',opacity:1},
+        {transform:'translate('+(Math.cos(angle)*dist)+'px,'+(Math.sin(angle)*dist)+'px) scale(0)',opacity:0}
+      ],{duration:500,easing:'ease-out',delay:idx*40}).onfinish=function(){dot.remove();};
+    })(i);
+  }
+}
+
+/* ── 卡關閉環慶祝（從卡關層完成今日的1）── */
+function stuckCompleteCelebrate(){
+  /* 全畫面溫柔金光閃爍 */
+  var flash=document.createElement('div');
+  flash.style.cssText='position:fixed;inset:0;background:rgba(252,211,77,.08);pointer-events:none;z-index:9995;animation:stuckFlash .8s ease-out forwards';
+  document.body.appendChild(flash);
+  setTimeout(function(){flash.remove();},900);
+  /* 中央訊息 */
+  var msg=document.createElement('div');
+  msg.style.cssText='position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--app);border-radius:20px;padding:24px 28px;text-align:center;z-index:9996;box-shadow:0 8px 32px rgba(42,33,24,.18);pointer-events:none;animation:stuckMsgIn .4s ease-out';
+  msg.innerHTML='<div style="font-size:36px;margin-bottom:10px">✨</div>'
+    +'<div style="font-family:\'Noto Serif TC\',serif;font-size:17px;font-weight:700;color:var(--text);margin-bottom:6px">你動了。</div>'
+    +'<div style="font-size:13px;color:var(--sub);line-height:1.6">很小也算。<br>今天的你，已經比昨天更靠近了。</div>';
+  document.body.appendChild(msg);
+  setTimeout(function(){
+    msg.style.animation='stuckMsgOut .4s ease-in forwards';
+    setTimeout(function(){msg.remove();},400);
+  },2200);
+}
+
 /* ── 品牌 Slogan（每日輪換）── */
 var SLOGANS=[
   '你不是意志力不夠。你只是還沒遇到設計給真實人類的系統。',
@@ -1390,6 +1548,109 @@ var SLOGANS=[
   '真正適合人類的習慣，允許你有不完美的一天。',
   '意志力不是答案，彈性才是。'
 ];
+/* ══════════════════════════════════
+   卡關層 — 現在該做什麼？
+══════════════════════════════════ */
+var stuckEmotion='';
+var stuckHabitId='';
+
+/* 情緒 → 對應語氣 */
+var EMOTION_MSG={
+  overwhelmed:{title:'腦袋亂的時候，只做一件事。',sub:'選最小的那個，清空其他。'},
+  tired:      {title:'累的時候，身體比意志力誠實。',sub:'今日的1就是今天的贏。'},
+  scared:     {title:'害怕開始，很正常。',sub:'最小的第一步，只是讓自己動起來。'},
+  lost:       {title:'不知道從哪開始？讓我幫你選。',sub:'現在只有一件事最重要。'},
+  big:        {title:'事情沒有那麼大。',sub:'切成最小單位，先動就對了。'}
+};
+
+/* 情緒 → 最小行動文字 */
+var MINI_PROMPTS={
+  overwhelmed:'先深呼吸3秒，只打開這個習慣就好',
+  tired:      '做最小版本，完成就算贏',
+  scared:     '只做開頭的一小步，不用做完',
+  lost:       '就選這個，其他等一下再說',
+  big:        '切到最小單位，先動再說'
+};
+
+function openStuck(){
+  stuckEmotion='';stuckHabitId='';
+  document.querySelectorAll('.emotion-btn').forEach(function(b){b.classList.remove('selected');});
+  document.querySelectorAll('.stuck-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('stuck-s1').classList.add('active');
+  document.getElementById('stuck-overlay').classList.add('open');
+}
+function closeStuck(){
+  document.getElementById('stuck-overlay').classList.remove('open');
+}
+function selectEmotion(btn,emotion){
+  document.querySelectorAll('.emotion-btn').forEach(function(b){b.classList.remove('selected');});
+  btn.classList.add('selected');
+  stuckEmotion=emotion;
+  setTimeout(function(){goStuckS2();},320);
+}
+function goStuckS2(){
+  var d=ld(),t=td(),log=d.l[t]||{};
+  /* 找未完成的習慣，隨機選一個 */
+  var pending=d.h.filter(function(h){return(log[h.id]||0)===0;});
+  if(!pending.length){closeStuck();toast('今天的習慣都完成了！🎉');return;}
+  var pick=pending[Math.floor(Math.random()*pending.length)];
+  stuckHabitId=pick.id;
+  var msg=EMOTION_MSG[stuckEmotion]||EMOTION_MSG.lost;
+  var miniPrompt=MINI_PROMPTS[stuckEmotion]||'只做最小的那個版本';
+  document.getElementById('stuck-s2-title').textContent=msg.title;
+  document.getElementById('stuck-s2-sub').textContent=msg.sub;
+  document.getElementById('stuck-habit-name').textContent=pick.i+' '+pick.n;
+  document.getElementById('stuck-action-text').textContent='今日的1 — '+pick.v1+' '+pick.u;
+  document.getElementById('stuck-action-mini').textContent='💡 '+miniPrompt;
+  document.querySelectorAll('.stuck-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('stuck-s2').classList.add('active');
+}
+function stuckDone(){
+  document.querySelectorAll('.stuck-step').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('stuck-s3').classList.add('active');
+}
+function stuckFinish(){
+  /* 自動打今日的1 */
+  if(stuckHabitId)tLv(stuckHabitId,1);
+  closeStuck();
+  /* 卡關閉環專屬慶祝 */
+  setTimeout(stuckCompleteCelebrate,300);
+}
+
+/* ── 晚間提示檢查 ── */
+function checkEveningNudge(){
+  var h=new Date().getHours();
+  if(h<21)return;
+  var nudgeKey='evening-nudge-'+td();
+  if(localStorage.getItem(nudgeKey))return;
+  var d=ld(),t=td(),log=d.l[t]||{};
+  var pending=d.h.filter(function(h){return(log[h.id]||0)===0;});
+  if(!pending.length)return;
+  var el=document.getElementById('evening-nudge');
+  if(el){
+    el.querySelector('.en-text').textContent='今天還有 '+pending.length+' 個習慣沒靠近，睡前還有時間。';
+    el.classList.add('show');
+    localStorage.setItem(nudgeKey,'1');
+  }
+}
+
+/* ── 晚間排程推播 ── */
+function scheduleEveningNotif(){
+  var s=(ld().s)||{};
+  if(!s.notif||Notification.permission!=='granted')return;
+  var now=new Date(),target=new Date();
+  target.setHours(21,0,0,0);
+  if(now>target)return;
+  var delay=target-now;
+  setTimeout(function(){
+    var d=ld(),t=td(),log=d.l[t]||{};
+    var pending=d.h.filter(function(h){return(log[h.id]||0)===0;});
+    if(pending.length>0){
+      new Notification('漫打卡 🌙',{body:'今天還有 '+pending.length+' 個習慣等你，睡前還有時間靠近一步。'});
+    }
+  },delay);
+}
+
 function getDailySlogan(){
   var d=new Date();
   var idx=(d.getFullYear()*366+d.getMonth()*31+d.getDate())%SLOGANS.length;
@@ -1808,6 +2069,7 @@ function obStep(step){
       +obCard('🗑️','隨時可以離開','你可以隨時刪除資料<br>也可以隨時重新開始',3)
       +'</div>'
       +obBtn('我放心了，踏出第一小步 →','obStep(2)')
+      +'<div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.7;padding:0 12px">你的習慣紀錄只存在你的設備與個人空間。<br>連開發者（謙謙爸）都看不到你寫了什麼。</div>'
       +'</div>';
 
   }else if(step===2){
@@ -1959,7 +2221,22 @@ function obDone(){
 /* ── 初始化 ── */
 document.addEventListener('DOMContentLoaded',function(){
   var d=JSON.parse(localStorage.getItem('eh3')||'{}');
-  if(d.s&&d.s.dark)document.body.classList.add('dark');
+  /* 深色模式：優先用戶手動設定，否則跟隨系統 */
+  if(d.s&&typeof d.s.dark!=='undefined'){
+    if(d.s.dark)document.body.classList.add('dark');
+  }else{
+    if(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches){
+      document.body.classList.add('dark');
+    }
+  }
+  /* 監聽系統主題變化（僅在用戶未手動設定時跟隨） */
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(e){
+      var dd=ld();
+      if(dd.s&&typeof dd.s.dark!=='undefined')return; /* 已手動設定，不跟隨 */
+      document.body.classList.toggle('dark',e.matches);
+    });
+  }
   go(0);
   bindRipples();
   if(!localStorage.getItem('ob-done')){
@@ -1967,6 +2244,9 @@ document.addEventListener('DOMContentLoaded',function(){
   }else{
     checkReturnUser();
   }
+  /* 晚間提示 */
+  setTimeout(checkEveningNudge,1000);
+  scheduleEveningNotif();
 });
 </script>
 </body>
