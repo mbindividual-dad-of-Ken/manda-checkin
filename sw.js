@@ -1,4 +1,4 @@
-const CACHE_NAME = 'manda-cache-v1.25';
+const CACHE_NAME = 'manda-cache-v1.29';
 const urlsToCache = [
   './',
   './index.html',
