@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.36 | 2026-05-24 | Formspree+14天損失提示+反思chip -->
+<!-- 漫打卡 v1.37 | 2026-05-24 | 步驟條整合+刪除Undo+今日動能整合 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -1020,16 +1020,30 @@ function rH(){
   document.getElementById('daily-slogan').textContent=getDailySlogan();
   var hasA=m.cells.some(function(c){return c&&c.t;});
   var H='<div id="checkin-quote" style="display:none;margin:0 0 10px;padding:10px 14px;background:var(--pbg);border-radius:10px;border-left:3px solid var(--primary);font-size:12px;line-height:1.7"></div>';
-  H+='<div class="steps">';
-  var st=[{n:1,l:'核心目標',d:!!m.core},{n:2,l:'行動領域',d:hasA},{n:3,l:'連結習慣',d:d.h.length>0}];
-  st.forEach(function(s,i){
-    var a=!s.d&&(i===0||(i>0&&st[i-1].d));
-    H+='<div class="si"><div class="sd '+(s.d?'done':a?'go':'wait')+'">'+(s.d?'✓':s.n)+'</div><div class="sl'+(a?' go':'')+'">'+s.l+'</div></div>';
-    if(i<2)H+='<div class="sline"></div>';
-  });
-  H+='</div>';
-  /* v1.34 曼陀羅預設收合 */
+  /* v1.37 步驟條：收合時顯示簡短摘要，展開時顯示完整步驟 */
   var mOpen=localStorage.getItem('m-open')==='1';
+  var stDone=[!!m.core,hasA,d.h.length>0];
+  var stAll=stDone.every(Boolean);
+  if(mOpen){
+    /* 展開狀態：顯示完整步驟條 */
+    H+='<div class="steps">';
+    var st=[{n:1,l:'核心目標',d:stDone[0]},{n:2,l:'行動領域',d:stDone[1]},{n:3,l:'連結習慣',d:stDone[2]}];
+    st.forEach(function(s,i){
+      var a=!s.d&&(i===0||(i>0&&st[i-1].d));
+      H+='<div class="si"><div class="sd '+(s.d?'done':a?'go':'wait')+'">'+(s.d?'✓':s.n)+'</div><div class="sl'+(a?' go':'')+'">'+s.l+'</div></div>';
+      if(i<2)H+='<div class="sline"></div>';
+    });
+    H+='</div>';
+  }else{
+    /* 收合狀態：一行摘要 */
+    var stTxt=stAll?'曼陀羅已設定完成 ✓':
+      (!stDone[0]?'點下方展開 → 設定核心目標':
+      (!stDone[1]?'點下方展開 → 填入行動領域':
+      '點下方展開 → 連結習慣'));
+    var stCol=stAll?'var(--primary)':'var(--muted)';
+    H+='<div style="font-size:11px;color:'+stCol+';margin-bottom:8px;padding:6px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="tgMandala()">📋 '+stTxt+'</div>';
+  }
+  /* 曼陀羅標題列 */
   H+='<div class="sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="tgMandala()">';
   H+='<span>曼陀羅九宮格</span>';
   H+='<span id="m-arrow" style="font-size:10px;color:var(--primary);font-weight:700">'+(mOpen?'▲ 收合':'▼ 展開')+'</span>';
@@ -1140,11 +1154,11 @@ function rH(){
     H+='<span style="font-size:16px;color:var(--muted)">›</span>';
     H+='</button>';
   }
-  /* v1.31 今日一勝卡片 */
-  H+=renderWinCard();
-  /* v1.32 卡住陷阱（只在有習慣時顯示） */
+  /* v1.37 今日動能整合區塊 */
   if(d.h.length>0){
-    H+=renderTrapCard();
+    H+=renderMomentumBlock(d,log);
+  }else{
+    H+=renderWinCard();
   }
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
@@ -1339,7 +1353,37 @@ function tLv(hid,lv){
     checkMilestone(hid,streak);
   }
 }
-function dH(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rH();}
+function dH(id){
+  var d=ld();
+  var hb=d.h.find(function(h){return h.id===id;});
+  if(!hb)return;
+  /* 軟刪除：先移除，存 undo 快照 */
+  d.h=d.h.filter(function(h){return h.id!==id;});
+  sv(d);
+  rH();
+  /* v1.37 Undo Toast */
+  var t=document.getElementById('toast');
+  t.innerHTML='已刪除「'+e(hb.n)+'」&nbsp;<span onclick="undoDH()" style="text-decoration:underline;cursor:pointer;font-weight:700;margin-left:6px">復原</span>';
+  t.classList.add('show');
+  window._undoHabit=hb;
+  clearTimeout(window._undoT);
+  window._undoT=setTimeout(function(){
+    t.classList.remove('show');
+    t.innerHTML='';
+    window._undoHabit=null;
+  },4000);
+}
+function undoDH(){
+  if(!window._undoHabit)return;
+  clearTimeout(window._undoT);
+  var d=ld();
+  d.h.push(window._undoHabit);
+  sv(d);
+  window._undoHabit=null;
+  document.getElementById('toast').classList.remove('show');
+  rH();
+  toast('✓ 已復原');
+}
 
 /* ── 即時打卡回饋 ── */
 function triggerBadDay(){
@@ -1951,7 +1995,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.36</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.37</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2934,6 +2978,87 @@ function doDownloadCard(){
 }
 
 /* ── v1.31 今日一勝 ── */
+/* ── v1.37 今日動能整合區塊 ── */
+function renderMomentumBlock(d,log){
+  var t=td();
+  var dayLog=log||d.l[t]||{};
+  var done=d.h.filter(function(x){return(dayLog[x.id]||0)>=1;}).length;
+  var allDone=done===d.h.length&&d.h.length>0;
+  var win=dayLog._win||{text:'',done:false};
+  var savedTrap=dayLog._trap||'';
+  var H='<div style="background:var(--card);border-radius:16px;border:1.5px solid var(--border);margin-bottom:14px;overflow:hidden">';
+  /* 標題列 */
+  H+='<div style="padding:12px 16px 0">';
+  H+='<div style="font-family:var(--serif);font-size:15px;font-weight:700;color:var(--text);margin-bottom:2px">今日動能</div>';
+  H+='<div style="font-size:11px;color:var(--sub)">一勝 · 卡點 · 錨點</div>';
+  H+='</div>';
+  /* Tab 切換列 */
+  var curTab=localStorage.getItem('momentum-tab')||'win';
+  H+='<div style="display:flex;gap:0;margin:10px 16px 0;background:var(--app);border-radius:10px;padding:3px">';
+  ['win','trap','anchor'].forEach(function(tab){
+    var labels={win:'🏆 今日一勝',trap:'🌀 卡點',anchor:'⚓ 錨點'};
+    var active=curTab===tab;
+    H+='<button onclick="switchMomentumTab(\''+tab+'\')" style="flex:1;padding:6px 4px;border-radius:8px;border:none;background:'+(active?'var(--card)':'transparent')+';color:'+(active?'var(--primary)':'var(--muted)')+';font-size:11px;font-weight:'+(active?'700':'400')+';cursor:pointer;font-family:var(--sans);transition:all .15s">'+labels[tab]+'</button>';
+  });
+  H+='</div>';
+  /* 內容區 */
+  H+='<div style="padding:14px 16px 16px">';
+  if(curTab==='win'){
+    /* 今日一勝內容 */
+    if(!win.text){
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">今天最想推進哪一件事？</div>';
+      H+='<textarea id="win-input" class="win-input" rows="2" placeholder="寫下來，哪怕很小也算。"></textarea>';
+      H+='<button class="win-btn-done" onclick="saveWin()" style="margin-top:8px">存下這一勝</button>';
+    }else{
+      H+='<div style="display:flex;align-items:flex-start;gap:10px">';
+      H+='<div style="font-size:22px">'+(win.done?'✅':'🎯')+'</div>';
+      H+='<div style="flex:1">';
+      H+='<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:2px">'+(win.done?'完成了':'今天的一勝')+'</div>';
+      H+='<div style="font-size:14px;font-weight:600;color:var(--text);line-height:1.4">'+e(win.text)+'</div>';
+      if(win.done)H+='<div style="font-size:11px;color:var(--primary);margin-top:6px;font-style:italic">不是因為完美，而是因為你有回來。</div>';
+      H+='<div style="display:flex;gap:6px;margin-top:10px">';
+      if(!win.done)H+='<button class="win-btn-done" onclick="markWinDone()">完成了 ✓</button>';
+      H+='<button class="win-btn-change" onclick="resetWin()">換一個</button>';
+      H+='</div></div></div>';
+    }
+  }else if(curTab==='trap'){
+    /* 卡點內容（精簡版，不重複顯示完整7項） */
+    var trapData=TRAPS.find(function(t){return t.id===savedTrap;});
+    if(trapData){
+      H+='<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">'+trapData.title+'</div>';
+      H+='<div style="font-size:12px;color:var(--sub);line-height:1.7;margin-bottom:10px">'+trapData.body.replace(/<br>/g,'\n').split('\n')[0]+'</div>';
+      H+='<button style="padding:7px 14px;border-radius:20px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)" onclick="go(0)">'+trapData.cta+' →</button>';
+      H+='<button style="margin-left:8px;padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;font-family:var(--sans)" onclick="switchMomentumTab(\'trap\')">換一個</button>';
+    }else{
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:10px">現在卡在哪裡？選一個最像你的狀態：</div>';
+      H+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
+      TRAPS.slice(0,6).forEach(function(tr){
+        H+='<button style="padding:9px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;font-size:11px;font-weight:600;color:var(--sub);font-family:var(--sans);text-align:center;line-height:1.3" onclick="selectTrap(\''+tr.id+'\');switchMomentumTab(\'trap\')">'+tr.icon+'<br>'+tr.label+'</button>';
+      });
+      H+='</div>';
+    }
+  }else{
+    /* 錨點內容 */
+    var savedAnchor=localStorage.getItem('anchor-'+t)||'';
+    if(savedAnchor){
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:4px">明天從這裡開始：</div>';
+      H+='<div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:10px;padding:8px 10px;background:var(--pbg);border-radius:8px;border-left:3px solid var(--primary)">'+e(savedAnchor)+'</div>';
+      H+='<button onclick="localStorage.removeItem(\'anchor-'+t+'\');rH();" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">清除</button>';
+    }else{
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">明天第一件事是什麼？</div>';
+      H+='<div style="display:flex;gap:8px">';
+      H+='<input id="anchor-input" type="text" placeholder="例：打開漫打卡，完成今日的1" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-family:var(--sans)">';
+      H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
+      H+='</div>';
+    }
+  }
+  H+='</div></div>';
+  return H;
+}
+function switchMomentumTab(tab){
+  localStorage.setItem('momentum-tab',tab);
+  rH();
+}
 function renderWinCard(){
   var d=ld(),t=td(),dayLog=d.l[t]||{};
   var win=dayLog._win||{text:'',done:false};
