@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.38 | 2026-05-24 | 浮水印修正+謙謙爸範例習慣 -->
+<!-- 漫打卡 v1.39 | 2026-05-24 | 情緒介面語氣審計——人格一致性更新 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -607,12 +607,12 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
       <div style="font-size:12px;color:var(--sub);margin-bottom:8px">留下 Email，Plus 上線第一個通知你：</div>
       <div style="display:flex;gap:7px">
         <input id="upg-email" type="email" placeholder="your@email.com" style="flex:1;padding:9px 11px;border-radius:9px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-family:sans-serif;outline:none">
-        <button onclick="saveUpgradeEmail()" style="padding:9px 13px;border-radius:9px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif;white-space:nowrap">通知我</button>
+        <button onclick="saveUpgradeEmail()" style="padding:9px 13px;border-radius:9px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif;white-space:nowrap">我想知道</button>
       </div>
       <div id="upg-email-done" style="display:none;font-size:12px;color:var(--primary);margin-top:6px;font-weight:700">✓ 已記錄，Plus 上線時第一個通知你</div>
     </div>
-    <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">好，我等著</button>
-    <div onclick="closeUpgrade()" style="margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer">稍後再看</div>
+    <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">保留這些紀錄</button>
+    <div onclick="closeUpgrade()" style="margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer">我知道風險，先這樣</div>
   </div>
 </div>
 
@@ -629,7 +629,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
     </div>
     <div class="ios-step">
       <div class="ios-num">3</div>
-      <div class="ios-txt">點右上角「<b>新增</b>」，完成！可像 App 一樣開啟</div>
+      <div class="ios-txt">點右上角「<b>加入主畫面</b>」，完成！可像 App 一樣開啟</div>
     </div>
     <button class="ios-close" onclick="closeIOSGuide()">好，我知道了</button>
   </div>
@@ -660,8 +660,8 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
   <div id="nav">
     <button class="nb on" id="nb0" onclick="go(0)"><span class="ni">🏠</span>今日</button>
     <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>月曆</button>
-    <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>統計</button>
-    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">➕</span>新增</button>
+    <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>我的軌跡</button>
+    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">➕</span>加入</button>
     <button class="nb" id="nb4" onclick="go(4)"><span class="ni">⚙️</span>設定</button>
   </div>
 </div>
@@ -1098,17 +1098,17 @@ function rH(){
     }
     /* ── 方向感語氣條 ── */
     var dirQ=allDone?'今天有輕輕靠近了 ✓':'今天有沒有輕輕靠近？';
-    var dirS=allDone?'所有習慣都完成了，很棒。':done>0?'已經開始了，繼續就好。':'還有空間，隨時都可以開始。';
+    var dirS=allDone?'有做，就算。':done>0?'動了就算，繼續就好。':'還沒開始也行，現在也可以。';
     H+='<div class="direction-bar"><div class="direction-q">'+dirQ+'</div><div class="direction-status">'+dirS+'</div></div>';
     /* ── 晚間未打卡提示 ── */
     H+='<div id="evening-nudge"><div class="en-icon">🌙</div><div class="en-text">今天還有習慣沒靠近，睡前還有時間。</div><div class="en-close" onclick="this.parentElement.classList.remove(\'show\')">✕</div></div>';
     /* ① 失控日按鈕 */
     var allMax=d.h.every(function(hx){return(log[hx.id]||0)>=1;});
     if(!allMax){
-      H+='<button onclick="triggerBadDay()" id="bad-day-btn" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px">😮‍💨 今天有點難——切換失控日模式</button>';
+      H+='<button onclick="triggerBadDay()" id="bad-day-btn" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px">😮‍💨 今天有點撐——換個方式繼續</button>';
     }
     H+='<div class="sec" style="margin-top:14px">今日習慣</div>';
-    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">已靠近 '+done+'/'+d.h.length+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
+    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">今天 '+done+'/'+d.h.length+' 件，動了就算</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
     d.h.forEach(function(hb){
       var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#c4763a',src=fsrc(m,hb.id);
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
@@ -1133,12 +1133,12 @@ function rH(){
       });
       H+='</div></div>';
     });
-  }else{H+='<div class="empty">選一件想每天做的事，放進來。</div>';}
+  }else{H+='<div class="empty">有什麼事，你想每天做一點點？</div>';}
   /* ② 啟動錨點 UI */
   var savedAnchor=localStorage.getItem('anchor-'+t)||'';
   H+='<div id="anchor-wrap" style="display:'+(savedAnchor?'block':'none')+';margin-top:16px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary)">';
   H+='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">⚓ 埋下明天的啟動錨點</div>';
-  H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">明天第一件事是什麼？寫下來，明天提醒你從這裡開始。</div>';
+  H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">明天先做哪一件？就一件。寫下來，明天提醒你從這裡開始。</div>';
   H+='<div style="display:flex;gap:8px">';
   H+='<input id="anchor-input" type="text" placeholder="例：打開漫打卡，完成今日的1" value="'+e(savedAnchor)+'" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-family:sans-serif">';
   H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
@@ -1150,7 +1150,7 @@ function rH(){
     var pct=Math.round(done/d.h.length*100);
     H+='<button class="share-trigger" onclick="openShare(\'今日習慣 '+done+'/'+d.h.length+'\','+pct+')">';
     H+='<span class="st-icon">🪄</span>';
-    H+='<span class="st-text"><div class="st-label">產生今日分享卡</div><div class="st-sub">分享你今天的一小步</div></span>';
+    H+='<span class="st-text"><div class="st-label">把今天輕輕收起來</div><div class="st-sub">今天，也值得被記住</div></span>';
     H+='<span style="font-size:16px;color:var(--muted)">›</span>';
     H+='</button>';
   }
@@ -1192,7 +1192,7 @@ function showReflectChip(hid,lv){
     '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'+blueChips+'</div>'+
     '<div style="font-size:11px;font-weight:700;color:#10b981;margin-bottom:7px">我怎麼看這件事</div>'+
     '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">'+greenChips+'</div>'+
-    '<button onclick="closeReflect(\''+hid+'\'  )" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans)">跳過</button>'+
+    '<button onclick="closeReflect(\''+hid+'\'  )" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans)">今天先不說</button>'+
     '</div>';
   document.body.appendChild(ov);
   /* 注入 chip 樣式 */
@@ -1227,7 +1227,7 @@ function pickChip(hid,type,val,el){
   /* 兩類都選了才自動關閉，否則等 1.2 秒後關 */
   var chips=d.l[t]._chips[hid];
   if(chips.blue&&chips.green){
-    setTimeout(function(){closeReflect(hid);toast('✓ 記下了，謝謝你告訴我');},600);
+    setTimeout(function(){closeReflect(hid);toast('謝謝你告訴我，記下了');},600);
   }else{
     clearTimeout(el._closeT);
     el._closeT=setTimeout(function(){},0); /* 讓用戶繼續選另一類 */
@@ -1251,7 +1251,7 @@ function saveAnchor(){
   var inp=document.getElementById('anchor-input');
   if(!inp||!inp.value.trim())return;
   localStorage.setItem('anchor-'+td(),inp.value.trim());
-  toast('⚓ 啟動錨點已設定，明天從這裡開始');
+  toast('記下了，明天先從這裡開始');
   var wrap=document.getElementById('anchor-wrap');
   if(wrap){var d3=wrap.querySelector('.anchor-done');if(!d3){d3=document.createElement('div');d3.className='anchor-done';d3.style.cssText='font-size:11px;color:var(--primary);margin-top:6px;text-align:right';d3.textContent='✓ 已存';wrap.appendChild(d3);}}
 }
@@ -1399,7 +1399,7 @@ function triggerBadDay(){
   ov.innerHTML='<div style="background:var(--app);border-radius:20px 20px 0 0;padding:28px 24px 40px;width:100%;max-width:430px">'
     +'<div style="text-align:center;margin-bottom:20px">'
     +'<div style="font-size:32px;margin-bottom:8px">😮‍💨</div>'
-    +'<div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px">今天有點難，沒關係</div>'
+    +'<div style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:8px">今天有點撐，沒關係</div>'
     +'<div style="font-size:13px;color:var(--sub);line-height:1.8">毀掉一個人的不是那次中斷<br>而是中斷後的<b style="color:var(--primary)">自我放棄</b></div>'
     +'</div>'
     +'<div style="background:var(--pbg);border-radius:14px;padding:16px;margin-bottom:20px;border-left:3px solid var(--primary)">'
@@ -1465,7 +1465,7 @@ function oSub(ci,sci){
   var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
   var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+h.i+' '+h.n+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 全力以赴:'+h.v3+' '+h.u+'</option>';}).join('');
-  var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「新增」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/全力以赴 打卡。</div>';
+  var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/全力以赴 打卡。</div>';
   om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」的具體行動</div><label class="ml">行動描述</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：每天重量訓練 30 分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
 }
 function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,hid:hid};sv(d);cm();rH();}
@@ -1519,7 +1519,7 @@ function rC(){
   var isCurMonth=(cY===n.getFullYear()&&cM===n.getMonth());
   if(isCurMonth&&(mDoneDays>0||d.h.length>0)){
     H+='<div class="cal29-quote">';
-    H+='<div class="cal29-quote-t">本月已靠近 '+mDoneDays+' 天';
+    H+='<div class="cal29-quote-t">本月有動過 '+mDoneDays+' 天';
     if(maxStreakAll>0)H+=' · 連續 '+maxStreakAll+' 天';
     H+='</div>';
     var sub='';
@@ -1645,10 +1645,10 @@ function cSl(s){cSel=s;rC();}
 
 /* ── 統計頁面 (v1.29 E2 數據儀表板) ── */
 function rSt(){
-  document.getElementById('ttl').textContent='統計';
+  document.getElementById('ttl').textContent='我的軌跡';
   document.getElementById('tsub').textContent='30 天 · 數字說話';
   var d=ld(),t=td();
-  if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">新增習慣後即可查看統計 📊</div>';return;}
+  if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">加入習慣後就能看到軌跡 📊</div>';return;}
 
   /* ── 30 天聚合計算 ── */
   var c30=new Date();
@@ -1843,7 +1843,7 @@ function rSt(){
 
 /* ── 新增習慣 ── */
 function rA(){
-  document.getElementById('ttl').textContent='新增習慣';
+  document.getElementById('ttl').textContent='加入習慣';
   document.getElementById('tsub').textContent='選一件事，今天就開始。';
   aC=aC||'#c4763a';
   var cs=CL.map(function(c){return '<div class="cs'+(aC===c?' on':'')+'" style="background:'+c+'" onclick="aPC(this,\''+c+'\')"></div>';}).join('');
@@ -1874,7 +1874,7 @@ function svH(){
   var u=document.getElementById('au').value.trim();
   var v1=parseInt(document.getElementById('av1').value)||0,v2=parseInt(document.getElementById('av2').value)||0,v3=parseInt(document.getElementById('av3').value)||0;
   if(!n||!u||!v1||!v2||!v3){toast('請填入所有欄位');return;}
-  var d=ld();if(d.h.length>=2){toast('你的第 3 個習慣在等你。升級 Plus，帶它回家。');if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'habit_limit'});return;}d.h.push({id:'h'+Date.now(),n:n,i:i,u:u,v1:v1,v2:v2,v3:v3,col:aC});sv(d);toast('✓ 已新增「'+n+'」');go(0);
+  var d=ld();if(d.h.length>=2){toast('第 3 個習慣想加進來——Plus 才能帶它一起走。');if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'habit_limit'});return;}d.h.push({id:'h'+Date.now(),n:n,i:i,u:u,v1:v1,v2:v2,v3:v3,col:aC});sv(d);toast('加進來了，就從今天開始');go(0);
 }
 
 /* ── 設定 ── */
@@ -1892,7 +1892,7 @@ function rS(){
     H+='<div style="font-size:12px;color:var(--primary);line-height:1.9">';
     H+='① 點 Safari 下方的 <b>分享</b> 按鈕 <span style="font-size:16px">⬆</span><br>';
     H+='② 選擇「<b>加入主畫面</b>」<br>';
-    H+='③ 點右上角「<b>新增</b>」完成安裝';
+    H+='③ 點右上角「<b>加入主畫面</b>」完成安裝';
     H+='</div>';
     H+='<div onclick="showIOSGuide()" style="margin-top:10px;font-size:12px;color:var(--primary);cursor:pointer;text-decoration:underline">查看圖文說明 →</div>';
     H+='</div>';
@@ -1908,7 +1908,7 @@ function rS(){
     H+='<div style="font-size:12px;color:var(--primary);line-height:1.9">';
     H+='① 點 Chrome 右上角的 <b>選單</b> 按鈕 <span style="font-size:16px">⋮</span><br>';
     H+='② 選擇「<b>加到主畫面</b>」<br>';
-    H+='③ 點右上角「<b>新增</b>」完成安裝';
+    H+='③ 點右上角「<b>加入主畫面</b>」完成安裝';
     H+='</div>';
     H+='</div>';
   }else{
@@ -1917,7 +1917,7 @@ function rS(){
   }
   /* 升級 Plus */
   H+='<div onclick="showUpgrade()" style="cursor:pointer;background:var(--pbg);border-radius:12px;padding:13px 16px;margin-bottom:12px;border:1.5px solid var(--plight);display:flex;align-items:center;justify-content:space-between">';
-  H+='<div><div style="font-size:13px;font-weight:700;color:var(--primary)">✨ 升級 Plus</div><div style="font-size:11px;color:var(--sub);margin-top:2px">無限習慣 》 雲端備份 》 完整統計</div></div>';
+  H+='<div><div style="font-size:13px;font-weight:700;color:var(--primary)">✨ 升級 Plus</div><div style="font-size:11px;color:var(--sub);margin-top:2px">無限習慣 · 雲端備份 · 不怕遺失</div></div>';
   H+='<div style="font-size:18px;color:var(--primary)">›</div>';
   H+="</div>";
   /* 外觀 */
@@ -1995,7 +1995,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.38</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.39</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2067,7 +2067,7 @@ function tstN(){if('Notification'in window&&Notification.permission==='granted')
       var base=msgs[new Date().getDay()%msgs.length];
       return anchor?('今天記得：'+anchor):base;
     })()});toast('✓ 已發送');}else toast('請先開啟通知');}
-function dHS(id){if(!confirm('確定刪除？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rS();}
+function dHS(id){if(!confirm('要把它移開嗎？'))return;var d=ld();d.h=d.h.filter(function(h){return h.id!==id;});sv(d);rS();}
 function rsM(){if(!confirm('確定重設？'))return;var d=ld();d.m=nm();sv(d);rS();toast('已重設');}
 function clL(){if(!confirm('確定清除？'))return;var d=ld();d.l={};sv(d);rS();toast('✓ 已清除');}
 
@@ -2329,7 +2329,7 @@ function goStuckS2(){
   var d=ld(),t=td(),log=d.l[t]||{};
   /* 找未完成的習慣，隨機選一個 */
   var pending=d.h.filter(function(h){return(log[h.id]||0)===0;});
-  if(!pending.length){closeStuck();toast('今天的習慣都完成了！🎉');return;}
+  if(!pending.length){closeStuck();toast('今天都做到了。這不容易。');return;}
   var pick=pending[Math.floor(Math.random()*pending.length)];
   stuckHabitId=pick.id;
   var msg=EMOTION_MSG[stuckEmotion]||EMOTION_MSG.lost;
@@ -2833,7 +2833,7 @@ function obStep(step){
   var ob=document.getElementById('ob-overlay');
   if(!ob)return;
   var TOTAL=3;
-  var skip='<button onclick="obDone()" style="position:absolute;top:env(safe-area-inset-top,16px);right:20px;top:20px;background:none;border:none;color:rgba(255,255,255,.32);font-size:13px;cursor:pointer;padding:6px 12px;letter-spacing:.5px;font-family:\'Noto Sans TC\',sans-serif">跳過</button>';
+  var skip='<button onclick="obDone()" style="position:absolute;top:env(safe-area-inset-top,16px);right:20px;top:20px;background:none;border:none;color:rgba(255,255,255,.32);font-size:13px;cursor:pointer;padding:6px 12px;letter-spacing:.5px;font-family:\'Noto Sans TC\',sans-serif">今天先不說</button>';
 
   if(step===1){
     ob.innerHTML=skip+
@@ -2996,7 +2996,7 @@ function renderMomentumBlock(d,log){
   var curTab=localStorage.getItem('momentum-tab')||'win';
   H+='<div style="display:flex;gap:0;margin:10px 16px 0;background:var(--app);border-radius:10px;padding:3px">';
   ['win','trap','anchor'].forEach(function(tab){
-    var labels={win:'🏆 今日一勝',trap:'🌀 卡點',anchor:'⚓ 錨點'};
+    var labels={win:'🌟 今天的一勝',trap:'🌀 卡住了',anchor:'⚓ 明天從這開始'};
     var active=curTab===tab;
     H+='<button onclick="switchMomentumTab(\''+tab+'\')" style="flex:1;padding:6px 4px;border-radius:8px;border:none;background:'+(active?'var(--card)':'transparent')+';color:'+(active?'var(--primary)':'var(--muted)')+';font-size:11px;font-weight:'+(active?'700':'400')+';cursor:pointer;font-family:var(--sans);transition:all .15s">'+labels[tab]+'</button>';
   });
@@ -3006,19 +3006,19 @@ function renderMomentumBlock(d,log){
   if(curTab==='win'){
     /* 今日一勝內容 */
     if(!win.text){
-      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">今天最想推進哪一件事？</div>';
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">今天有什麼想記下來的？</div>';
       H+='<textarea id="win-input" class="win-input" rows="2" placeholder="寫下來，哪怕很小也算。"></textarea>';
-      H+='<button class="win-btn-done" onclick="saveWin()" style="margin-top:8px">存下這一勝</button>';
+      H+='<button class="win-btn-done" onclick="saveWin()" style="margin-top:8px">記住今天這一刻</button>';
     }else{
       H+='<div style="display:flex;align-items:flex-start;gap:10px">';
       H+='<div style="font-size:22px">'+(win.done?'✅':'🎯')+'</div>';
       H+='<div style="flex:1">';
-      H+='<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:2px">'+(win.done?'完成了':'今天的一勝')+'</div>';
+      H+='<div style="font-size:12px;font-weight:700;color:var(--sub);margin-bottom:2px">'+(win.done?'做到了':'今天的一刻')+'</div>';
       H+='<div style="font-size:14px;font-weight:600;color:var(--text);line-height:1.4">'+e(win.text)+'</div>';
       if(win.done)H+='<div style="font-size:11px;color:var(--primary);margin-top:6px;font-style:italic">不是因為完美，而是因為你有回來。</div>';
       H+='<div style="display:flex;gap:6px;margin-top:10px">';
-      if(!win.done)H+='<button class="win-btn-done" onclick="markWinDone()">完成了 ✓</button>';
-      H+='<button class="win-btn-change" onclick="resetWin()">換一個</button>';
+      if(!win.done)H+='<button class="win-btn-done" onclick="markWinDone()">做到了 ✓</button>';
+      H+='<button class="win-btn-change" onclick="resetWin()">換個記法</button>';
       H+='</div></div></div>';
     }
   }else if(curTab==='trap'){
@@ -3028,7 +3028,7 @@ function renderMomentumBlock(d,log){
       H+='<div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">'+trapData.title+'</div>';
       H+='<div style="font-size:12px;color:var(--sub);line-height:1.7;margin-bottom:10px">'+trapData.body.replace(/<br>/g,'\n').split('\n')[0]+'</div>';
       H+='<button style="padding:7px 14px;border-radius:20px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)" onclick="go(0)">'+trapData.cta+' →</button>';
-      H+='<button style="margin-left:8px;padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;font-family:var(--sans)" onclick="switchMomentumTab(\'trap\')">換一個</button>';
+      H+='<button style="margin-left:8px;padding:7px 12px;border-radius:20px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;font-family:var(--sans)" onclick="switchMomentumTab(\'trap\')">換個記法</button>';
     }else{
       H+='<div style="font-size:12px;color:var(--sub);margin-bottom:10px">現在卡在哪裡？選一個最像你的狀態：</div>';
       H+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">';
@@ -3045,7 +3045,7 @@ function renderMomentumBlock(d,log){
       H+='<div style="font-size:14px;font-weight:600;color:var(--primary);margin-bottom:10px;padding:8px 10px;background:var(--pbg);border-radius:8px;border-left:3px solid var(--primary)">'+e(savedAnchor)+'</div>';
       H+='<button onclick="localStorage.removeItem(\'anchor-'+t+'\');rH();" style="font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:0">清除</button>';
     }else{
-      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">明天第一件事是什麼？</div>';
+      H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px">明天先做哪一件？就一件。</div>';
       H+='<div style="display:flex;gap:8px">';
       H+='<input id="anchor-input" type="text" placeholder="例：打開漫打卡，完成今日的1" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-family:var(--sans)">';
       H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
@@ -3065,21 +3065,21 @@ function renderWinCard(){
   var H='<div class="win-card">';
   H+='<div class="win-card-title">🏆 今日一勝</div>';
   if(!win.text){
-    H+='<div class="win-card-sub">今天最想推進哪一件事？</div>';
+    H+='<div class="win-card-sub">今天有什麼想記下來的？</div>';
     H+='<textarea id="win-input" class="win-input" rows="2" placeholder="寫下來，哪怕很小也算。"></textarea>';
-    H+='<div class="win-btns"><button class="win-btn-done" onclick="saveWin()">存下這一勝</button></div>';
+    H+='<div class="win-btns"><button class="win-btn-done" onclick="saveWin()">記住今天這一刻</button></div>';
   }else{
     H+='<div class="win-done-state">';
     H+='<div class="win-done-icon">'+(win.done?'✅':'🎯')+'</div>';
     H+='<div class="win-done-text">';
-    H+='<div class="win-done-label">'+(win.done?'今天的一勝，完成了':'今天的一勝')+'</div>';
+    H+='<div class="win-done-label">'+(win.done?'今天做到了，記住這一刻':'今天的一刻')+'</div>';
     H+='<div class="win-done-content">'+e(win.text)+'</div>';
     H+='<div class="win-feedback'+(win.done?' show':'')+'">不是因為完美，而是因為你有回來。</div>';
     H+='<div class="win-btns" style="margin-top:8px">';
     if(!win.done){
-      H+='<button class="win-btn-done" onclick="markWinDone()">完成了 ✓</button>';
+      H+='<button class="win-btn-done" onclick="markWinDone()">做到了 ✓</button>';
     }
-    H+='<button class="win-btn-change" onclick="resetWin()">換一個</button>';
+    H+='<button class="win-btn-change" onclick="resetWin()">換個記法</button>';
     H+='</div>';
     H+='</div></div>';
   }
@@ -3093,7 +3093,7 @@ function saveWin(){
   if(!d.l[t])d.l[t]={};
   d.l[t]._win={text:inp.value.trim(),done:false};
   sv(d);
-  toast('✓ 今日一勝已記下');
+  toast('記住了，今天有這一刻');
   rH();
 }
 function markWinDone(){
@@ -3161,7 +3161,7 @@ function renderTrapCard(){
   var d=ld(),t=td(),dayLog=d.l[t]||{};
   var savedTrap=dayLog._trap||'';
   var H='<div class="trap-card">';
-  H+='<div class="trap-title">🌀 我現在卡在哪？</div>';
+  H+='<div class="trap-title">🌀 現在卡在哪了？</div>';
   H+='<div class="trap-sub">選一個最像你現在狀態的，我幫你找到鬆開的方法。</div>';
   H+='<div class="trap-grid">';
   TRAPS.slice(0,6).forEach(function(tr){
