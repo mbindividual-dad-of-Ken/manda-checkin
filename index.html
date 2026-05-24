@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.29 | 2026-05-23 | A1慶祝爆炸+B1內嵌計時+C2情緒地圖+D1溫暖月曆+E2數據儀表+F2海報分享 -->
+<!-- 漫打卡 v1.35 | 2026-05-24 | SW快取+新用戶範例習慣+命名重構 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -26,16 +26,16 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="漫打卡 Manda">
 
-<!-- Google Analytics 4 (GA4) — 將 G-XXXXXXXXXX 換成你的 Measurement ID -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<!-- Google Analytics 4 (GA4) —— G-GS2F3QGZJB -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-GS2F3QGZJB"></script>
 <script>
 window.dataLayer=window.dataLayer||[];
 function gtag(){dataLayer.push(arguments);}
 gtag('js',new Date());
-gtag('config','G-XXXXXXXXXX',{send_page_view:true});
+gtag('config','G-GS2F3QGZJB',{send_page_view:true});
 /* 若尚未填入 ID，禁用送出避免污染 */
 if(window.location.hostname==='localhost'||window.location.protocol==='file:'){
-  window['ga-disable-G-XXXXXXXXXX']=true;
+  window['ga-disable-G-GS2F3QGZJB']=true;
 }
 </script>
 <style>
@@ -464,6 +464,73 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .share-poster-act{flex:1;padding:10px 4px;border-radius:10px;border:none;background:#fff;color:var(--primary);font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
 .share-poster-act.outline{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff}
 .share-poster-skip{margin-top:12px;text-align:center;font-size:11px;color:rgba(255,255,255,.7);cursor:pointer}
+/* ── v1.31 今日一勝 ── */
+.win-card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);position:relative}
+.win-card-title{font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.win-card-sub{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.5}
+.win-input{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);color:var(--text);font-size:14px;font-family:'Noto Sans TC',sans-serif;resize:none;outline:none;box-sizing:border-box;transition:border-color .2s}
+.win-input:focus{border-color:var(--plight)}
+.win-btns{display:flex;gap:8px;margin-top:10px}
+.win-btn-done{flex:1;padding:11px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .2s}
+.win-btn-done:active{opacity:.85}
+.win-btn-change{padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+.win-done-state{display:flex;align-items:flex-start;gap:10px}
+.win-done-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.win-done-text{flex:1}
+.win-done-label{font-size:11px;color:var(--primary);font-weight:700;margin-bottom:3px}
+.win-done-content{font-size:14px;color:var(--text);font-weight:600;line-height:1.4;margin-bottom:6px}
+.win-feedback{font-size:12px;color:var(--sub);font-style:italic;line-height:1.5;display:none;margin-top:4px;padding:8px 10px;background:var(--pbg);border-radius:8px;border-left:2px solid var(--primary)}
+.win-feedback.show{display:block}
+/* ── v1.32 卡住陷阱 ── */
+.trap-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1.5px solid var(--border)}
+.trap-title{font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.trap-sub{font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.5}
+.trap-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+.trap-btn{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--sub);font-family:'Noto Sans TC',sans-serif;transition:all .18s;-webkit-tap-highlight-color:transparent;line-height:1.3}
+.trap-btn:active{transform:scale(.97)}
+.trap-btn.selected{border-color:var(--primary);background:var(--pbg);color:var(--primary)}
+.trap-btn-wide{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:left;font-size:12px;font-weight:600;color:var(--sub);font-family:'Noto Sans TC',sans-serif;margin-bottom:7px;transition:all .18s;display:flex;align-items:center;gap:8px}
+.trap-btn-wide.selected{border-color:var(--primary);background:var(--pbg);color:var(--primary)}
+.trap-suggestion{display:none;background:var(--pbg);border-radius:12px;padding:14px 16px;border-left:3px solid var(--primary);margin-top:4px}
+.trap-suggestion.show{display:block}
+.trap-suggestion-title{font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;color:var(--primary);margin-bottom:6px}
+.trap-suggestion-body{font-size:13px;color:var(--text);line-height:1.75}
+.trap-suggestion-cta{display:inline-block;margin-top:10px;padding:7px 14px;border-radius:20px;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;border:none}
+/* ── v1.33 社群分享卡片 ── */
+#share-overlay{display:none;position:fixed;inset:0;background:rgba(15,20,30,.82);z-index:9998;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(6px)}
+#share-overlay.open{display:flex}
+#share-box{width:100%;max-width:380px;display:flex;flex-direction:column;align-items:center;gap:14px;max-height:94vh;overflow-y:auto}
+/* 9:16 卡片 */
+.share-card-916{width:100%;max-width:340px;aspect-ratio:9/16;border-radius:20px;position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.4);display:flex;flex-direction:column}
+/* 1:1 卡片（未來擴充） */
+.share-card-11{width:100%;max-width:340px;aspect-ratio:1/1;border-radius:20px;position:relative;overflow:hidden;box-shadow:0 16px 48px rgba(0,0,0,.4);display:flex;flex-direction:column}
+.share-card-bg{position:absolute;inset:0;background:linear-gradient(160deg,#fdf0e6 0%,#f3cb8a 40%,#e3a774 72%,#c4763a 100%)}
+.share-card-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:24px 20px}
+.share-card-logo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:auto}
+.share-card-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-size:17px;font-weight:700;color:#fff;backdrop-filter:blur(8px)}
+.share-card-date{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.15em}
+.share-card-center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px 0}
+.share-card-check{font-size:56px;margin-bottom:10px;line-height:1}
+.share-card-status{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.share-card-pct{font-family:'Noto Serif TC',serif;font-size:68px;font-weight:900;line-height:.95;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.18);letter-spacing:-.03em}
+.share-card-pct-unit{font-size:20px;opacity:.9}
+.share-card-quote-box{padding:14px 16px;margin:14px 0;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,.25);cursor:pointer}
+.share-card-quote-text{font-family:'Noto Serif TC',serif;font-size:13px;color:#fff;line-height:1.7;text-align:left}
+.share-card-quote-hint{font-size:9px;color:rgba(255,255,255,.6);text-align:right;margin-top:5px;letter-spacing:.05em}
+.share-card-watermark{text-align:center;font-size:9px;color:rgba(255,255,255,.65);letter-spacing:.22em;margin-top:auto;padding-top:10px}
+/* 控制區 */
+.share-actions{display:flex;gap:9px;width:100%;max-width:340px}
+.share-act-btn{flex:1;padding:11px 8px;border-radius:12px;border:none;background:#fff;color:#c4763a;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .18s}
+.share-act-btn:active{opacity:.8}
+.share-act-btn.outline{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
+.share-close-btn{font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;padding:4px;font-family:'Noto Sans TC',sans-serif;text-decoration:underline}
+/* 首頁觸發按鈕 */
+.share-trigger{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;cursor:pointer;width:100%;margin-bottom:10px;transition:all .2s;font-family:'Noto Sans TC',sans-serif;-webkit-tap-highlight-color:transparent}
+.share-trigger:active{background:var(--pbg);border-color:var(--primary)}
+.share-trigger .st-icon{font-size:18px;flex-shrink:0}
+.share-trigger .st-text{flex:1;text-align:left}
+.share-trigger .st-label{font-size:12px;font-weight:600;color:var(--sub)}
+.share-trigger .st-sub{font-size:10px;color:var(--muted);margin-top:1px}
 </style>
 </head>
 <body>
@@ -535,6 +602,15 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
     <div style="font-size:48px;margin-bottom:10px">✨</div>
     <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">你已經準備好了。</div>
     <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">你用行動證明了——你是認真的那種人。<br><br>無限習慣 · 雲端備份 · 成就分享，<br>所有 Plus 功能都在為你趕來。</div>
+    <!-- v1.34 Email 收集 -->
+    <div id="upg-email-wrap" style="margin-bottom:14px">
+      <div style="font-size:12px;color:var(--sub);margin-bottom:8px">留下 Email，Plus 上線第一個通知你：</div>
+      <div style="display:flex;gap:7px">
+        <input id="upg-email" type="email" placeholder="your@email.com" style="flex:1;padding:9px 11px;border-radius:9px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-family:sans-serif;outline:none">
+        <button onclick="saveUpgradeEmail()" style="padding:9px 13px;border-radius:9px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif;white-space:nowrap">通知我</button>
+      </div>
+      <div id="upg-email-done" style="display:none;font-size:12px;color:var(--primary);margin-top:6px;font-weight:700">✓ 已記錄，Plus 上線時第一個通知你</div>
+    </div>
     <button onclick="closeUpgrade()" style="width:100%;padding:13px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:sans-serif">好，我等著</button>
     <div onclick="closeUpgrade()" style="margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer">稍後再看</div>
   </div>
@@ -656,6 +732,36 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
   </div>
 </div>
 </div>
+<!-- v1.33 社群分享卡片 overlay -->
+<div id="share-overlay" onclick="if(event.target===this)closeShare()">
+  <div id="share-box">
+    <div class="share-card-916" id="share-card-el">
+      <div class="share-card-bg"></div>
+      <div class="share-card-inner">
+        <div class="share-card-logo-row">
+          <div class="share-card-logo">漫</div>
+          <div class="share-card-date" id="sc-date"></div>
+        </div>
+        <div class="share-card-center">
+          <div class="share-card-check" id="sc-check">✅</div>
+          <div class="share-card-status" id="sc-status">今日習慣完成</div>
+          <div class="share-card-pct"><span id="sc-pct">100</span><span class="share-card-pct-unit">%</span></div>
+        </div>
+        <div class="share-card-quote-box" onclick="rotateShareQuote()">
+          <div class="share-card-quote-text" id="sc-quote">我今天沒有完美，但我有繼續。</div>
+          <div class="share-card-quote-hint">點擊換一句 ↻</div>
+        </div>
+        <div class="share-card-watermark">MANDA · 漫打卡 · mandatalks.com</div>
+      </div>
+    </div>
+    <div class="share-actions">
+      <button class="share-act-btn outline" onclick="closeShare()">關閉</button>
+      <button class="share-act-btn" onclick="doShare()">📤 分享</button>
+      <button class="share-act-btn" onclick="downloadShareCard()">⬇ 儲存</button>
+    </div>
+    <div class="share-close-btn" onclick="closeShare()">稍後再說</div>
+  </div>
+</div>
 <div id="toast"></div>
 <script>
 /* ── 開發者版權簽名 ── */
@@ -714,7 +820,8 @@ function toast(m){var t=document.getElementById('toast');t.textContent=m;t.class
 
 /* ── 統計輔助 ── */
 function sk(logs,hid){
-  var s=0,c=new Date();c.setDate(c.getDate()-1);
+  /* v1.34: 含今日 */
+  var s=0,c=new Date();
   for(var i=0;i<365;i++){
     var x=ds(c);
     if(logs[x]&&(logs[x][hid]||0)>=1){s++;c.setDate(c.getDate()-1);}else break;
@@ -921,7 +1028,13 @@ function rH(){
     if(i<2)H+='<div class="sline"></div>';
   });
   H+='</div>';
-  H+='<div class="sec">曼陀羅九宮格</div>';
+  /* v1.34 曼陀羅預設收合 */
+  var mOpen=localStorage.getItem('m-open')==='1';
+  H+='<div class="sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="tgMandala()">';
+  H+='<span>曼陀羅九宮格</span>';
+  H+='<span id="m-arrow" style="font-size:10px;color:var(--primary);font-weight:700">'+(mOpen?'▲ 收合':'▼ 展開')+'</span>';
+  H+='</div>';
+  H+='<div id="m-wrap" style="display:'+(mOpen?'block':'none')+'">';
   H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">核心目標 ⟶ 8 個行動領域 ⟶ 64 個具體行動（OW64 法則）</div>';
   H+='<div class="mgrid">';
   CO.forEach(function(ci){
@@ -956,6 +1069,7 @@ function rH(){
       H+='</div></div>';
     });
   }
+  H+='</div>'; /* /m-wrap */
   if(d.h.length){
     var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
     var pct=Math.round(done/d.h.length*100);
@@ -1000,7 +1114,7 @@ function rH(){
         var bc2=ac?col:'var(--border)';
         H+='<div class="lb" style="background:'+bg+';border-color:'+bc2+';'+(fd?'opacity:.38;text-decoration:line-through':'')+'" onclick="tLv(\''+hb.id+'\','+x.lv+')">';
         H+='<span class="lbn" style="color:'+(ac?col:'var(--muted)')+'">'+x.n+'</span>';
-        if(x.lv===2&&lvl===0){H+='<span style="font-size:9px;background:#c4763a20;color:#c4763a;padding:1px 5px;border-radius:8px;display:block;margin-top:2px">推薦</span>';}
+        if(x.lv===1&&lvl===0){H+='<span style="font-size:9px;background:#c4763a20;color:#c4763a;padding:1px 5px;border-radius:8px;display:block;margin-top:2px">今日的1就夠了</span>';}
         H+='<span class="lbv" style="color:'+(ac?col:'var(--muted)')+'">'+hb['v'+x.lv]+' '+hb.u+'</span></div>';
       });
       H+='</div></div>';
@@ -1016,8 +1130,33 @@ function rH(){
   H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
   H+='</div>';
   H+='</div>';
+  /* v1.33 分享觸發按鈕（有習慣時顯示） */
+  if(d.h.length>0){
+    var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
+    var pct=Math.round(done/d.h.length*100);
+    H+='<button class="share-trigger" onclick="openShare(\'今日習慣 '+done+'/'+d.h.length+'\','+pct+')">';
+    H+='<span class="st-icon">🪄</span>';
+    H+='<span class="st-text"><div class="st-label">產生今日分享卡</div><div class="st-sub">分享你今天的一小步</div></span>';
+    H+='<span style="font-size:16px;color:var(--muted)">›</span>';
+    H+='</button>';
+  }
+  /* v1.31 今日一勝卡片 */
+  H+=renderWinCard();
+  /* v1.32 卡住陷阱（只在有習慣時顯示） */
+  if(d.h.length>0){
+    H+=renderTrapCard();
+  }
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
+}
+function tgMandala(){
+  var w=document.getElementById('m-wrap');
+  var a=document.getElementById('m-arrow');
+  if(!w)return;
+  var open=w.style.display==='block';
+  w.style.display=open?'none':'block';
+  if(a)a.textContent=open?'▼ 展開':'▲ 收合';
+  localStorage.setItem('m-open',open?'0':'1');
 }
 function saveAnchor(){
   var inp=document.getElementById('anchor-input');
@@ -1732,8 +1871,8 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.28</div>';
-  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-18 · by 謙謙爸</div></div></div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.35</div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
   H+='漫打卡建立在三個核心支柱之上：<br><br>';
@@ -2231,6 +2370,24 @@ function shareMilestone(){
   }
 }
 function closeMilestone(){document.getElementById('milestone-modal').classList.remove('open');}
+function saveUpgradeEmail(){
+  var inp=document.getElementById('upg-email');
+  if(!inp||!inp.value.trim())return;
+  var em=inp.value.trim();
+  /* 簡單格式驗證 */
+  if(!/^[^@]+@[^@]+\.[^@]+$/.test(em)){toast('請輸入有效的 Email');return;}
+  /* 存到 localStorage（含時間戳）*/
+  var emails=JSON.parse(localStorage.getItem('upg-emails')||'[]');
+  if(!emails.includes(em))emails.push(em);
+  localStorage.setItem('upg-emails',JSON.stringify(emails));
+  localStorage.setItem('upg-email-ts',Date.now());
+  /* GA4 追蹤 */
+  if(typeof gtag!=='undefined')gtag('event','upgrade_email_saved',{email_count:emails.length});
+  /* UI 回饋 */
+  document.getElementById('upg-email-done').style.display='block';
+  document.getElementById('upg-email-wrap').querySelector('div:first-child').style.display='none';
+  document.getElementById('upg-email-wrap').querySelector('div:nth-child(2)').style.display='none';
+}
 function showUpgrade(){document.getElementById('upgrade-modal').style.display='flex';if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'upgrade_card'});}
 function closeUpgrade(){document.getElementById('upgrade-modal').style.display='none';}
 
@@ -2412,30 +2569,7 @@ function dismissBanner(){
 
 
 
-/* ── Onboarding 問卷資料 ── */
-var OB_PERSONAS=[
-  {id:'family', i:'🍼', n:'照顧家人為優先的人'},
-  {id:'work',   i:'💼', n:'被工作追著跑的人'},
-  {id:'start',  i:'🌱', n:'想改變、剛開始的人'},
-  {id:'tired',  i:'🔋', n:'很疲憊、只想撐著的人'}
-];
-var OB_HABITS=[
-  {id:'read',    i:'📚', n:'閱讀習慣',  u:'頁',  v1:3, v2:15, v3:30, col:'#c4763a'},
-  {id:'journal', i:'📝', n:'記錄生活',  u:'分鐘', v1:2, v2:10, v3:20, col:'#2563eb'},
-  {id:'exercise',i:'🏃', n:'運動',      u:'分鐘', v1:5, v2:20, v3:45, col:'#16a34a'},
-  {id:'sleep',   i:'😴', n:'早睡',      u:'點前上床', v1:12, v2:11, v3:10, col:'#0f766e'},
-  {id:'mindful', i:'🧘', n:'情緒察覺',  u:'分鐘', v1:2, v2:5,  v3:10, col:'#d97706'},
-  {id:'diet',    i:'🥗', n:'健康飲食',  u:'餐',  v1:1, v2:2,  v3:3,  col:'#059669'}
-];
-/* 依人生階段推薦習慣（預選順序） */
-var OB_RECOMMEND={
-  family:  ['sleep','mindful','exercise'],
-  work:    ['mindful','read','exercise'],
-  start:   ['exercise','read','journal'],
-  tired:   ['mindful','sleep','journal']
-};
-var obSelectedPersonas=[];
-var obSelectedHabits=[];
+/* ── v1.30 Onboarding 問卷資料已移除（改為品牌故事版） ── */
 
 /* ── 中斷回歸畫面 ── */
 function checkReturnUser(){
@@ -2507,225 +2641,324 @@ function closeReturn(){
   },700);
 }
 
-/* ── Onboarding ── */
+/* ── v1.30 Onboarding (3頁品牌故事) ── */
 function showOnboarding(){
+  if(localStorage.getItem('ob-done'))return;
   var ob=document.createElement('div');
   ob.id='ob-overlay';
-  ob.style.cssText='position:fixed;inset:0;z-index:99999;background:#0F172A;display:flex;flex-direction:column';
+  ob.style.cssText='position:fixed;inset:0;z-index:99999;background:#0F172A;display:flex;flex-direction:column;overflow:hidden';
   document.body.appendChild(ob);
   obStep(1);
 }
-function obBtn(txt,fn){
-  /* 共用按鈕：點擊回彈透過 CSS active 實現 */
-  return '<button onclick="'+fn+'" class="ob-cta-btn">'+txt+'</button>';
-}
 function obDot(cur,total){
-  var h='<div style="display:flex;gap:6px;justify-content:center;margin-bottom:14px">';
+  var h='<div style="display:flex;gap:7px;justify-content:center;margin-bottom:20px">';
   for(var i=1;i<=total;i++){
-    h+='<div style="height:6px;border-radius:3px;transition:all .3s;background:'+(i===cur?'#a78bfa':'rgba(255,255,255,.2)')+';width:'+(i===cur?'18px':'6px')+'"></div>';
+    h+='<div style="height:5px;border-radius:3px;transition:all .4s;background:'+(i===cur?'#c4763a':'rgba(255,255,255,.18)')+';width:'+(i===cur?'22px':'7px')+'"></div>';
   }
   return h+'</div>';
-}
-function obTogglePersona(id){
-  var idx=obSelectedPersonas.indexOf(id);
-  if(idx>=0)obSelectedPersonas.splice(idx,1);else obSelectedPersonas.push(id);
-  /* 更新推薦習慣（重算） */
-  obSelectedHabits=[];
-  var seen={};
-  obSelectedPersonas.forEach(function(pid){
-    (OB_RECOMMEND[pid]||[]).forEach(function(hid){
-      if(!seen[hid]){seen[hid]=1;obSelectedHabits.push(hid);}
-    });
-  });
-  /* 重繪按鈕顏色 */
-  OB_PERSONAS.forEach(function(p){
-    var el=document.getElementById('ob-p-'+p.id);
-    if(!el)return;
-    var sel=obSelectedPersonas.indexOf(p.id)>=0;
-    el.style.background=sel?'rgba(124,58,237,.35)':'#111827';
-    el.style.borderColor=sel?'#a78bfa':'#1F2937';
-  });
-}
-function obToggleHabit(id){
-  var idx=obSelectedHabits.indexOf(id);
-  if(idx>=0)obSelectedHabits.splice(idx,1);else obSelectedHabits.push(id);
-  OB_HABITS.forEach(function(h){
-    var el=document.getElementById('ob-h-'+h.id);
-    if(!el)return;
-    var sel=obSelectedHabits.indexOf(h.id)>=0;
-    el.style.background=sel?'rgba(124,58,237,.35)':'#111827';
-    el.style.borderColor=sel?'#a78bfa':'#1F2937';
-  });
 }
 function obStep(step){
   var ob=document.getElementById('ob-overlay');
   if(!ob)return;
-  var skip='<button onclick="obDone()" style="position:absolute;top:20px;right:20px;background:none;border:none;color:rgba(255,255,255,.35);font-size:13px;cursor:pointer;padding:4px 10px;letter-spacing:.5px">跳過</button>';
-  var TOTAL=5;
-  var dot=obDot(step,TOTAL);
+  var TOTAL=3;
+  var skip='<button onclick="obDone()" style="position:absolute;top:env(safe-area-inset-top,16px);right:20px;top:20px;background:none;border:none;color:rgba(255,255,255,.32);font-size:13px;cursor:pointer;padding:6px 12px;letter-spacing:.5px;font-family:\'Noto Sans TC\',sans-serif">跳過</button>';
 
   if(step===1){
-    ob.innerHTML=skip
-      +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;animation:fadeIn .6s ease">'
-      +dot
-      +'<div style="text-align:center;margin-bottom:28px">'
-      +'<div style="font-size:28px;font-weight:900;color:#F9FAFB;margin-bottom:10px;line-height:1.3">這裡，是安全的</div>'
-      +'<div style="font-size:14px;color:#9CA3AF;line-height:1.7">在開始之前，我想先讓你放心</div>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:32px">'
-      +obCard('🔒','資料留在你手邊','你的紀錄只屬於你<br>不會被上傳或分享',0)
-      +obCard('🚫','不販賣你的資料','我們只專心做好產品<br>你的資料，不是商品',1)
-      +obCard('📊','只做匿名整體趨勢','我們透過 GA4 記錄整體趨勢<br>不會知道你寫了什麼',2)
-      +obCard('🗑️','隨時可以離開','你可以隨時刪除資料<br>也可以隨時重新開始',3)
-      +'</div>'
-      +obBtn('我放心了，踏出第一小步 →','obStep(2)')
-      +'<div style="text-align:center;margin-top:16px;font-size:11px;color:rgba(255,255,255,.25);line-height:1.7;padding:0 12px">你的習慣紀錄只存在你的設備與個人空間。<br>連開發者（謙謙爸）都看不到你寫了什麼。</div>'
-      +'</div>';
+    ob.innerHTML=skip+
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;animation:fadeIn .55s ease">'+
+      obDot(1,TOTAL)+
+      '<div style="margin-bottom:32px">'+
+        '<div style="font-size:11px;letter-spacing:.25em;color:#c4763a;margin-bottom:16px;font-family:\'Noto Sans TC\',sans-serif;opacity:.9">MANDA · 漫打卡</div>'+
+        '<div style="font-size:30px;font-weight:900;color:#F9FAFB;line-height:1.25;margin-bottom:14px;font-family:\'Noto Serif TC\',serif">你不需要<br>5AM routine</div>'+
+        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;font-family:\'Noto Sans TC\',sans-serif">那些「凌晨五點起床改變人生」的故事<br>不是謊言，但也不是你的答案。<br><br>你不需要完美的早晨，<br>你需要一個<span style="color:#e3a774;font-weight:600">允許你在任何時間<br>都能靠近目標</span>的系統。</div>'+
+      '</div>'+
+      '<button onclick="obStep(2)" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px;transition:opacity .2s">我想知道更多 →</button>'+
+      '<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(255,255,255,.2)">向右滑或點按鈕繼續</div>'+
+      '</div>';
 
   }else if(step===2){
-    var cells='';
-    for(var i=0;i<9;i++){
-      var isC=(i===4);
-      cells+='<div style="aspect-ratio:1;border-radius:14px;background:'+(isC?'#c4763a':'#1F2937')+';'+(isC?'animation:glowPulse 2s infinite;box-shadow:0 0 28px rgba(196,118,58,.65)':'opacity:.5')+';transition:all .4s"></div>';
-    }
-    ob.innerHTML=skip
-      +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;animation:fadeIn .5s ease">'
-      +dot
-      +'<div style="text-align:center;margin-bottom:32px">'
-      +'<div style="font-size:28px;font-weight:900;color:#F9FAFB;margin-bottom:12px;line-height:1.3">你不用邁出很大的步伐</div>'
-      +'<div style="font-size:14px;color:#9CA3AF;line-height:1.8">只要在任何狀態下<br>都還能踏出<b style="color:#A5B4FC">一小步</b></div>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:220px;margin:0 auto 14px">'+cells+'</div>'
-      +'<div style="text-align:center;font-size:12px;color:rgba(255,255,255,.28);margin-bottom:32px">哪怕只有 1 分鐘，也可以</div>'
-      +obBtn('好，我試試看 →','obStep(3)')
-      +'</div>';
+    ob.innerHTML=skip+
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;animation:fadeIn .5s ease">'+
+      obDot(2,TOTAL)+
+      '<div style="margin-bottom:28px">'+
+        '<div style="font-size:30px;font-weight:900;color:#F9FAFB;line-height:1.25;margin-bottom:14px;font-family:\'Noto Serif TC\',serif">你只需要<br>今天的一小步</div>'+
+        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;margin-bottom:24px;font-family:\'Noto Sans TC\',sans-serif">不是每天「最佳狀態」，<br>是每天「不斷線」。</div>'+
+        '<div style="display:flex;flex-direction:column;gap:9px">'+
+          '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;border:1px solid rgba(196,118,58,.25)">'+
+            '<span style="font-size:18px">✨</span>'+
+            '<div><div style="font-size:13px;font-weight:700;color:#e3a774">今日的 1</div><div style="font-size:11px;color:#9CA3AF;margin-top:2px">最累的那天，這就夠了</div></div>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.08)">'+
+            '<span style="font-size:18px">🔥</span>'+
+            '<div><div style="font-size:13px;font-weight:700;color:#F9FAFB">穩定前進</div><div style="font-size:11px;color:#9CA3AF;margin-top:2px">比偶爾爆發更有力量</div></div>'+
+          '</div>'+
+          '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.08)">'+
+            '<span style="font-size:18px">💎</span>'+
+            '<div><div style="font-size:13px;font-weight:700;color:#F9FAFB">全力以赴</div><div style="font-size:11px;color:#9CA3AF;margin-top:2px">狀態好時，盡情衝吧</div></div>'+
+          '</div>'+
+        '</div>'+
+      '</div>'+
+      '<button onclick="obStep(3)" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px">我可以的 →</button>'+
+      '</div>';
 
   }else if(step===3){
-    /* ③ 我是什麼樣的人 */
-    var pCards=OB_PERSONAS.map(function(p){
-      var sel=obSelectedPersonas.indexOf(p.id)>=0;
-      return '<div id="ob-p-'+p.id+'" data-pid="'+p.id+'" onclick="obTogglePersona(this.dataset.pid)" style="background:'+(sel?'rgba(124,58,237,.35)':'#111827')+';border:1.5px solid '+(sel?'#a78bfa':'#1F2937')+';border-radius:14px;padding:16px 12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px">'
-        +'<span style="font-size:24px">'+p.i+'</span>'
-        +'<span style="font-size:13px;font-weight:600;color:#F9FAFB;line-height:1.4">'+p.n+'</span>'
-        +'</div>';
-    }).join('');
-    ob.innerHTML=skip
-      +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;animation:fadeIn .5s ease">'
-      +dot
-      +'<div style="margin-bottom:24px">'
-      +'<div style="font-size:12px;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">問題 1 ／ 共 2 題</div>'
-      +'<div style="font-size:24px;font-weight:900;color:#F9FAFB;line-height:1.4">我是一個＿＿的人<br><span style="font-size:14px;font-weight:400;color:#9CA3AF">（可複選）</span></div>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">'+pCards+'</div>'
-      +obBtn('下一題 →','obStep(4)')
-      +'</div>';
-
-  }else if(step===4){
-    /* ④ 想培養什麼習慣 */
-    /* 若有推薦習慣，先預選 */
-    if(obSelectedPersonas.length>0&&obSelectedHabits.length===0){
-      var seen={};
-      obSelectedPersonas.forEach(function(pid){
-        (OB_RECOMMEND[pid]||[]).forEach(function(hid){
-          if(!seen[hid]){seen[hid]=1;obSelectedHabits.push(hid);}
-        });
-      });
-    }
-    var hCards=OB_HABITS.map(function(h){
-      var sel=obSelectedHabits.indexOf(h.id)>=0;
-      return '<div id="ob-h-'+h.id+'" data-hid="'+h.id+'" onclick="obToggleHabit(this.dataset.hid)" style="background:'+(sel?'rgba(124,58,237,.35)':'#111827')+';border:1.5px solid '+(sel?'#a78bfa':'#1F2937')+';border-radius:14px;padding:14px 12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:8px">'
-        +'<span style="font-size:20px">'+h.i+'</span>'
-        +'<span style="font-size:13px;font-weight:600;color:#F9FAFB">'+h.n+'</span>'
-        +'</div>';
-    }).join('');
-    ob.innerHTML=skip
-      +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;animation:fadeIn .5s ease">'
-      +dot
-      +'<div style="margin-bottom:24px">'
-      +'<div style="font-size:12px;color:#9CA3AF;margin-bottom:8px;letter-spacing:.5px">問題 2 ／ 共 2 題</div>'
-      +'<div style="font-size:24px;font-weight:900;color:#F9FAFB;line-height:1.4">有一個習慣，是你<br>一直想試試看的？<br><span style="font-size:14px;font-weight:400;color:#9CA3AF">（可複選）</span></div>'
-      +'</div>'
-      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:28px">'+hCards+'</div>'
-      +obBtn('這樣就好 →','obStep(5)')
-      +'</div>';
-
-  }else if(step===5){
-    /* ⑤ 踏出第一小步 — 顯示第一個選擇的習慣 */
-    var firstH=null;
-    if(obSelectedHabits.length>0){
-      for(var hi=0;hi<OB_HABITS.length;hi++){
-        if(obSelectedHabits.indexOf(OB_HABITS[hi].id)>=0){firstH=OB_HABITS[hi];break;}
-      }
-    }
-    var taskIcon=firstH?firstH.i:'👣';
-    var taskName=firstH?('今天，為「'+firstH.n+'」踏出第一小步'):'試著深呼吸 3 次';
-    var taskSub=firstH?('最低量只要 '+firstH.v1+' '+firstH.u+'，踏出去就算數'):'打開這個 App 本身，就已經是今天的第一小步了';
-    ob.innerHTML=skip
-      +'<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;animation:fadeIn .5s ease">'
-      +dot
-      +'<div style="text-align:center;margin-bottom:28px">'
-      +'<div style="font-size:28px;font-weight:900;color:#F9FAFB;margin-bottom:10px;line-height:1.3">現在，踏出第一小步</div>'
-      +'<div style="font-size:14px;color:#9CA3AF;line-height:1.6">踏出去，就算數。</div>'
-      +'</div>'
-      +'<div id="ob-task" style="background:rgba(124,58,237,.15);border:1.5px solid rgba(124,58,237,.45);border-radius:20px;padding:24px 20px;margin-bottom:16px;text-align:center;animation:cardIn .4s ease">'
-      +'<div style="font-size:40px;margin-bottom:10px">'+taskIcon+'</div>'
-      +'<div style="font-size:17px;font-weight:700;color:#F9FAFB;margin-bottom:6px">'+taskName+'</div>'
-      +'<div style="font-size:12px;color:#9CA3AF;line-height:1.6">'+taskSub+'</div>'
-      +'</div>'
-      +'<div id="ob-line-wrap" style="margin:0 auto 20px;width:80%;height:2px;background:#1F2937;border-radius:2px;overflow:hidden">'
-      +'<div id="ob-line" style="height:100%;width:0;background:linear-gradient(90deg,#86EFAC,#34d399);border-radius:2px;transition:width .6s ease"></div>'
-      +'</div>'
-      +obBtn('踏出第一小步 ✓','obFinish()')
-      +'<div style="text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,.28)">踏出去，就算數</div>'
-      +'</div>';
-    setTimeout(function(){
-      var ln=document.getElementById('ob-line');
-      if(ln)ln.style.width='40%';
-    },400);
+    ob.innerHTML=skip+
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;animation:fadeIn .5s ease">'+
+      obDot(3,TOTAL)+
+      '<div style="margin-bottom:32px">'+
+        '<div style="font-size:30px;font-weight:900;color:#F9FAFB;line-height:1.25;margin-bottom:14px;font-family:\'Noto Serif TC\',serif">不是重來，<br>是繼續</div>'+
+        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;margin-bottom:24px;font-family:\'Noto Sans TC\',sans-serif">中間停了幾天也沒關係。<br>每次回來，都是一次選擇。<br><br>漫打卡不記你的失敗，<br>只記你<span style="color:#e3a774;font-weight:600">回來的那一刻</span>。</div>'+
+        '<div style="background:rgba(196,118,58,.12);border-radius:14px;padding:18px 16px;border-left:3px solid #c4763a">'+
+          '<div style="font-family:\'Noto Serif TC\',serif;font-size:13px;color:#e3a774;font-weight:600;margin-bottom:4px">漫打卡的承諾</div>'+
+          '<div style="font-size:12px;color:#9CA3AF;line-height:1.7">你的紀錄只屬於你，不上傳、不分析、不販賣。<br>連我（謙謙爸）都看不到你寫了什麼。</div>'+
+        '</div>'+
+      '</div>'+
+      '<button onclick="obDone()" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px">開始，看看我的習慣 →</button>'+
+      '<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(255,255,255,.25)">已備好 3 個範例習慣，不喜歡可以刪</div>'+
+      '</div>';
   }
-}
-function obCard(icon,title,sub,delay){
-  return '<div style="background:#111827;border-radius:14px;padding:16px 12px;border:1px solid #1F2937;animation:cardIn .45s ease '+(delay*0.15)+'s both">'
-    +'<div style="font-size:22px;margin-bottom:8px">'+icon+'</div>'
-    +'<div style="font-size:12px;font-weight:700;color:#F9FAFB;margin-bottom:4px">'+title+'</div>'
-    +'<div style="font-size:11px;color:#9CA3AF;line-height:1.6">'+sub+'</div>'
-    +'</div>';
-}
-function obFinish(){
-  var btn=document.getElementById('ob-done-btn');
-  /* 找按鈕（class 方式） */
-  if(!btn){var btns=document.querySelectorAll('.ob-cta-btn');if(btns.length)btn=btns[btns.length-1];}
-  if(btn){btn.textContent='✨ 踏出去了！';btn.style.background='linear-gradient(135deg,#059669,#10b981)';btn.style.boxShadow='0 0 18px rgba(134,239,172,.35)';}
-  /* Progress Line 補滿 */
-  var ln=document.getElementById('ob-line');
-  if(ln)ln.style.width='100%';
-  /* 把選擇的習慣寫入 App 資料（最多 2 個，第 3 個 Fake Door） */
-  if(obSelectedHabits.length>0){
-    var d=ld();
-    if(!d.h)d.h=[];
-    var added=0;
-    obSelectedHabits.forEach(function(hid){
-      if(added>=2){return;} /* 免費版限制 */
-      var already=d.h.some(function(x){return x.n===OB_HABITS.filter(function(o){return o.id===hid;})[0].n;});
-      if(already)return;
-      var tpl=OB_HABITS.filter(function(o){return o.id===hid;})[0];
-      if(!tpl)return;
-      d.h.push({id:'h'+Date.now()+added,n:tpl.n,i:tpl.i,u:tpl.u,v1:tpl.v1,v2:tpl.v2,v3:tpl.v3,col:tpl.col});
-      added++;
-    });
-    sv(d);
-  }
-  setTimeout(function(){
-    var ob=document.getElementById('ob-overlay');
-    if(ob){ob.style.transition='opacity .5s';ob.style.opacity='0';setTimeout(function(){ob.remove();go(0);},500);}
-    obDone();
-  },900);
 }
 function obDone(){
   localStorage.setItem('ob-done','1');
   localStorage.setItem('privacy-ok','1');
+  /* v1.35 新用戶預設範例習慣（只在第一次且無習慣時寫入） */
+  var d=ld();
+  if(!d.h||d.h.length===0){
+    var now=Date.now();
+    d.h=[
+      {id:'h'+now+'1',n:'閱讀',i:'📚',u:'頁',v1:5,v2:20,v3:50,col:'#c4763a'},
+      {id:'h'+now+'2',n:'運動',i:'🏃',u:'分鐘',v1:10,v2:30,v3:60,col:'#d97757'},
+      {id:'h'+now+'3',n:'冥想',i:'🧘',u:'分鐘',v1:3,v2:10,v3:20,col:'#87a878'}
+    ];
+    sv(d);
+  }
   var ob=document.getElementById('ob-overlay');
-  if(ob)ob.remove();
+  if(ob){
+    ob.style.transition='opacity .5s';
+    ob.style.opacity='0';
+    setTimeout(function(){ob.remove();},500);
+  }
+}
+
+/* ── v1.33 社群分享卡片 ── */
+var SHARE_QUOTES=[
+  '我今天沒有完美，但我有繼續。',
+  '不用 5AM，也能靠近目標。',
+  '今日的1，也是前進。',
+  '不是重來，是繼續。'
+];
+var shareQuoteIdx=0;
+function openShare(status,pct){
+  var d=ld();
+  var today=new Date();
+  document.getElementById('sc-date').textContent=today.getFullYear()+'.'+p2(today.getMonth()+1)+'.'+p2(today.getDate());
+  document.getElementById('sc-check').textContent=pct>=100?'✅':pct>=50?'🎯':'✨';
+  document.getElementById('sc-status').textContent=status||'今日一小步';
+  document.getElementById('sc-pct').textContent=pct||'1';
+  shareQuoteIdx=Math.floor(Math.random()*SHARE_QUOTES.length);
+  document.getElementById('sc-quote').textContent=SHARE_QUOTES[shareQuoteIdx];
+  document.getElementById('share-overlay').classList.add('open');
+  if(typeof gtag!='undefined')gtag('event','share_card_open',{pct:pct});
+}
+function closeShare(){
+  document.getElementById('share-overlay').classList.remove('open');
+}
+function rotateShareQuote(){
+  shareQuoteIdx=(shareQuoteIdx+1)%SHARE_QUOTES.length;
+  document.getElementById('sc-quote').textContent=SHARE_QUOTES[shareQuoteIdx];
+}
+function doShare(){
+  var quote=SHARE_QUOTES[shareQuoteIdx];
+  if(navigator.share){
+    navigator.share({
+      title:'漫打卡 Manda',
+      text:quote+'\n\n#漫打卡 #彈性習慣',
+      url:window.location.href
+    }).catch(function(){toast('長按卡片可以儲存到相簿');});
+  }else{
+    toast('長按卡片可以儲存到相簿');
+  }
+  if(typeof gtag!='undefined')gtag('event','share_card_share');
+}
+function downloadShareCard(){
+  /* 嘗試使用 html2canvas（CDN 動態載入） */
+  if(typeof html2canvas==='undefined'){
+    var s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+    s.onload=function(){doDownloadCard();};
+    s.onerror=function(){toast('長按卡片可以儲存到相簿');};
+    document.head.appendChild(s);
+  }else{
+    doDownloadCard();
+  }
+}
+function doDownloadCard(){
+  var el=document.getElementById('share-card-el');
+  if(!el){toast('找不到卡片');return;}
+  if(typeof html2canvas==='undefined'){toast('長按卡片可以儲存到相簿');return;}
+  html2canvas(el,{scale:2,useCORS:true,backgroundColor:null}).then(function(canvas){
+    var a=document.createElement('a');
+    a.download='漫打卡_'+td()+'.png';
+    a.href=canvas.toDataURL('image/png');
+    a.click();
+    toast('✓ 卡片已下載');
+  }).catch(function(){toast('長按卡片可以儲存到相簿');});
+}
+
+/* ── v1.31 今日一勝 ── */
+function renderWinCard(){
+  var d=ld(),t=td(),dayLog=d.l[t]||{};
+  var win=dayLog._win||{text:'',done:false};
+  var H='<div class="win-card">';
+  H+='<div class="win-card-title">🏆 今日一勝</div>';
+  if(!win.text){
+    H+='<div class="win-card-sub">今天最想推進哪一件事？</div>';
+    H+='<textarea id="win-input" class="win-input" rows="2" placeholder="寫下來，哪怕很小也算。"></textarea>';
+    H+='<div class="win-btns"><button class="win-btn-done" onclick="saveWin()">存下這一勝</button></div>';
+  }else{
+    H+='<div class="win-done-state">';
+    H+='<div class="win-done-icon">'+(win.done?'✅':'🎯')+'</div>';
+    H+='<div class="win-done-text">';
+    H+='<div class="win-done-label">'+(win.done?'今天的一勝，完成了':'今天的一勝')+'</div>';
+    H+='<div class="win-done-content">'+e(win.text)+'</div>';
+    H+='<div class="win-feedback'+(win.done?' show':'')+'">不是因為完美，而是因為你有回來。</div>';
+    H+='<div class="win-btns" style="margin-top:8px">';
+    if(!win.done){
+      H+='<button class="win-btn-done" onclick="markWinDone()">完成了 ✓</button>';
+    }
+    H+='<button class="win-btn-change" onclick="resetWin()">換一個</button>';
+    H+='</div>';
+    H+='</div></div>';
+  }
+  H+='</div>';
+  return H;
+}
+function saveWin(){
+  var inp=document.getElementById('win-input');
+  if(!inp||!inp.value.trim()){toast('寫點什麼，哪怕很短');return;}
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  d.l[t]._win={text:inp.value.trim(),done:false};
+  sv(d);
+  toast('✓ 今日一勝已記下');
+  rH();
+}
+function markWinDone(){
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  if(!d.l[t]._win)return;
+  d.l[t]._win.done=true;
+  sv(d);
+  rH();
+  /* 溫柔慶祝 */
+  setTimeout(function(){
+    var fb=document.querySelector('.win-feedback');
+    if(fb){fb.classList.add('show');}
+    toast('✨ 不是因為完美，而是因為你有回來。');
+  },100);
+  /* v1.33 完成後觸發分享提示 */
+  setTimeout(function(){
+    var d2=ld(),t2=td(),log2=d2.l[t2]||{};
+    var done2=d2.h.filter(function(x){return(log2[x.id]||0)>=1;}).length;
+    var pct2=d2.h.length>0?Math.round(done2/d2.h.length*100):0;
+    openShare('今日一勝完成',pct2||1);
+  },1200);
+}
+function resetWin(){
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  d.l[t]._win={text:'',done:false};
+  sv(d);
+  rH();
+}
+
+/* ── v1.32 七個卡住陷阱 ── */
+var TRAPS=[
+  {id:'overthink', label:'過度思考',    icon:'🌀',
+   title:'思考不會讓它開始，行動才會。',
+   body:'你現在想的，已經比「還沒動手」更遠了。\n試試看：把腦子裡最小的那個想法，直接寫下來。光是這樣，就已經比什麼都沒做更靠近了。',
+   cta:'今日的 1，從這裡開始'},
+  {id:'perfect',   label:'完美主義',    icon:'🎯',
+   title:'完美不是目標，不斷線才是。',
+   body:'你的標準很高——這是好事，但不是今天的任務。\n今天的任務只有一個：讓自己的習慣記錄上，出現一個數字。哪怕只有 1。',
+   cta:'先留下今日的 1 就好'},
+  {id:'hoard',     label:'知識囤積',    icon:'📚',
+   title:'你已經知道夠多了。',
+   body:'再讀一篇文章、再看一個影片…\n但你現在需要的，不是更多知識，是一次小小的實作。\n今天，把你知道的任何一件事，做出一個最小版本。',
+   cta:'把知識變成今日的 1'},
+  {id:'fear',      label:'害怕失敗',    icon:'😰',
+   title:'沒有人在評分，就只有你自己。',
+   body:'這裡沒有旁觀者，也沒有失敗紀錄。\n你打「今日的1」，是給自己的一個訊號——我今天選擇了繼續。\n沒有人會看到，也沒有人在判斷你。',
+   cta:'給自己一個秘密的紀錄'},
+  {id:'later',     label:'等有空再說',  icon:'⏰',
+   title:'「之後」永遠在移動，「現在」才是真的。',
+   body:'你知道這句話：「最好的時機是昨天，其次是現在。」\n但我不說這個。我只問你：現在有 3 分鐘嗎？\n3 分鐘就夠踏出今日的 1 了。',
+   cta:'用 3 分鐘開始今日的 1'},
+  {id:'toobig',    label:'目標太大',    icon:'🏔️',
+   title:'不用爬到山頂，先踩到第一塊石頭就好。',
+   body:'你的目標可能真的很大——這很好。\n但今天的任務不是完成大目標，是做最小的那個版本。\n「今日的1」就是把山切成石頭的方法。',
+   cta:'找今日的最小版本'},
+  {id:'blame',     label:'責怪自己',    icon:'💙',
+   title:'你不需要更有意志力，你需要一個更友善的系統。',
+   body:'那些中斷、那些沒做到，不是你的失敗，是系統沒有幫你設計好。\n漫打卡的設計就是為了讓你在狀態最差的時候，還能留下一個記錄。\n現在，我陪你把它補上。',
+   cta:'我陪你補上今日的 1'}
+];
+var currentTrap='';
+function renderTrapCard(){
+  var d=ld(),t=td(),dayLog=d.l[t]||{};
+  var savedTrap=dayLog._trap||'';
+  var H='<div class="trap-card">';
+  H+='<div class="trap-title">🌀 我現在卡在哪？</div>';
+  H+='<div class="trap-sub">選一個最像你現在狀態的，我幫你找到鬆開的方法。</div>';
+  H+='<div class="trap-grid">';
+  TRAPS.slice(0,6).forEach(function(tr){
+    var sel=(savedTrap===tr.id||currentTrap===tr.id);
+    H+='<button class="trap-btn'+(sel?' selected':'')+'" onclick="selectTrap(\''+tr.id+'\')">';
+    H+=tr.icon+'<br>'+tr.label;
+    H+='</button>';
+  });
+  H+='</div>';
+  /* 第 7 個寬版 */
+  var tr7=TRAPS[6];
+  var sel7=(savedTrap===tr7.id||currentTrap===tr7.id);
+  H+='<button class="trap-btn-wide'+(sel7?' selected':'')+'" onclick="selectTrap(\''+tr7.id+'\')">';
+  H+=tr7.icon+' <span>'+tr7.label+'</span>';
+  H+='</button>';
+  /* 建議區 */
+  var activeTrap=currentTrap||savedTrap;
+  var trapData=TRAPS.find(function(t){return t.id===activeTrap;});
+  H+='<div class="trap-suggestion'+(trapData?' show':'')+'" id="trap-sugg">';
+  if(trapData){
+    H+='<div class="trap-suggestion-title">'+trapData.title+'</div>';
+    H+='<div class="trap-suggestion-body">'+trapData.body.replace(/\n/g,'<br>')+'</div>';
+    H+='<button class="trap-suggestion-cta" onclick="go(0)">'+trapData.cta+' →</button>';
+  }
+  H+='</div>';
+  H+='</div>';
+  return H;
+}
+function selectTrap(id){
+  currentTrap=id;
+  /* 儲存到當日記錄 */
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  d.l[t]._trap=id;
+  sv(d);
+  rH();
+  /* 滑到建議區 */
+  setTimeout(function(){
+    var sg=document.querySelector('.trap-suggestion');
+    if(sg)sg.scrollIntoView({behavior:'smooth',block:'nearest'});
+  },150);
+}
+
+/* ── Service Worker 註冊 ── */
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('./sw.js')
+      .then(function(r){console.log('[SW] registered scope:',r.scope);})
+      .catch(function(e){console.warn('[SW] register failed:',e);});
+  });
 }
 
 /* ── 初始化 ── */
