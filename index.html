@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.35 | 2026-05-24 | SW快取+新用戶範例習慣+命名重構 -->
+<!-- 漫打卡 v1.36 | 2026-05-24 | Formspree+14天損失提示+反思chip -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -55,7 +55,7 @@ body.dark{
   --danger:#e05040;--warn:#e08840;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;justify-content:center;min-height:100vh;transition:background .3s,color .3s}
+body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:center;min-height:100vh;transition:background .3s,color .3s}
 
 /* ── 卡關層 overlay ── */
 #stuck-overlay{display:none;position:fixed;inset:0;background:rgba(42,33,24,.55);z-index:900;justify-content:center;align-items:flex-end;backdrop-filter:blur(4px)}
@@ -63,36 +63,36 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 #stuck-box{background:var(--app);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:420px;box-shadow:0 -8px 32px rgba(42,33,24,.18)}
 .stuck-step{display:none}
 .stuck-step.active{display:block}
-.stuck-title{font-family:'Noto Serif TC',serif;font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
+.stuck-title{font-family:var(--serif);font-size:20px;font-weight:700;color:var(--text);margin-bottom:6px;line-height:1.4}
 .stuck-sub{font-size:13px;color:var(--sub);margin-bottom:22px;line-height:1.6}
 .emotion-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
 .emotion-btn{padding:14px 10px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:all .2s;-webkit-tap-highlight-color:transparent}
 .emotion-btn:active{transform:scale(.97)}
 .emotion-btn.selected{border-color:var(--primary);background:var(--pbg)}
 .emotion-emoji{font-size:26px;display:block;margin-bottom:4px}
-.emotion-label{font-size:12px;color:var(--sub);font-family:'Noto Sans TC',sans-serif}
+.emotion-label{font-size:12px;color:var(--sub);font-family:var(--sans)}
 .stuck-action-card{background:var(--pbg);border-radius:16px;padding:20px;margin-bottom:20px;border:1.5px solid var(--plight)}
-.stuck-action-habit{font-size:13px;color:var(--primary);font-weight:700;margin-bottom:4px;font-family:'Noto Sans TC',sans-serif}
-.stuck-action-text{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:8px}
+.stuck-action-habit{font-size:13px;color:var(--primary);font-weight:700;margin-bottom:4px;font-family:var(--sans)}
+.stuck-action-text{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--text);line-height:1.4;margin-bottom:8px}
 .stuck-action-mini{font-size:12px;color:var(--sub);padding:6px 12px;background:var(--card);border-radius:20px;display:inline-block}
 .stuck-done-emoji{font-size:52px;text-align:center;display:block;margin-bottom:12px}
-.stuck-done-title{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px}
+.stuck-done-title{font-family:var(--serif);font-size:22px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px}
 .stuck-done-sub{font-size:14px;color:var(--sub);text-align:center;line-height:1.7}
-.stuck-btn-primary{width:100%;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .2s}
+.stuck-btn-primary{width:100%;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity .2s}
 .stuck-btn-primary:active{opacity:.85}
-.stuck-btn-ghost{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:'Noto Sans TC',sans-serif;margin-top:8px}
+.stuck-btn-ghost{width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans);margin-top:8px}
 
 /* ── 卡關入口按鈕（主畫面）── */
 #stuck-gate{margin-bottom:14px;padding:14px 16px;border-radius:16px;border:1.5px dashed var(--border);background:transparent;cursor:pointer;text-align:left;width:100%;transition:all .2s;-webkit-tap-highlight-color:transparent;display:flex;align-items:center;gap:12px}
 #stuck-gate:active{background:var(--pbg);border-color:var(--primary)}
 #stuck-gate .sg-icon{font-size:24px;flex-shrink:0}
 #stuck-gate .sg-text{flex:1}
-#stuck-gate .sg-label{font-size:13px;font-weight:600;color:var(--sub);font-family:'Noto Serif TC',serif}
+#stuck-gate .sg-label{font-size:13px;font-weight:600;color:var(--sub);font-family:var(--serif)}
 #stuck-gate .sg-sub{font-size:11px;color:var(--muted);margin-top:2px}
 
 /* ── 方向感語氣條（取代進度條上方） ── */
 .direction-bar{padding:12px 14px;background:var(--pbg);border-radius:12px;margin-bottom:12px;border-left:3px solid var(--primary)}
-.direction-q{font-family:'Noto Serif TC',serif;font-size:14px;color:var(--primary);font-weight:600}
+.direction-q{font-family:var(--serif);font-size:14px;color:var(--primary);font-weight:600}
 .direction-status{font-size:12px;color:var(--sub);margin-top:3px}
 
 /* ── 晚間提示條 ── */
@@ -354,7 +354,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 /* === A1 慶祝粒子 === */
 .v29-particle{position:fixed;border-radius:50%;pointer-events:none;z-index:9990;will-change:transform,opacity}
 .v29-ring{position:fixed;border-radius:50%;pointer-events:none;z-index:9989;border-style:solid;will-change:transform,opacity}
-.v29-burst-text{position:fixed;pointer-events:none;z-index:9991;font-family:'Noto Serif TC',serif;font-weight:700;white-space:nowrap;text-shadow:0 2px 8px rgba(255,255,255,.95),0 0 2px rgba(196,118,58,.4);will-change:transform,opacity}
+.v29-burst-text{position:fixed;pointer-events:none;z-index:9991;font-family:var(--serif);font-weight:700;white-space:nowrap;text-shadow:0 2px 8px rgba(255,255,255,.95),0 0 2px rgba(196,118,58,.4);will-change:transform,opacity}
 .v29-glow-orb{position:fixed;border-radius:50%;pointer-events:none;z-index:9988;will-change:transform,opacity}
 @keyframes v29ParticleFly{0%{transform:translate(0,0) scale(1);opacity:1}80%{opacity:1}100%{transform:translate(var(--dx),var(--dy)) scale(.2);opacity:0}}
 @keyframes v29RingPulse{0%{transform:scale(0);opacity:.85}100%{transform:scale(4);opacity:0}}
@@ -375,22 +375,22 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .timer-pro-btn:active{transform:scale(.92)}
 .timer-pro-btn.running{background:var(--danger)}
 .timer-pro-center{flex:1;min-width:0}
-.timer-pro-time{font-family:'Noto Serif TC',serif;font-size:26px;font-weight:700;color:var(--primary);line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+.timer-pro-time{font-family:var(--serif);font-size:26px;font-weight:700;color:var(--primary);line-height:1;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
 .timer-pro-progress{height:3px;background:rgba(196,118,58,.18);border-radius:2px;margin-top:7px;overflow:hidden}
 .timer-pro-progress-fill{height:100%;background:var(--primary);border-radius:2px;transition:width 1s linear;width:0%}
 .timer-pro-quicks{display:flex;flex-direction:column;gap:3px;flex-shrink:0}
-.timer-pro-quick{padding:2px 10px;border-radius:6px;border:none;background:rgba(196,118,58,.14);color:var(--primary);font-size:10px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;min-width:42px}
+.timer-pro-quick{padding:2px 10px;border-radius:6px;border:none;background:rgba(196,118,58,.14);color:var(--primary);font-size:10px;font-weight:700;cursor:pointer;font-family:var(--sans);min-width:42px}
 .timer-pro-quick.on{background:var(--primary);color:#fff}
 .timer-pro-tools{display:flex;justify-content:space-between;align-items:center;gap:8px;padding-top:8px;border-top:1px dashed var(--plight)}
 .timer-pro-mode{display:flex;gap:4px;background:var(--card);padding:3px;border-radius:7px}
-.timer-pro-mode-btn{padding:4px 10px;border-radius:5px;border:none;background:transparent;font-size:11px;color:var(--sub);cursor:pointer;font-family:'Noto Sans TC',sans-serif;font-weight:600}
+.timer-pro-mode-btn{padding:4px 10px;border-radius:5px;border:none;background:transparent;font-size:11px;color:var(--sub);cursor:pointer;font-family:var(--sans);font-weight:600}
 .timer-pro-mode-btn.on{background:var(--primary);color:#fff}
-.timer-pro-reset{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--sub);font-size:11px;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
-.hr-timer-cta{padding:4px 10px;border-radius:8px;border:1px solid var(--plight);background:var(--pbg);color:var(--primary);font-size:11px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;display:inline-flex;align-items:center;gap:3px;margin-left:auto}
+.timer-pro-reset{padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--sub);font-size:11px;cursor:pointer;font-family:var(--sans)}
+.hr-timer-cta{padding:4px 10px;border-radius:8px;border:1px solid var(--plight);background:var(--pbg);color:var(--primary);font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);display:inline-flex;align-items:center;gap:3px;margin-left:auto}
 
 /* === C2 情緒地圖 === */
 .emo-map{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-.emo-card{padding:14px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;text-align:left;position:relative;transition:all .2s;-webkit-tap-highlight-color:transparent;font-family:'Noto Sans TC',sans-serif}
+.emo-card{padding:14px 12px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;text-align:left;position:relative;transition:all .2s;-webkit-tap-highlight-color:transparent;font-family:var(--sans)}
 .emo-card:active{transform:scale(.97)}
 .emo-card.selected{border-width:2px;border-color:var(--primary);background:var(--pbg)}
 .emo-card .emo-emo{font-size:24px;margin-bottom:4px;display:block}
@@ -398,7 +398,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .emo-card .emo-desc{font-size:10px;color:var(--sub);line-height:1.4}
 .emo-card .emo-tick{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:var(--primary);color:#fff;display:none;align-items:center;justify-content:center;font-size:10px;font-weight:700}
 .emo-card.selected .emo-tick{display:flex}
-.emo-card-wide{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:18px;text-align:left;font-family:'Noto Sans TC',sans-serif}
+.emo-card-wide{width:100%;padding:12px 14px;border-radius:14px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:18px;text-align:left;font-family:var(--sans)}
 .emo-card-wide:active{transform:scale(.98)}
 .emo-card-wide.selected{border-color:var(--primary);background:var(--pbg)}
 .emo-card-wide .emo-emo{font-size:22px;flex-shrink:0}
@@ -408,26 +408,26 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 
 /* === D1 月曆溫度 === */
 .cal29-quote{padding:12px 14px;background:var(--pbg);border-radius:10px;margin-bottom:12px;border-left:3px solid var(--primary)}
-.cal29-quote-t{font-family:'Noto Serif TC',serif;font-size:13px;color:var(--primary);font-weight:600;margin-bottom:3px}
+.cal29-quote-t{font-family:var(--serif);font-size:13px;color:var(--primary);font-weight:600;margin-bottom:3px}
 .cal29-quote-s{font-size:11px;color:var(--sub);line-height:1.65}
 .cal29-legend{display:flex;align-items:center;gap:6px;padding:8px 12px;background:var(--card);border-radius:8px;margin-bottom:12px;font-size:10px;color:var(--sub);border:1px solid var(--border)}
 .cal29-legend-bar{display:flex;gap:3px}
 .cal29-legend-cell{width:14px;height:14px;border-radius:3px}
 .cal29-traj{padding:14px;background:var(--card);border-radius:12px;margin:14px 0;border:1px solid var(--border)}
-.cal29-traj-cap{font-size:10px;color:var(--sub);text-align:center;margin-top:4px;font-style:italic;font-family:'Noto Serif TC',serif}
+.cal29-traj-cap{font-size:10px;color:var(--sub);text-align:center;margin-top:4px;font-style:italic;font-family:var(--serif)}
 
 /* === E2 數據儀表板 === */
 .stat29-hero{background:linear-gradient(135deg,var(--primary) 0%,#d97757 100%);border-radius:18px;padding:22px 18px;color:#fff;margin-bottom:14px;position:relative;overflow:hidden}
 .stat29-hero::before{content:'';position:absolute;right:-30px;top:-30px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.08)}
 .stat29-hero::after{content:'';position:absolute;right:20px;bottom:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,.06)}
 .stat29-hero-label{font-size:10px;opacity:.8;letter-spacing:.2em;margin-bottom:4px;position:relative}
-.stat29-hero-num{font-family:'Noto Serif TC',serif;font-size:54px;font-weight:700;line-height:1;letter-spacing:-.02em;position:relative;display:inline-block}
+.stat29-hero-num{font-family:var(--serif);font-size:54px;font-weight:700;line-height:1;letter-spacing:-.02em;position:relative;display:inline-block}
 .stat29-hero-unit{font-size:14px;opacity:.9;margin-left:6px}
 .stat29-hero-sub{font-size:12px;margin-top:6px;opacity:.85;position:relative}
 .stat29-hero-sub b{color:#fef9c3;font-weight:700}
 .stat29-kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
 .stat29-kpi-card{padding:12px 8px;background:var(--card);border-radius:10px;text-align:center;border:1px solid var(--border)}
-.stat29-kpi-num{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;line-height:1}
+.stat29-kpi-num{font-family:var(--serif);font-size:22px;font-weight:700;line-height:1}
 .stat29-kpi-lbl{font-size:10px;color:var(--sub);margin-top:4px}
 .stat29-trend{padding:14px;background:var(--card);border-radius:12px;border:1px solid var(--border);margin-bottom:14px}
 .stat29-trend-cap{font-size:10px;color:var(--sub);text-align:center;margin-top:6px}
@@ -436,7 +436,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .stat29-row-c{flex:1}
 .stat29-row-n{font-size:13px;font-weight:600;color:var(--text)}
 .stat29-row-s{font-size:10px;color:var(--sub);margin-top:2px}
-.stat29-row-pct{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700}
+.stat29-row-pct{font-family:var(--serif);font-size:18px;font-weight:700}
 
 /* === F2 海報式里程碑 === */
 #milestone-modal.poster #milestone-box{background:transparent;box-shadow:none;max-width:360px;padding:0}
@@ -445,35 +445,35 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .share-poster::after{content:'';position:absolute;right:-30%;bottom:10%;width:90%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(196,118,58,.5),transparent 60%)}
 .share-poster-in{position:absolute;inset:24px;display:flex;flex-direction:column}
 .share-poster-top{display:flex;justify-content:space-between;align-items:center}
-.share-poster-logo{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);font-family:'Noto Serif TC',serif;font-size:16px;font-weight:700;color:#fff}
+.share-poster-logo{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);font-family:var(--serif);font-size:16px;font-weight:700;color:#fff}
 .share-poster-date{font-size:10px;opacity:.85;letter-spacing:.15em}
 .share-poster-center{text-align:center;margin:auto 0}
-.share-poster-eyebrow{font-size:11px;letter-spacing:.3em;opacity:.9;margin-bottom:8px;font-family:'Noto Sans TC',sans-serif}
-.share-poster-num{font-family:'Noto Serif TC',serif;font-size:130px;font-weight:900;line-height:.9;letter-spacing:-.04em;background:linear-gradient(180deg,#fff 0%,#fef9c3 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 4px 24px rgba(122,74,26,.3)}
-.share-poster-cap{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;letter-spacing:.08em;margin-top:6px}
-.share-poster-quote{padding:14px 16px;margin:14px 0;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,.25);font-family:'Noto Serif TC',serif;text-align:left}
+.share-poster-eyebrow{font-size:11px;letter-spacing:.3em;opacity:.9;margin-bottom:8px;font-family:var(--sans)}
+.share-poster-num{font-family:var(--serif);font-size:130px;font-weight:900;line-height:.9;letter-spacing:-.04em;background:linear-gradient(180deg,#fff 0%,#fef9c3 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-shadow:0 4px 24px rgba(122,74,26,.3)}
+.share-poster-cap{font-family:var(--serif);font-size:18px;font-weight:700;letter-spacing:.08em;margin-top:6px}
+.share-poster-quote{padding:14px 16px;margin:14px 0;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,.25);font-family:var(--serif);text-align:left}
 .share-poster-quote-t{font-size:12px;line-height:1.7;font-weight:500;margin-bottom:6px}
 .share-poster-quote-s{font-size:9px;opacity:.75;text-align:right;letter-spacing:.05em}
 .share-poster-data{display:flex;justify-content:space-around;padding:14px 0;border-top:1px solid rgba(255,255,255,.25);margin-top:auto}
 .share-poster-data-item{text-align:center}
-.share-poster-data-n{font-family:'Noto Serif TC',serif;font-size:22px;font-weight:700;line-height:1}
+.share-poster-data-n{font-family:var(--serif);font-size:22px;font-weight:700;line-height:1}
 .share-poster-data-l{font-size:9px;opacity:.85;margin-top:3px;letter-spacing:.05em}
 .share-poster-data-d{width:1px;background:rgba(255,255,255,.3)}
 .share-poster-watermark{text-align:center;margin-top:8px;font-size:9px;opacity:.7;letter-spacing:.2em}
 .share-poster-actions{display:flex;gap:8px;margin-top:16px}
-.share-poster-act{flex:1;padding:10px 4px;border-radius:10px;border:none;background:#fff;color:var(--primary);font-size:11px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+.share-poster-act{flex:1;padding:10px 4px;border-radius:10px;border:none;background:#fff;color:var(--primary);font-size:11px;font-weight:700;cursor:pointer;font-family:var(--sans)}
 .share-poster-act.outline{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff}
 .share-poster-skip{margin-top:12px;text-align:center;font-size:11px;color:rgba(255,255,255,.7);cursor:pointer}
 /* ── v1.31 今日一勝 ── */
 .win-card{background:var(--card);border-radius:14px;padding:16px;margin-bottom:14px;border:1.5px solid var(--border);position:relative}
-.win-card-title{font-family:'Noto Serif TC',serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
+.win-card-title{font-family:var(--serif);font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px}
 .win-card-sub{font-size:12px;color:var(--sub);margin-bottom:12px;line-height:1.5}
-.win-input{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);color:var(--text);font-size:14px;font-family:'Noto Sans TC',sans-serif;resize:none;outline:none;box-sizing:border-box;transition:border-color .2s}
+.win-input{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);color:var(--text);font-size:14px;font-family:var(--sans);resize:none;outline:none;box-sizing:border-box;transition:border-color .2s}
 .win-input:focus{border-color:var(--plight)}
 .win-btns{display:flex;gap:8px;margin-top:10px}
-.win-btn-done{flex:1;padding:11px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .2s}
+.win-btn-done{flex:1;padding:11px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity .2s}
 .win-btn-done:active{opacity:.85}
-.win-btn-change{padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:'Noto Sans TC',sans-serif}
+.win-btn-change{padding:11px 14px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans)}
 .win-done-state{display:flex;align-items:flex-start;gap:10px}
 .win-done-icon{font-size:22px;flex-shrink:0;margin-top:2px}
 .win-done-text{flex:1}
@@ -483,19 +483,19 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .win-feedback.show{display:block}
 /* ── v1.32 卡住陷阱 ── */
 .trap-card{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:14px;border:1.5px solid var(--border)}
-.trap-title{font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
+.trap-title{font-family:var(--serif);font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px}
 .trap-sub{font-size:11px;color:var(--sub);margin-bottom:12px;line-height:1.5}
 .trap-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
-.trap-btn{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--sub);font-family:'Noto Sans TC',sans-serif;transition:all .18s;-webkit-tap-highlight-color:transparent;line-height:1.3}
+.trap-btn{padding:10px 8px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:var(--sub);font-family:var(--sans);transition:all .18s;-webkit-tap-highlight-color:transparent;line-height:1.3}
 .trap-btn:active{transform:scale(.97)}
 .trap-btn.selected{border-color:var(--primary);background:var(--pbg);color:var(--primary)}
-.trap-btn-wide{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:left;font-size:12px;font-weight:600;color:var(--sub);font-family:'Noto Sans TC',sans-serif;margin-bottom:7px;transition:all .18s;display:flex;align-items:center;gap:8px}
+.trap-btn-wide{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--app);cursor:pointer;text-align:left;font-size:12px;font-weight:600;color:var(--sub);font-family:var(--sans);margin-bottom:7px;transition:all .18s;display:flex;align-items:center;gap:8px}
 .trap-btn-wide.selected{border-color:var(--primary);background:var(--pbg);color:var(--primary)}
 .trap-suggestion{display:none;background:var(--pbg);border-radius:12px;padding:14px 16px;border-left:3px solid var(--primary);margin-top:4px}
 .trap-suggestion.show{display:block}
-.trap-suggestion-title{font-family:'Noto Serif TC',serif;font-size:14px;font-weight:700;color:var(--primary);margin-bottom:6px}
+.trap-suggestion-title{font-family:var(--serif);font-size:14px;font-weight:700;color:var(--primary);margin-bottom:6px}
 .trap-suggestion-body{font-size:13px;color:var(--text);line-height:1.75}
-.trap-suggestion-cta{display:inline-block;margin-top:10px;padding:7px 14px;border-radius:20px;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;border:none}
+.trap-suggestion-cta{display:inline-block;margin-top:10px;padding:7px 14px;border-radius:20px;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);border:none}
 /* ── v1.33 社群分享卡片 ── */
 #share-overlay{display:none;position:fixed;inset:0;background:rgba(15,20,30,.82);z-index:9998;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(6px)}
 #share-overlay.open{display:flex}
@@ -507,25 +507,25 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);display:flex;jus
 .share-card-bg{position:absolute;inset:0;background:linear-gradient(160deg,#fdf0e6 0%,#f3cb8a 40%,#e3a774 72%,#c4763a 100%)}
 .share-card-inner{position:relative;z-index:1;display:flex;flex-direction:column;height:100%;padding:24px 20px}
 .share-card-logo-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:auto}
-.share-card-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-family:'Noto Serif TC',serif;font-size:17px;font-weight:700;color:#fff;backdrop-filter:blur(8px)}
+.share-card-logo{width:34px;height:34px;border-radius:9px;background:rgba(255,255,255,.28);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:17px;font-weight:700;color:#fff;backdrop-filter:blur(8px)}
 .share-card-date{font-size:10px;color:rgba(255,255,255,.82);letter-spacing:.15em}
 .share-card-center{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:20px 0}
 .share-card-check{font-size:56px;margin-bottom:10px;line-height:1}
-.share-card-status{font-family:'Noto Serif TC',serif;font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
-.share-card-pct{font-family:'Noto Serif TC',serif;font-size:68px;font-weight:900;line-height:.95;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.18);letter-spacing:-.03em}
+.share-card-status{font-family:var(--serif);font-size:18px;font-weight:700;color:#fff;margin-bottom:8px;text-shadow:0 2px 8px rgba(0,0,0,.15)}
+.share-card-pct{font-family:var(--serif);font-size:68px;font-weight:900;line-height:.95;color:#fff;text-shadow:0 4px 20px rgba(0,0,0,.18);letter-spacing:-.03em}
 .share-card-pct-unit{font-size:20px;opacity:.9}
 .share-card-quote-box{padding:14px 16px;margin:14px 0;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);border-radius:14px;border:1px solid rgba(255,255,255,.25);cursor:pointer}
-.share-card-quote-text{font-family:'Noto Serif TC',serif;font-size:13px;color:#fff;line-height:1.7;text-align:left}
+.share-card-quote-text{font-family:var(--serif);font-size:13px;color:#fff;line-height:1.7;text-align:left}
 .share-card-quote-hint{font-size:9px;color:rgba(255,255,255,.6);text-align:right;margin-top:5px;letter-spacing:.05em}
 .share-card-watermark{text-align:center;font-size:9px;color:rgba(255,255,255,.65);letter-spacing:.22em;margin-top:auto;padding-top:10px}
 /* 控制區 */
 .share-actions{display:flex;gap:9px;width:100%;max-width:340px}
-.share-act-btn{flex:1;padding:11px 8px;border-radius:12px;border:none;background:#fff;color:#c4763a;font-size:12px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:opacity .18s}
+.share-act-btn{flex:1;padding:11px 8px;border-radius:12px;border:none;background:#fff;color:#c4763a;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans);transition:opacity .18s}
 .share-act-btn:active{opacity:.8}
 .share-act-btn.outline{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.35)}
-.share-close-btn{font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;padding:4px;font-family:'Noto Sans TC',sans-serif;text-decoration:underline}
+.share-close-btn{font-size:12px;color:rgba(255,255,255,.55);cursor:pointer;padding:4px;font-family:var(--sans);text-decoration:underline}
 /* 首頁觸發按鈕 */
-.share-trigger{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;cursor:pointer;width:100%;margin-bottom:10px;transition:all .2s;font-family:'Noto Sans TC',sans-serif;-webkit-tap-highlight-color:transparent}
+.share-trigger{display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;border:1.5px solid var(--border);background:transparent;cursor:pointer;width:100%;margin-bottom:10px;transition:all .2s;font-family:var(--sans);-webkit-tap-highlight-color:transparent}
 .share-trigger:active{background:var(--pbg);border-color:var(--primary)}
 .share-trigger .st-icon{font-size:18px;flex-shrink:0}
 .share-trigger .st-text{flex:1;text-align:left}
@@ -1149,6 +1149,81 @@ function rH(){
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
 }
+/* ── v1.36 反思 chip ── */
+var CHIPS_BLUE=[
+  '身體需要休息','行程比預期忙','心情不在狀態','環境不配合','突發狀況'
+];
+var CHIPS_GREEN=[
+  '今日的1就是今天的 Elite','習慣還在，沒有斷','本可以更多，但今天的1已夠了','明天我會準備好','小步也是前進'
+];
+function showReflectChip(hid,lv){
+  /* lv=1 才問（今日的1 用戶最需要情緒支持），高等級打卡不打擾 */
+  if(lv!==1)return;
+  var chipKey='chip-'+hid+'-'+td();
+  if(localStorage.getItem(chipKey))return;
+  var ov=document.createElement('div');
+  ov.id='reflect-overlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:9992;background:rgba(15,20,30,.72);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .3s ease;backdrop-filter:blur(3px)';
+  var blueChips=CHIPS_BLUE.map(function(c){
+    return '<button class="rchip rchip-blue" onclick="pickChip(\''+hid+'\',\'blue\',\''+c+'\',this)">'+c+'</button>';
+  }).join('');
+  var greenChips=CHIPS_GREEN.map(function(c){
+    return '<button class="rchip rchip-green" onclick="pickChip(\''+hid+'\',\'green\',\''+c+'\',this)">'+c+'</button>';
+  }).join('');
+  ov.innerHTML=
+    '<div style="background:var(--app);border-radius:24px 24px 0 0;padding:24px 20px 36px;width:100%;max-width:430px">'+
+    '<div style="font-family:var(--serif);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px">今天選了今日的1</div>'+
+    '<div style="font-size:12px;color:var(--sub);margin-bottom:16px;line-height:1.6">選填就好。讓我多了解你一點。</div>'+
+    '<div style="font-size:11px;font-weight:700;color:#3b82f6;margin-bottom:7px">發生了什麼？</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">'+blueChips+'</div>'+
+    '<div style="font-size:11px;font-weight:700;color:#10b981;margin-bottom:7px">我怎麼看這件事</div>'+
+    '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px">'+greenChips+'</div>'+
+    '<button onclick="closeReflect(\''+hid+'\'  )" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans)">跳過</button>'+
+    '</div>';
+  document.body.appendChild(ov);
+  /* 注入 chip 樣式 */
+  if(!document.getElementById('rchip-style')){
+    var st=document.createElement('style');
+    st.id='rchip-style';
+    st.textContent='.rchip{padding:7px 13px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s;-webkit-tap-highlight-color:transparent}'+
+      '.rchip-blue{background:#eff6ff;border-color:#93c5fd;color:#1d4ed8}'+
+      '.rchip-green{background:#f0fdf4;border-color:#86efac;color:#15803d}'+
+      '.rchip.selected{transform:scale(1.04);box-shadow:0 2px 8px rgba(0,0,0,.12)}'+
+      '.rchip-blue.selected{background:#dbeafe;border-color:#3b82f6}'+
+      '.rchip-green.selected{background:#dcfce7;border-color:#22c55e}'+
+      'body.dark .rchip-blue{background:#1e3a5f;border-color:#3b82f6;color:#93c5fd}'+
+      'body.dark .rchip-green{background:#14532d;border-color:#22c55e;color:#86efac}';
+    document.head.appendChild(st);
+  }
+}
+function pickChip(hid,type,val,el){
+  /* 視覺回饋 */
+  var siblings=el.parentNode.querySelectorAll('.rchip');
+  siblings.forEach(function(s){s.classList.remove('selected');});
+  el.classList.add('selected');
+  /* 存到當日記錄 */
+  var d=ld(),t=td();
+  if(!d.l[t])d.l[t]={};
+  if(!d.l[t]._chips)d.l[t]._chips={};
+  if(!d.l[t]._chips[hid])d.l[t]._chips[hid]={};
+  d.l[t]._chips[hid][type]=val;
+  sv(d);
+  /* GA4 */
+  if(typeof gtag!=='undefined')gtag('event','reflection_saved',{type:type,value:val});
+  /* 兩類都選了才自動關閉，否則等 1.2 秒後關 */
+  var chips=d.l[t]._chips[hid];
+  if(chips.blue&&chips.green){
+    setTimeout(function(){closeReflect(hid);toast('✓ 記下了，謝謝你告訴我');},600);
+  }else{
+    clearTimeout(el._closeT);
+    el._closeT=setTimeout(function(){},0); /* 讓用戶繼續選另一類 */
+  }
+}
+function closeReflect(hid){
+  localStorage.setItem('chip-'+hid+'-'+td(),'1');
+  var ov=document.getElementById('reflect-overlay');
+  if(ov){ov.style.opacity='0';ov.style.transition='opacity .3s';setTimeout(function(){ov.remove();},300);}
+}
 function tgMandala(){
   var w=document.getElementById('m-wrap');
   var a=document.getElementById('m-arrow');
@@ -1237,6 +1312,11 @@ function tLv(hid,lv){
       qEl.style.display='block';
       clearTimeout(qEl._t);
       qEl._t=setTimeout(function(){qEl.style.display='none';},6000);
+    }
+    /* v1.36 反思 chip（打卡後 2.5 秒，每個習慣每天只問一次）*/
+    var chipKey='chip-'+hid+'-'+td();
+    if(!localStorage.getItem(chipKey)&&newLv>=1){
+      setTimeout(function(){showReflectChip(hid,newLv);},2500);
     }
   }
   /* ② 打卡後顯示啟動錨點輸入（只顯示一次/天）*/
@@ -1871,7 +1951,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.35</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.36</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2231,6 +2311,39 @@ function stuckFinish(){
 }
 
 /* ── 晚間提示檢查 ── */
+function check14DayNudge(){
+  /* 只對有習慣、已用 14 天以上、未升級、今日未顯示過的用戶顯示 */
+  var d=ld();
+  if(!d.h||d.h.length===0)return;
+  if(localStorage.getItem('plus-user'))return;
+  var shown14=localStorage.getItem('nudge14-'+td());
+  if(shown14)return;
+  /* 計算最長連續天數 */
+  var best=Math.max.apply(null,d.h.map(function(h){return sk(d.l,h.id);}).concat([0]));
+  /* 計算總打卡天數 */
+  var allDays=Object.keys(d.l).filter(function(k){
+    return Object.keys(d.l[k]).some(function(id){return id[0]==='h'&&(d.l[k][id]||0)>=1;});
+  }).length;
+  if(allDays<14)return;
+  localStorage.setItem('nudge14-'+td(),'1');
+  /* 建立提示 overlay */
+  var ov=document.createElement('div');
+  ov.id='nudge14-overlay';
+  ov.style.cssText='position:fixed;inset:0;z-index:9993;background:rgba(15,20,30,.82);display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .3s ease;backdrop-filter:blur(4px)';
+  ov.innerHTML=
+    '<div style="background:var(--app);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:430px;box-shadow:0 -8px 32px rgba(0,0,0,.2)">'+
+    '<div style="font-size:32px;text-align:center;margin-bottom:12px">🔒</div>'+
+    '<div style="font-family:var(--serif);font-size:20px;font-weight:700;color:var(--text);text-align:center;margin-bottom:10px;line-height:1.4">你已累積 '+allDays+' 天的紀錄</div>'+
+    '<div style="font-size:13px;color:var(--sub);text-align:center;line-height:1.8;margin-bottom:20px">'+
+    '這些紀錄只存在這台裝置。<br>換機、清除瀏覽器，就會<b style="color:var(--danger)">永久消失</b>。<br><br>'+
+    'Plus 方案的雲端備份，<br>讓你的 '+allDays+' 天不會白費。'+
+    '</div>'+
+    '<button onclick="document.getElementById(\'nudge14-overlay\').remove();showUpgrade();" style="width:100%;padding:14px;border-radius:14px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sans);margin-bottom:10px">了解 Plus 方案 →</button>'+
+    '<button onclick="document.getElementById(\'nudge14-overlay\').remove();" style="width:100%;padding:12px;border-radius:14px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans)">先不用，我知道風險</button>'+
+    '</div>';
+  document.body.appendChild(ov);
+  if(typeof gtag!=='undefined')gtag('event','nudge14_shown',{days:allDays,streak:best});
+}
 function checkEveningNudge(){
   var h=new Date().getHours();
   if(h<21)return;
@@ -2374,19 +2487,34 @@ function saveUpgradeEmail(){
   var inp=document.getElementById('upg-email');
   if(!inp||!inp.value.trim())return;
   var em=inp.value.trim();
-  /* 簡單格式驗證 */
   if(!/^[^@]+@[^@]+\.[^@]+$/.test(em)){toast('請輸入有效的 Email');return;}
-  /* 存到 localStorage（含時間戳）*/
+  /* 同時存 localStorage（備份）*/
   var emails=JSON.parse(localStorage.getItem('upg-emails')||'[]');
   if(!emails.includes(em))emails.push(em);
   localStorage.setItem('upg-emails',JSON.stringify(emails));
-  localStorage.setItem('upg-email-ts',Date.now());
-  /* GA4 追蹤 */
-  if(typeof gtag!=='undefined')gtag('event','upgrade_email_saved',{email_count:emails.length});
-  /* UI 回饋 */
-  document.getElementById('upg-email-done').style.display='block';
-  document.getElementById('upg-email-wrap').querySelector('div:first-child').style.display='none';
-  document.getElementById('upg-email-wrap').querySelector('div:nth-child(2)').style.display='none';
+  /* v1.36 送到 Formspree */
+  var btn=document.getElementById('upg-email').nextElementSibling;
+  if(btn)btn.textContent='送出中…';
+  fetch('https://formspree.io/f/maqkbgly',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Accept':'application/json'},
+    body:JSON.stringify({email:em,source:'upgrade_modal',ts:new Date().toISOString()})
+  }).then(function(r){
+    if(r.ok){
+      if(typeof gtag!=='undefined')gtag('event','upgrade_email_saved',{method:'formspree'});
+      document.getElementById('upg-email-done').style.display='block';
+      var wrap=document.getElementById('upg-email-wrap');
+      if(wrap){wrap.querySelectorAll('div:first-child,div:nth-child(2)').forEach(function(c){c.style.display='none';});}
+    }else{
+      toast('送出失敗，已暫存本機');
+      if(btn)btn.textContent='通知我';
+    }
+  }).catch(function(){
+    toast('網路問題，已暫存本機');
+    if(btn)btn.textContent='通知我';
+    /* 離線時仍顯示已記錄 */
+    document.getElementById('upg-email-done').style.display='block';
+  });
 }
 function showUpgrade(){document.getElementById('upgrade-modal').style.display='flex';if(typeof gtag!='undefined')gtag('event','fake_door_click',{trigger:'upgrade_card'});}
 function closeUpgrade(){document.getElementById('upgrade-modal').style.display='none';}
@@ -2987,6 +3115,8 @@ document.addEventListener('DOMContentLoaded',function(){
   }else{
     checkReturnUser();
   }
+  /* v1.36 14天損失框架提示 */
+  setTimeout(check14DayNudge, 1500);
   /* 晚間提示 */
   setTimeout(checkEveningNudge,1000);
   scheduleEveningNotif();
