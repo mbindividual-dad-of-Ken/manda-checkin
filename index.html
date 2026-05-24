@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.39 | 2026-05-24 | 情緒介面語氣審計——人格一致性更新 -->
+<!-- 漫打卡 v1.40 | 2026-05-24 | 回來streak——重新開始也算前進 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -837,6 +837,29 @@ function maxStreak(logs,hid){
   }
   return max;
 }
+/* v1.40 回來次數：計算本月中斷後重新開始的次數 */
+function comebackCount(logs,hid){
+  var now=new Date(),count=0,wasGone=false;
+  for(var i=29;i>=0;i--){
+    var c=new Date(now);c.setDate(now.getDate()-i);
+    var x=ds(c);
+    var done=(logs[x]&&(logs[x][hid]||0)>=1);
+    if(done&&wasGone){count++;wasGone=false;}
+    else if(!done){wasGone=true;}
+    else{wasGone=false;}
+  }
+  return count;
+}
+/* 計算本月有打卡的天數 */
+function monthBackCount(logs,hid){
+  var now=new Date(),count=0;
+  for(var i=0;i<30;i++){
+    var c=new Date(now);c.setDate(now.getDate()-i);
+    var x=ds(c);
+    if(logs[x]&&(logs[x][hid]||0)>=1)count++;
+  }
+  return count;
+}
 function last30Stats(logs,hid){
   var byLevel=[0,0,0],c=new Date();
   for(var i=0;i<30;i++){
@@ -1114,7 +1137,11 @@ function rH(){
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
       H+='<div class="hr"><span style="font-size:17px">'+hb.i+'</span><span class="hn">'+e(hb.n)+'</span>';
       if(src)H+='<span class="hsrc" style="background:'+col+'20;color:'+col+'">'+e(src)+'</span>';
-      if(st>0)H+='<span class="hsk">🔥'+st+'天</span>';
+      var cb=comebackCount(d.l,hb.id);
+      var mb=monthBackCount(d.l,hb.id);
+      if(st>=3){H+='<span class="hsk">🔥'+st+'天</span>';}
+      else if(mb>0){H+='<span class="hsk" style="background:var(--pbg);color:var(--primary)">本月回來 '+mb+' 天</span>';}
+      else if(st>0){H+='<span class="hsk">🔥'+st+'天</span>';}
       H+='<button class="hd" onclick="dH(\''+hb.id+'\')">✕</button>';
       H+='<button class="hr-timer-cta" onclick="toggleTimer(\''+hb.id+'\')" title="計時器">⏱ 計時</button></div>';
       /* 打卡提示 */
@@ -1519,7 +1546,9 @@ function rC(){
   var isCurMonth=(cY===n.getFullYear()&&cM===n.getMonth());
   if(isCurMonth&&(mDoneDays>0||d.h.length>0)){
     H+='<div class="cal29-quote">';
-    H+='<div class="cal29-quote-t">本月有動過 '+mDoneDays+' 天';
+    var calCB=d.h.reduce(function(s,h){return s+comebackCount(d.l,h.id);},0);
+    var cbCalTxt=calCB>0?'，回來了 '+calCB+' 次':'';
+    H+='<div class="cal29-quote-t">本月有動過 '+mDoneDays+' 天'+cbCalTxt;
     if(maxStreakAll>0)H+=' · 連續 '+maxStreakAll+' 天';
     H+='</div>';
     var sub='';
@@ -1695,16 +1724,18 @@ function rSt(){
     var deltaStr=(deltaRate>=0?'+':'')+deltaRate;
     H+='<div class="stat29-hero-sub">比上個月 <b>'+deltaStr+'%</b></div>';
   }else{
-    H+='<div class="stat29-hero-sub">繼續累積你的基準線</div>';
+    H+='<div class="stat29-hero-sub">每次回來都算，繼續累積就好</div>';
   }
   H+='</div>';
 
   /* === 4 KPI === */
   H+='<div class="stat29-kpi">';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c4763a">'+checkInDays30+'</div><div class="stat29-kpi-lbl">打卡天數 / 30</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#d97757">'+bestStreak+'</div><div class="stat29-kpi-lbl">目前連續 · 天</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+maxStreakBest+'</div><div class="stat29-kpi-lbl">最長連續 · 天</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">總完成次數</div></div>';
+  /* v1.40 回來次數 */
+  var totalCB=d.h.reduce(function(s,h){return s+comebackCount(d.l,h.id);},0);
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c4763a">'+checkInDays30+'</div><div class="stat29-kpi-lbl">有動過 · 天</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#d97757">'+totalCB+'</div><div class="stat29-kpi-lbl">重新回來 · 次</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">目前連續 · 天</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">完成次數</div></div>';
   H+='</div>';
 
   /* === 等級分布 === */
@@ -1770,7 +1801,9 @@ function rSt(){
     H+='<span class="stat29-row-i">'+hb.i+'</span>';
     H+='<div class="stat29-row-c">';
     H+='<div class="stat29-row-n">'+e(hb.n)+'</div>';
-    H+='<div class="stat29-row-s">共 '+stats.total+' 次 · 🔥 連續 '+curStr+' 天</div>';
+    var hcb=comebackCount(d.l,hb.id);
+    var cbTxt=hcb>0?' · 回來 '+hcb+' 次':'';
+    H+='<div class="stat29-row-s">共 '+stats.total+' 次 · 🔥 連續 '+curStr+' 天'+cbTxt+'</div>';
     H+='</div>';
     H+='<div class="stat29-row-pct" style="color:'+col+'">'+stats.rate+'%</div>';
     H+='</div>';
@@ -1995,7 +2028,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.39</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.40</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2495,6 +2528,7 @@ function checkMilestone(hid,streak){
   document.getElementById('ms-date').textContent=today.getFullYear()+'.'+p2(today.getMonth()+1)+'.'+p2(today.getDate());
   document.getElementById('ms-num').textContent=streak;
   var capMap={7:'連續一週',14:'連續兩週',30:'連續一個月',66:'習慣內化',100:'一百天'};
+  /* v1.40 回來里程碑也顯示鼓勵 */
   document.getElementById('ms-cap').textContent=capMap[streak]||('連續 '+streak+' 天');
   var quoteMap={
     7:'七天不是結束、是開始。<br>你證明了可以。',
