@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.37 | 2026-05-24 | 步驟條整合+刪除Undo+今日動能整合 -->
+<!-- 漫打卡 v1.38 | 2026-05-24 | 浮水印修正+謙謙爸範例習慣 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -751,7 +751,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
           <div class="share-card-quote-text" id="sc-quote">我今天沒有完美，但我有繼續。</div>
           <div class="share-card-quote-hint">點擊換一句 ↻</div>
         </div>
-        <div class="share-card-watermark">MANDA · 漫打卡 · mandatalks.com</div>
+        <div class="share-card-watermark">漫打卡 Manda</div>
       </div>
     </div>
     <div class="share-actions">
@@ -772,9 +772,9 @@ var APP_AUTHOR='謙謙爸',MANDALA_TALKS_DNA='Elastic-OW64-Resilience-2026';
 var SK='eh3',CL=['#c4763a','#2563eb','#0f766e','#16a34a','#d97706','#dc2626','#db2777','#4b5563'];
 var CO=[0,1,2,3,-1,4,5,6,7],tab=0,cY,cM,cSel,aC='#c4763a';
 var TPLS=[
-  {n:'閱讀',i:'📚',u:'頁',a:5,b:20,c:50,col:'#c4763a'},
-  {n:'運動',i:'🏃',u:'分鐘',a:10,b:30,c:60,col:'#16a34a'},
-  {n:'冥想',i:'🧘',u:'分鐘',a:2,b:10,c:30,col:'#2563eb'},
+  {n:'給自己充電',i:'📖',u:'分鐘',a:10,b:20,c:40,col:'#c4763a'},
+  {n:'走出去',i:'🚶',u:'分鐘',a:10,b:20,c:40,col:'#16a34a'},
+  {n:'睡前感謝',i:'🙏',u:'件事',a:1,b:3,c:5,col:'#7c3aed'},
   {n:'喝水',i:'💧',u:'杯',a:2,b:4,c:8,col:'#0f766e'},
   {n:'寫作',i:'✍️',u:'字',a:100,b:500,c:1000,col:'#d97706'}
 ];
@@ -1995,7 +1995,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.37</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.38</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2898,9 +2898,9 @@ function obDone(){
   if(!d.h||d.h.length===0){
     var now=Date.now();
     d.h=[
-      {id:'h'+now+'1',n:'閱讀',i:'📚',u:'頁',v1:5,v2:20,v3:50,col:'#c4763a'},
-      {id:'h'+now+'2',n:'運動',i:'🏃',u:'分鐘',v1:10,v2:30,v3:60,col:'#d97757'},
-      {id:'h'+now+'3',n:'冥想',i:'🧘',u:'分鐘',v1:3,v2:10,v3:20,col:'#87a878'}
+      {id:'h'+now+'1',n:'給自己充電',i:'📖',u:'分鐘',v1:10,v2:20,v3:40,col:'#c4763a'},
+      {id:'h'+now+'2',n:'走出去',i:'🚶',u:'分鐘',v1:10,v2:20,v3:40,col:'#d97757'},
+      {id:'h'+now+'3',n:'睡前感謝',i:'🙏',u:'件事',v1:1,v2:3,v3:5,col:'#87a878'}
     ];
     sv(d);
   }
