@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.40 | 2026-05-24 | 回來streak——重新開始也算前進 -->
+<!-- 漫打卡 v1.41 | 2026-05-25 | 低能量模式＋品牌人格修正 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -559,7 +559,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
         <div class="share-poster-center">
           <div class="share-poster-eyebrow" id="ms-eyebrow">CONSECUTIVE DAYS</div>
           <div class="share-poster-num" id="ms-num">30</div>
-          <div class="share-poster-cap" id="ms-cap">連續打卡</div>
+          <div class="share-poster-cap" id="ms-cap">你又回來了</div>
         </div>
         <div class="share-poster-quote">
           <div class="share-poster-quote-t" id="ms-quote">「不完美但持續」</div>
@@ -601,7 +601,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
   <div style="background:var(--app);border-radius:20px;padding:28px 24px;width:100%;max-width:340px;text-align:center">
     <div style="font-size:48px;margin-bottom:10px">✨</div>
     <div style="font-size:18px;font-weight:800;color:var(--text);margin-bottom:8px">你已經準備好了。</div>
-    <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">你用行動證明了——你是認真的那種人。<br><br>無限習慣 · 雲端備份 · 成就分享，<br>所有 Plus 功能都在為你趕來。</div>
+    <div style="font-size:13px;color:var(--sub);line-height:1.8;margin-bottom:16px">你的紀錄只存在這台裝置上。<br>換機或清除瀏覽器時會消失。<br><br>升級 Plus，讓這些痕跡留下來。</div>
     <!-- v1.34 Email 收集 -->
     <div id="upg-email-wrap" style="margin-bottom:14px">
       <div style="font-size:12px;color:var(--sub);margin-bottom:8px">留下 Email，Plus 上線第一個通知你：</div>
@@ -773,8 +773,8 @@ var SK='eh3',CL=['#c4763a','#2563eb','#0f766e','#16a34a','#d97706','#dc2626','#d
 var CO=[0,1,2,3,-1,4,5,6,7],tab=0,cY,cM,cSel,aC='#c4763a';
 var TPLS=[
   {n:'給自己充電',i:'📖',u:'分鐘',a:10,b:20,c:40,col:'#c4763a'},
-  {n:'走出去',i:'🚶',u:'分鐘',a:10,b:20,c:40,col:'#16a34a'},
-  {n:'睡前感謝',i:'🙏',u:'件事',a:1,b:3,c:5,col:'#7c3aed'},
+  {n:'動起來',i:'🚶',u:'分鐘',a:10,b:20,c:40,col:'#16a34a'},
+  {n:'感恩',i:'🙏',u:'件事',a:1,b:3,c:5,col:'#7c3aed'},
   {n:'喝水',i:'💧',u:'杯',a:2,b:4,c:8,col:'#0f766e'},
   {n:'寫作',i:'✍️',u:'字',a:100,b:500,c:1000,col:'#d97706'}
 ];
@@ -1120,7 +1120,7 @@ function rH(){
       H+='</button>';
     }
     /* ── 方向感語氣條 ── */
-    var dirQ=allDone?'今天有輕輕靠近了 ✓':'今天有沒有輕輕靠近？';
+    var dirQ=allDone?'今天留下了痕跡 ✓':(done>0?'今天已經動了一下':'今天還有習慣沒靠近');
     var dirS=allDone?'有做，就算。':done>0?'動了就算，繼續就好。':'還沒開始也行，現在也可以。';
     H+='<div class="direction-bar"><div class="direction-q">'+dirQ+'</div><div class="direction-status">'+dirS+'</div></div>';
     /* ── 晚間未打卡提示 ── */
@@ -1130,8 +1130,24 @@ function rH(){
     if(!allMax){
       H+='<button onclick="triggerBadDay()" id="bad-day-btn" style="width:100%;padding:10px 14px;border-radius:10px;border:1.5px dashed var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:6px">😮‍💨 今天有點撐——換個方式繼續</button>';
     }
+    /* ── v1.41 低能量模式：done=0 且已進入下午，只推第一個習慣 ── */
+    var nowH=new Date().getHours();
+    var lowEnergy=done===0&&(nowH>=15||localStorage.getItem('bad-day-'+ds(new Date()))==='1');
+    if(lowEnergy&&d.h.length>0){
+      var fh=d.h[0]; /* 只推第一個習慣 */
+      H+='<div style="margin:14px 0 6px;padding:16px;border-radius:14px;background:var(--pbg);border:1px solid var(--border)">';
+      H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;letter-spacing:.05em">今天就這一個</div>';
+      H+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
+      H+='<span style="font-size:22px">'+fh.i+'</span>';
+      H+='<div><div style="font-size:14px;font-weight:600;color:var(--text)">'+e(fh.n)+'</div>';
+      H+='<div style="font-size:11px;color:var(--sub);margin-top:2px">今日的1：'+fh.v1+' '+fh.u+' 就夠了</div></div>';
+      H+='</div>';
+      H+='<button onclick="ck(\''+fh.id+'\',1)" style="width:100%;padding:12px;border-radius:10px;border:none;background:var(--primary);color:#fff;font-size:14px;font-weight:700;cursor:pointer;font-family:sans-serif">有動，就算 ✓</button>';
+      H+='<div style="text-align:center;margin-top:10px;font-size:11px;color:var(--muted)">其他習慣也在下面，你想的話</div>';
+      H+='</div>';
+    }
     H+='<div class="sec" style="margin-top:14px">今日習慣</div>';
-    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">今天 '+done+'/'+d.h.length+' 件，動了就算</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
+    H+='<div class="pw"><div style="flex:1"><div style="font-size:11px;color:var(--sub);margin-bottom:4px">'+(done===0?'還沒開始，現在也可以':'今天 '+done+'/'+d.h.length+' 件，有動就算')+'</div><div class="pbg"><div class="pf" style="width:'+pct+'%"></div></div></div><span style="font-size:15px;font-weight:700;color:var(--primary);margin-left:10px">'+pct+'%</span></div>';
     d.h.forEach(function(hb){
       var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#c4763a',src=fsrc(m,hb.id);
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
@@ -1139,7 +1155,7 @@ function rH(){
       if(src)H+='<span class="hsrc" style="background:'+col+'20;color:'+col+'">'+e(src)+'</span>';
       var cb=comebackCount(d.l,hb.id);
       var mb=monthBackCount(d.l,hb.id);
-      if(st>=3){H+='<span class="hsk">🔥'+st+'天</span>';}
+      if(st>=3){H+='<span class="hsk">🌱'+st+'天</span>';}
       else if(mb>0){H+='<span class="hsk" style="background:var(--pbg);color:var(--primary)">本月回來 '+mb+' 天</span>';}
       else if(st>0){H+='<span class="hsk">🔥'+st+'天</span>';}
       H+='<button class="hd" onclick="dH(\''+hb.id+'\')">✕</button>';
@@ -1549,7 +1565,7 @@ function rC(){
     var calCB=d.h.reduce(function(s,h){return s+comebackCount(d.l,h.id);},0);
     var cbCalTxt=calCB>0?'，回來了 '+calCB+' 次':'';
     H+='<div class="cal29-quote-t">本月有動過 '+mDoneDays+' 天'+cbCalTxt;
-    if(maxStreakAll>0)H+=' · 連續 '+maxStreakAll+' 天';
+    if(maxStreakAll>0)H+=' · 最長 '+maxStreakAll+' 天';
     H+='</div>';
     var sub='';
     if(stuckRange&&maxStreakAll>=2){
@@ -1718,14 +1734,9 @@ function rSt(){
 
   /* === Hero 大數字 === */
   H+='<div class="stat29-hero">';
-  H+='<div class="stat29-hero-label">近 30 天達成</div>';
-  H+='<div><span class="stat29-hero-num">'+doneRate+'</span><span class="stat29-hero-unit">%</span></div>';
-  if(prevChecks>0){
-    var deltaStr=(deltaRate>=0?'+':'')+deltaRate;
-    H+='<div class="stat29-hero-sub">比上個月 <b>'+deltaStr+'%</b></div>';
-  }else{
-    H+='<div class="stat29-hero-sub">每次回來都算，繼續累積就好</div>';
-  }
+  H+='<div class="stat29-hero-label">這個月，你回來了</div>';
+  H+='<div><span class="stat29-hero-num">'+checkInDays30+'</span><span class="stat29-hero-unit"> 天</span></div>';
+  H+='<div class="stat29-hero-sub">有留下痕跡，就算前進</div>';
   H+='</div>';
 
   /* === 4 KPI === */
@@ -1734,7 +1745,7 @@ function rSt(){
   var totalCB=d.h.reduce(function(s,h){return s+comebackCount(d.l,h.id);},0);
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c4763a">'+checkInDays30+'</div><div class="stat29-kpi-lbl">有動過 · 天</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#d97757">'+totalCB+'</div><div class="stat29-kpi-lbl">重新回來 · 次</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">目前連續 · 天</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">最長記錄 · 天</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">完成次數</div></div>';
   H+='</div>';
 
@@ -1803,7 +1814,7 @@ function rSt(){
     H+='<div class="stat29-row-n">'+e(hb.n)+'</div>';
     var hcb=comebackCount(d.l,hb.id);
     var cbTxt=hcb>0?' · 回來 '+hcb+' 次':'';
-    H+='<div class="stat29-row-s">共 '+stats.total+' 次 · 🔥 連續 '+curStr+' 天'+cbTxt+'</div>';
+    H+='<div class="stat29-row-s">共 '+stats.total+' 次 · 回來 '+curStr+' 天'+cbTxt+'</div>';
     H+='</div>';
     H+='<div class="stat29-row-pct" style="color:'+col+'">'+stats.rate+'%</div>';
     H+='</div>';
@@ -1933,7 +1944,7 @@ function rS(){
     H+='<div style="background:#fef3c7;border-radius:10px;padding:12px 14px;margin-top:8px;border:1px solid #fde68a">';
     H+='<div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:4px">⚠️ Safari 快取自動清除說明</div>';
     H+='<div style="font-size:12px;color:#92400e;line-height:1.7">';
-    H+='iOS Safari 若 <b>連續 7 天</b>未開啟本 App，會自動清除離線快取。<br>';
+    H+='iOS Safari 若 <b>超過 7 天</b>未開啟本 App，會自動清除離線快取。<br>';
     H+='建議：設定每日提醒通知，或定期使用「<b>匯出 JSON 備份</b>」保存資料。</div></div>';
   }else if(isAndroid()){
     H+='<div style="background:var(--pbg);border-radius:10px;padding:14px;margin-bottom:9px;border:1px solid var(--plight)">';
@@ -2028,7 +2039,7 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.40</div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.41</div>';
   H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
@@ -2527,15 +2538,15 @@ function checkMilestone(hid,streak){
   var today=new Date();
   document.getElementById('ms-date').textContent=today.getFullYear()+'.'+p2(today.getMonth()+1)+'.'+p2(today.getDate());
   document.getElementById('ms-num').textContent=streak;
-  var capMap={7:'連續一週',14:'連續兩週',30:'連續一個月',66:'習慣內化',100:'一百天'};
+  var capMap={7:'回來七次了',14:'兩週，你都在',30:'這個月，你留下了',66:'六十六天的痕跡',100:'一百天，你沒有消失'};
   /* v1.40 回來里程碑也顯示鼓勵 */
   document.getElementById('ms-cap').textContent=capMap[streak]||('連續 '+streak+' 天');
   var quoteMap={
-    7:'七天不是結束、是開始。<br>你證明了可以。',
+    7:'七天裡，你一次次選擇回來。<br>這不是小事。',
     14:'兩週 · 兩個週末。<br>你都選擇了回來。',
     30:'30 天不只是 30 個 ✓<br>是 30 次選擇<br>繼續是更好的自己',
-    66:'科學說 66 天能養成習慣。<br>你做到了。',
-    100:'一百天。<br>你不是在做這件事，<br>你是這件事了。'
+    66:'六十六天，哪怕有幾天很亂，<br>你還是沒有完全消失。',
+    100:'一百天裡，<br>你沒有放棄每一次重新開始。'
   };
   document.getElementById('ms-quote').innerHTML=quoteMap[streak]||quoteMap[7];
   document.getElementById('ms-quote-src').textContent=hb?('— @我的習慣 · '+hb.n):'— 漫打卡';
@@ -2552,8 +2563,8 @@ function shareMilestone(){
   var streak=document.getElementById('ms-num').textContent;
   if(navigator.share){
     navigator.share({
-      title:'漫打卡 · 連續 '+streak+' 天',
-      text:'我在「漫打卡」連續打卡 '+streak+' 天了 ✨',
+      title:'漫打卡 · 我回來了 '+streak+' 次',
+      text:'在「漫打卡」，我已經回來 '+streak+' 次了 ✨',
       url:window.location.href
     }).catch(function(){toast('長按海報可以保存到相簿');});
   }else{
@@ -2933,8 +2944,8 @@ function obDone(){
     var now=Date.now();
     d.h=[
       {id:'h'+now+'1',n:'給自己充電',i:'📖',u:'分鐘',v1:10,v2:20,v3:40,col:'#c4763a'},
-      {id:'h'+now+'2',n:'走出去',i:'🚶',u:'分鐘',v1:10,v2:20,v3:40,col:'#d97757'},
-      {id:'h'+now+'3',n:'睡前感謝',i:'🙏',u:'件事',v1:1,v2:3,v3:5,col:'#87a878'}
+      {id:'h'+now+'2',n:'動起來',i:'🚶',u:'分鐘',v1:10,v2:20,v3:40,col:'#d97757'},
+      {id:'h'+now+'3',n:'感恩',i:'🙏',u:'件事',v1:1,v2:3,v3:5,col:'#87a878'}
     ];
     sv(d);
   }
@@ -2949,7 +2960,7 @@ function obDone(){
 /* ── v1.33 社群分享卡片 ── */
 var SHARE_QUOTES=[
   '我今天沒有完美，但我有繼續。',
-  '不用 5AM，也能靠近目標。',
+  '有留下一點痕跡，就算。',
   '今日的1，也是前進。',
   '不是重來，是繼續。'
 ];
