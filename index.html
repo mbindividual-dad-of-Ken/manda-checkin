@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.41 | 2026-05-25 | 低能量模式＋品牌人格修正 -->
+<!-- 漫打卡 v1.42 | 2026-05-25 | 品牌人格深度修正＋關於頁重寫 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -578,7 +578,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
           <div class="share-poster-data-d"></div>
           <div class="share-poster-data-item">
             <div class="share-poster-data-n" id="ms-data3">7</div>
-            <div class="share-poster-data-l" id="ms-data3-l">全力以赴</div>
+            <div class="share-poster-data-l" id="ms-data3-l">多走一步</div>
           </div>
         </div>
         <div class="share-poster-watermark">MANDA · 漫打卡</div>
@@ -1165,7 +1165,7 @@ function rH(){
         H+='<div style="font-size:11px;color:var(--sub);margin:6px 0 2px;text-align:center">👆 點擊下方按鈕打卡</div>';
       }
       H+='<div class="lg">';
-      [{lv:1,n:'今日的1'},{lv:2,n:'穩定前進'},{lv:3,n:'全力以赴'}].forEach(function(x){
+      [{lv:1,n:'今日的1'},{lv:2,n:'穩定前進'},{lv:3,n:'多走一步'}].forEach(function(x){
         var ac=lvl>=x.lv,fd=lvl>x.lv;
         var bg=ac?col+(x.lv===1?'22':x.lv===2?'44':'66'):'var(--card)';
         var bc2=ac?col:'var(--border)';
@@ -1323,7 +1323,7 @@ function tLv(hid,lv){
     /* 震動回饋 */
     if('vibrate' in navigator && typeof navigator.vibrate === 'function'){
       try{
-        var vibes=[50,100,200]; // 今日的1/穩定前進/全力以赴對應不同震動強度
+        var vibes=[50,100,200]; // 今日的1/穩定前進/多走一步對應不同震動強度
         navigator.vibrate(vibes[newLv-1]);
       }catch(e){
         console.log('Vibration not supported or blocked');
@@ -1334,7 +1334,7 @@ function tLv(hid,lv){
     v29Burst(btn,newLv);
     
     /* 即時成就提示 */
-    var levelNames=['','今日的1','穩定前進','全力以赴'];
+    var levelNames=['','今日的1','穩定前進','多走一步'];
     var levelEmojis=['','✨','🔥','💎'];
     var achieveText=levelEmojis[newLv]+' '+levelNames[newLv]+' 完成！';
     showInstantFeedback(achieveText,newLv);
@@ -1355,9 +1355,9 @@ function tLv(hid,lv){
     }else if(newLv===1){
       personalMsg='今日的1，就是今天最重要的事。做到了。';
     }else if(newLv===3&&curStreak>=7){
-      personalMsg='全力以赴！'+curStreak+'天了——這不是意志力，是你把系統做對了。';
+      personalMsg='多走一步！'+curStreak+'天了——這不是意志力，是你把系統做對了。';
     }else if(newLv===3){
-      personalMsg='全力以赴！你今天選擇了最好的自己。';
+      personalMsg='多走一步！你今天選擇了最好的自己。';
     }else{
       personalMsg='穩定前進，比偶爾爆發更有力量。';
     }
@@ -1507,8 +1507,8 @@ function dCell(ci){var d=ld();d.m.cells[ci]={t:'',c:'',hid:''};d.m.subs[ci]={cel
 function oSub(ci,sci){
   var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
-  var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+h.i+' '+h.n+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 全力以赴:'+h.v3+' '+h.u+'</option>';}).join('');
-  var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/全力以赴 打卡。</div>';
+  var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+h.i+' '+h.n+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+h.u+'</option>';}).join('');
+  var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/多走一步 打卡。</div>';
   om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」的具體行動</div><label class="ml">行動描述</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：每天重量訓練 30 分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
 }
 function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,hid:hid};sv(d);cm();rH();}
@@ -1679,7 +1679,7 @@ function rC(){
   if(!d.h.length)H+='<div style="font-size:13px;color:var(--muted)">尚無習慣</div>';
   else d.h.forEach(function(hb){
     var lv=sl[hb.id]||0,col=hb.col||'#c4763a';
-    var b=lv===0?'<span style="font-size:11px;color:var(--muted)">未完成</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'全力以赴')+'</span>';
+    var b=lv===0?'<span style="font-size:11px;color:var(--muted)">未完成</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'多走一步')+'</span>';
     H+='<div class="cdr"><span style="font-size:13px;color:var(--text)">'+hb.i+' '+e(hb.n)+'</span>'+b+'</div>';
   });
   H+='</div><div style="height:20px"></div>';
@@ -1752,7 +1752,7 @@ function rSt(){
   /* === 等級分布 === */
   H+='<div class="sec">完成等級分布</div>';
   H+='<div class="stat-card">';
-  var levelNames=['今日的1','穩定前進','全力以赴'];
+  var levelNames=['今日的1','穩定前進','多走一步'];
   var levelCols=['#c4763a','#d97757','#7a4a1a'];
   var totalLv=levelCount[0]+levelCount[1]+levelCount[2];
   for(var lv=0;lv<3;lv++){
@@ -1829,7 +1829,7 @@ function rSt(){
     H+='<div class="stat-card">';
     H+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
     H+='<span style="font-size:20px">'+hb.i+'</span>';
-    H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 全力以赴 '+hb.v3+' '+hb.u+'</div></div>';
+    H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 多走一步 '+hb.v3+' '+hb.u+'</div></div>';
     H+='</div>';
     H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">目前連續</div></div>';
@@ -1844,7 +1844,7 @@ function rSt(){
       var dd=new Date(c30b);dd.setDate(c30b.getDate()-ii);
       var lv=(d.l[ds(dd)]||{})[hb.id]||0;
       var bg=lv===0?'var(--border)':lv===1?col+'55':lv===2?col+'99':col;
-      H+='<div class="mh-cell" style="background:'+bg+'" title="'+ds(dd)+(lv>0?' ('+(lv===1?'今日的1':lv===2?'穩定前進':'全力以赴')+')':'')+'"></div>';
+      H+='<div class="mh-cell" style="background:'+bg+'" title="'+ds(dd)+(lv>0?' ('+(lv===1?'今日的1':lv===2?'穩定前進':'多走一步')+')':'')+'"></div>';
     }
     H+='</div>';
     H+='</div>';
@@ -1898,7 +1898,7 @@ function rA(){
   H+='<div class="sec">顏色</div><div class="cg" id="acg">'+cs+'</div>';
   H+='<div class="sec">三層彈性等級</div>';
   H+='<div style="background:var(--pbg);border-radius:9px;padding:10px 12px;margin-bottom:11px;border-left:4px solid var(--primary);font-size:12px;color:var(--primary);line-height:1.7">最累的那天，今日的1就是今天的全部。<br>選你今天做得到的，不是應該做到的。</div>';
-  [['今日的1','#c4763a'],['穩定前進','#2563eb'],['全力以赴','#059669']].forEach(function(lv,i){
+  [['今日的1','#c4763a'],['穩定前進','#2563eb'],['多走一步','#059669']].forEach(function(lv,i){
     H+='<div class="lrow"><div style="font-size:12px;font-weight:700;color:'+lv[1]+'">'+lv[0]+'</div><input type="number" class="fi" id="av'+(i+1)+'" placeholder="數量" min="1" style="margin-bottom:0"/><div style="font-size:12px;color:var(--muted)" id="au'+(i+1)+'">-</div></div>';
   });
   H+='<button class="sv" onclick="svH()">儲存習慣</button><div style="height:30px"></div>';
@@ -1983,7 +1983,7 @@ function rS(){
   H+='<div class="sec">習慣清單（'+d.h.length+'）</div><div class="sblk">';
   if(!d.h.length)H+='<div style="padding:12px 0;font-size:12px;color:var(--muted)">尚無習慣</div>';
   d.h.forEach(function(hb){
-    H+='<div class="srow"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:'+(hb.col||'#c4763a')+'"></div><div><div class="slb">'+hb.i+' '+e(hb.n)+'</div><div class="ssub">今日的1:'+hb.v1+' 穩定前進:'+hb.v2+' 全力以赴:'+hb.v3+' '+hb.u+'</div></div></div>';
+    H+='<div class="srow"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:'+(hb.col||'#c4763a')+'"></div><div><div class="slb">'+hb.i+' '+e(hb.n)+'</div><div class="ssub">今日的1:'+hb.v1+' 穩定前進:'+hb.v2+' 多走一步:'+hb.v3+' '+hb.u+'</div></div></div>';
     H+='<button onclick="dHS(\''+hb.id+'\')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✕</button></div>';
   });
   H+='</div>';
@@ -2039,17 +2039,17 @@ function rS(){
   H+='<div style="background:var(--pbg);border-radius:12px;padding:16px;border:1px solid var(--plight)">';
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
-  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.41</div>';
-  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-24 · by 謙謙爸</div></div></div>';
+  H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.42</div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-25 · by 謙謙爸</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
-  H+='漫打卡建立在三個核心支柱之上：<br><br>';
-  H+='<b>🟣 第一支柱：曼陀羅九宮格（OW64）</b><br>';
-  H+='源自大谷翔平的圓夢計畫——把核心目標拆解為 8 個行動領域，再各自展開 8 個具體行動，合計 64 格行動清單。目標不再只是夢想，而是每天可執行的地圖。<br><br>';
-  H+='<b>🔵 第二支柱：彈性三級制</b><br>';
-  H+='今日的1 / 穩定前進 / 全力以赴——不強迫你每天最佳狀態，只要不斷鏈，你就贏了。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
-  H+='<b>🎯 第三支柱：人生平衡輪</b><br>';
-  H+='人生像一個輪子，8 個維度決定是否穩定前進：<span style="color:var(--primary)">事業・財務・健康・關係・成長・娛樂・環境・靈性</span>。先診斷找出凹陷處，再用九宮格聚焦改善——從戰略診斷到戰術執行的完美閉環。</div>';
+  H+='漫打卡建立在三件事上：<br><br>';
+  H+='<b>🟣 曼陀羅九宮格（OW64）</b><br>';
+  H+='有些目標太大的時候，人會連開始都覺得累。九宮格的存在，不是為了把人生規劃得更完美，而是把那些「不知道怎麼開始」的願望，慢慢拆成今天走得到的一小步。<br><br>';
+  H+='<b>🔵 彈性三級制</b><br>';
+  H+='今日的1 / 穩定前進 / 多走一步——有力氣的日子，可以多做一些。沒力氣的日子，也可以把目標縮到很小很小。重要的不是每天都很厲害，而是狀態亂掉的時候，你還願意留下來。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
+  H+='<b>🎯 人生平衡輪</b><br>';
+  H+='有時候卡住，不一定是因為不努力。可能只是生活的某個角落，已經默默失衡很久了。健康、關係、工作、情緒⋯⋯先找到現在最需要被照顧的地方，再慢慢往前就好。<span style="color:var(--primary)">事業・財務・健康・關係・成長・娛樂・環境・靈性</span></div>';
   H+='<div style="display:flex;flex-wrap:wrap;gap:6px">';
   H+='<span style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--card);color:var(--sub);border:1px solid var(--border)">📖 原著《彈性習慣》Stephen Guise</span>';
   H+='<span onclick="showBalanceWheel()" style="font-size:11px;padding:5px 11px;border-radius:20px;background:var(--primary)20;color:var(--primary);cursor:pointer;border:1px solid var(--primary);font-weight:700">🎯 平衡輪診斷</span>';
@@ -2058,31 +2058,31 @@ function rS(){
   H+='<div style="background:var(--card);border-radius:12px;padding:16px;margin-top:10px;border:1px solid var(--border)">';
   H+='<div style="font-size:13px;font-weight:700;color:var(--primary);margin-bottom:10px">📝 漫談手記</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:2">';
-  H+='我是謙謙爸。我沒看過凌晨四點的洛杉磯，但我看過無數個天還沒亮的凌晨。<br>';
-  H+='在那些偷來的 me time 裡，我看著謙謙的睡臉，把那些模糊的生活願景，一筆一畫寫成了這款 App。<br>';
-  H+='這不是什麼改變世界的發明，這只是一個父親在現實與夢想的縫隙中，為自己、也為像你一樣的普通人，親手打造的一張安全網。<br><br>';
+  H+='我是謙謙爸。<br><br>';
+  H+='我沒看過凌晨四點的洛杉磯，但我很熟悉那些天還沒亮、只剩自己醒著的時刻。<br><br>';
+  H+='有了孩子之後，時間變得很碎。很多想做的事，不是不重要了，只是很難再像以前那樣衝刺。<br><br>';
+  H+='所以我開始想：有沒有一種方式，不是逼自己變得更厲害，而是即使狀態不好，也還能慢慢往前？<br><br>';
+  H+='後來，「漫打卡」就慢慢長出來了。它不是什麼改變人生的工具。比較像是一個地方——讓人累的時候，還能安心地留下一點點痕跡。<br><br>';
   
-  H+='<b>你是否也曾在「自我提升」的路上摔得鼻青臉腫？</b><br><br>';
+  H+='<b>你可能也有過這種時候：</b><br><br>';
   
-  H+='我們都試過在 Notion 建一張漂亮的表格，或讀完《原子習慣》後下載各種打卡 App。但在連勝 20 幾天後，只要一次加班、一場感冒、一個疲憊的深夜，那條斷掉的線就會冷冰冰地宣告：<b style="color:var(--danger)">你失敗了</b>。<br><br>';
-  
-  H+='於是，那個 App 就永遠停在通知欄裡，成了心底另一份罪惡感的來源。<br><br>';
+  H+='下載了新的習慣 App、整理了 Notion、認真規劃過新的開始。前幾天很有動力。但某一次加班、生病，或只是太累了——原本的節奏就斷掉了。<br><br>';
+  H+='然後，那個 App 會一直停在手機裡。每次看到，都有一點說不上來的壓力。<br><br>';
+  H+='很多系統都很會陪你開始。但比較少有人在你掉下來的時候，還願意等你回來。<br><br>';
   
   H+='<b>這不是你的錯，是系統的問題。</b><br>';
-  H+='那些系統只允許你成功，卻不允許你疲憊。它們要求你像機器一樣精準，卻忘了你是個有血有肉、會累也會倒下的普通人。<br><br>';
+  H+='那些系統只允許你成功，卻不允許你疲憊。<br><br>';
   
-  H+='<b>我把四個救命稻草，織成了「漫打卡」的答案：</b><br><br>';
+  H+='後來，我慢慢整理出幾個對自己有幫助的方向：<br><br>';
   
-  H+='<span style="color:var(--primary)">① 方向導航</span>：拒絕盲目努力。先想好你想成為誰，再回推今天該往哪走。<br>';
-  H+='<span style="color:var(--primary)">② 平衡診斷</span>：別讓生活翻車。事業、健康、關係⋯⋯8 個維度都要兼顧，輪子才轉得動。<br>';
-  H+='<span style="color:var(--primary)">③ 目標拆解</span>：夢想太大會嚇死人。拆成每天踩一格的小確幸，目標是用來踩的，不是用來仰望的。<br>';
-  H+='<span style="color:var(--primary)">④ 彈性韌性</span>：這是最重要的核心。它允許你在狀態差的日子「微縮」目標。就像一根橡皮筋，縮到極限是為了彈回，而不是斷裂。<br><br>';
+  H+='<span style="color:var(--primary)">① 先找到方向</span>：有時候不是不努力，只是太累了，很難知道現在到底該往哪裡走。<br>';
+  H+='<span style="color:var(--primary)">② 先顧好快失衡的地方</span>：工作、健康、關係、情緒⋯⋯有些地方如果撐太久，人會慢慢轉不動。<br>';
+  H+='<span style="color:var(--primary)">③ 把目標縮小</span>：太大的目標，很容易讓人連開始都害怕。但如果今天只需要踩一小格，好像就比較做得到。<br>';
+  H+='<span style="color:var(--primary)">④ 允許自己狀態不好</span>：這可能是最重要的一件事。有些日子，你真的只能做到很小很小。但那不代表你失敗了。有留下痕跡，就很好了。<br><br>';
   
-  H+='<b style="color:var(--primary)">「漫打卡」想告訴你的是：</b><br>';
-  H+='用平衡輪找出缺口，用九宮格定下座標。然後，允許自己今天只走一小步。<br>';
-  H+='只要你有踏出那一格，無論大小，你就是贏了。<br><br>';
+  H+='只要今天還願意留下哪怕一小格，就已經很不容易了。<br><br>';
   
-  H+='<b>這一次，我們不求快，求的是「一直在路上」。</b><br><br>';
+  H+='<b>這一次，不用走很快。能慢慢留在路上，就很好了。</b><br><br>';
   
   H+='你不用一次改變人生。你只需要，今天再踩一小格就好。</div>';
   H+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
@@ -2130,7 +2130,7 @@ function expCSV(){
     var row=[date];
     d.h.forEach(function(hb){
       var lv=(d.l[date]||{})[hb.id]||0;
-      row.push(lv===0?'':lv===1?'今日的1':lv===2?'穩定前進':'全力以赴');
+      row.push(lv===0?'':lv===1?'今日的1':lv===2?'穩定前進':'多走一步');
     });
     rows.push(row);
   });
@@ -2177,7 +2177,7 @@ function bindRipples(){
 /* ── GA4：自訂事件追蹤 ── */
 function trackHabit(hid,lv,habitName){
   if(typeof gtag==='undefined')return;
-  var lvName=lv===1?'今日的1':lv===2?'穩定前進':'全力以赴';
+  var lvName=lv===1?'今日的1':lv===2?'穩定前進':'多走一步';
   gtag('event','habit_complete',{
     habit_id:hid,
     habit_name:habitName||hid,
@@ -2204,7 +2204,7 @@ function v29Burst(el,level){
   var cfg={
     1:{particles:8,rings:1,size:5,dist:50,colors:['#c4763a','#e3a774','#f3cb8a'],text:'今日的1 ✨',textSize:14},
     2:{particles:14,rings:1,size:6,dist:65,colors:['#c4763a','#d97757','#e3a774','#f3cb8a','#fbbf24'],text:'穩定前進 🔥',textSize:15},
-    3:{particles:22,rings:2,size:7,dist:90,colors:['#c4763a','#d97757','#e3a774','#f3cb8a','#fbbf24','#87a878'],text:'全力以赴 💎',textSize:17}
+    3:{particles:22,rings:2,size:7,dist:90,colors:['#c4763a','#d97757','#e3a774','#f3cb8a','#fbbf24','#87a878'],text:'多走一步 💎',textSize:17}
   }[level];
   /* 中央光球 */
   var orb=document.createElement('div');
@@ -2911,7 +2911,7 @@ function obStep(step){
           '</div>'+
           '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;border:1px solid rgba(255,255,255,.08)">'+
             '<span style="font-size:18px">💎</span>'+
-            '<div><div style="font-size:13px;font-weight:700;color:#F9FAFB">全力以赴</div><div style="font-size:11px;color:#9CA3AF;margin-top:2px">狀態好時，盡情衝吧</div></div>'+
+            '<div><div style="font-size:13px;font-weight:700;color:#F9FAFB">多走一步</div><div style="font-size:11px;color:#9CA3AF;margin-top:2px">狀態好時，盡情衝吧</div></div>'+
           '</div>'+
         '</div>'+
       '</div>'+
