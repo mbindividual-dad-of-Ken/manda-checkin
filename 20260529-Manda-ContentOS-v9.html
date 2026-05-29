@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Manda Content OS｜內容作業系統</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f2ede6;--card:#fffdf9;--border:#e4ddd3;
+  --text:#2a2118;--sub:#7a6a58;--muted:#b8a890;
+  --primary:#c4763a;--pbg:#fdf0e6;--plight:#f5d5b0;
+  --shadow:0 10px 28px rgba(42,33,24,.08);
+  --col-idea:#9c7aa6;--col-draft:#b68a55;--col-visual:#8d9db6;--col-sched:#c4763a;--col-pub:#7a8f68;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:linear-gradient(180deg,#f2ede6 0%,#fbf8f2 100%);color:var(--text);font-family:"Noto Sans TC",-apple-system,sans-serif;line-height:1.6;min-height:100vh}
+.wrap{max-width:1280px;margin:0 auto;padding:20px 16px 60px}
+
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);flex-shrink:0}
+.brand-name{font-family:"Noto Serif TC",serif;font-size:20px;font-weight:700;letter-spacing:.02em}
+.brand-tag{font-size:11px;color:var(--muted);letter-spacing:.1em}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.view-toggle{display:flex;gap:4px;background:rgba(255,253,249,.9);border:1px solid var(--border);border-radius:14px;padding:4px}
+.vbtn{border:none;background:transparent;border-radius:10px;padding:7px 14px;font-size:13px;font-weight:700;color:var(--sub);cursor:pointer;transition:.15s;font-family:"Noto Sans TC",sans-serif}
+.vbtn.active{background:var(--primary);color:#fff}
+.sync-group{display:flex;gap:5px}
+.sync-btn{border:1px solid var(--border);background:rgba(255,253,249,.9);border-radius:11px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--sub);cursor:pointer;font-family:"Noto Sans TC",sans-serif;transition:.15s;display:flex;align-items:center;gap:5px;white-space:nowrap}
+.sync-btn:hover{border-color:var(--primary);color:var(--primary)}
+.sync-btn.push{background:var(--primary);color:#fff;border-color:var(--primary)}
+.sync-btn.push:hover{background:#b36830}
+.sync-dot{width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0}
+.sync-dot.ok{background:#7a8f68}.sync-dot.err{background:#c4503a}
+.sync-dot.ing{background:#c4763a;animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+.sync-status{font-size:10px;color:var(--muted);text-align:right;margin-bottom:14px;min-height:14px}
+
+/* DASHBOARD */
+.dashboard{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:18px}
+.panel{background:rgba(255,253,249,.95);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow);padding:20px}
+.kicker{font-size:11px;letter-spacing:.16em;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:6px}
+h1{font-family:"Noto Serif TC",serif;font-size:26px;line-height:1.3;margin:0 0 6px;letter-spacing:.02em}
+.dsub{color:var(--sub);font-size:13px}
+.progress-wrap{height:8px;background:#e9dfd2;border-radius:999px;overflow:hidden;margin-top:14px}
+.progress{height:100%;background:linear-gradient(90deg,#d9a06a,#c4763a);width:0%;transition:width .3s ease}
+.pnote{font-size:11px;color:var(--muted);margin-top:8px}
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.stat{padding:12px 6px;border-radius:16px;background:var(--pbg);border:1px solid var(--plight);text-align:center}
+.stat b{display:block;font-size:22px;line-height:1.1;font-family:"Noto Serif TC",serif}
+.stat span{font-size:10px;color:var(--sub);display:block;margin-top:2px}
+.stat.s-idea b{color:var(--col-idea)}.stat.s-draft b{color:var(--col-draft)}
+.stat.s-visual b{color:var(--col-visual)}.stat.s-sched b{color:var(--col-sched)}.stat.s-pub b{color:var(--col-pub)}
+
+/* EMOTION */
+.emotion-panel{margin-bottom:18px}
+.emotion-panel .panel{padding:16px 20px}
+.emo-title{font-size:12px;font-weight:700;color:var(--sub);letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+.emo-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.emo-item{display:flex;flex-direction:column;gap:4px}
+.emo-label{font-size:11px;color:var(--sub)}
+.emo-bar-wrap{height:6px;background:#e9dfd2;border-radius:999px;overflow:hidden}
+.emo-bar{height:100%;border-radius:999px;transition:width .3s ease}
+.emo-pct{font-size:10px;color:var(--muted);text-align:right}
+.emo-bar.e0{background:#c4763a}.emo-bar.e1{background:#9c7aa6}
+.emo-bar.e2{background:#be6a7d}.emo-bar.e3{background:#7a8f68}.emo-bar.e4{background:#8d9db6}
+
+/* TOOLBAR */
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+.toolbar input,.toolbar select{border:1px solid var(--border);background:rgba(255,253,249,.95);border-radius:12px;padding:9px 12px;color:var(--text);font-size:13px;outline:none;font-family:"Noto Sans TC",sans-serif}
+.toolbar input{flex:1;min-width:140px}
+.tbtn{border:0;background:var(--primary);color:#fff;border-radius:12px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:13px;font-family:"Noto Sans TC",sans-serif;white-space:nowrap}
+.tbtn.sec{background:rgba(255,253,249,.95);color:var(--sub);border:1px solid var(--border)}
+.tbtn.add{background:#7a8f68;color:#fff;border:none}
+
+/* KANBAN */
+.kanban{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;align-items:start}
+.kb-col{background:rgba(255,253,249,.7);border:1px solid var(--border);border-radius:18px;padding:12px;min-height:120px}
+.kb-col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.kb-col-name{font-size:12px;font-weight:700;color:var(--sub)}
+.kb-count{font-size:11px;background:var(--pbg);color:var(--primary);border-radius:999px;padding:1px 8px;border:1px solid var(--plight)}
+.kb-card{background:rgba(255,253,249,.98);border:1px solid var(--border);border-radius:14px;padding:11px 12px;margin-bottom:8px;cursor:pointer;transition:.15s}
+.kb-card:hover{box-shadow:0 4px 14px rgba(42,33,24,.1);transform:translateY(-1px)}
+.kb-card.idea{border-left:3px solid var(--col-idea)}.kb-card.draft{border-left:3px solid var(--col-draft)}
+.kb-card.visual{border-left:3px solid var(--col-visual)}.kb-card.sched{border-left:3px solid var(--col-sched)}
+.kb-card.pub{border-left:3px solid var(--col-pub);opacity:.8}
+.kb-num{font-size:10px;color:var(--muted);font-weight:700;margin-bottom:4px}
+.kb-text{font-family:"Noto Serif TC",serif;font-size:13px;line-height:1.5;color:var(--text);margin-bottom:6px}
+.kb-foot{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:wrap}
+.kb-plat{font-size:10px;background:#f0ece6;color:var(--sub);border-radius:999px;padding:2px 7px}
+.kb-emos{display:flex;gap:3px;flex-wrap:wrap}
+.kb-emo{font-size:9px;background:var(--pbg);color:var(--primary);border-radius:999px;padding:1px 5px}
+.kb-date{font-size:10px;color:var(--muted)}
+.kb-empty{text-align:center;padding:16px 8px;color:var(--muted);font-size:12px;border:1px dashed var(--border);border-radius:12px}
+
+/* LIST VIEW */
+.list-view{display:none}
+.list-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.card{background:rgba(255,253,249,.95);border:1px solid var(--border);border-radius:20px;box-shadow:var(--shadow);padding:16px;display:flex;flex-direction:column;gap:10px}
+.card.st-idea{border-left:5px solid var(--col-idea)}.card.st-draft{border-left:5px solid var(--col-draft)}
+.card.st-visual{border-left:5px solid var(--col-visual)}.card.st-sched{border-left:5px solid var(--col-sched)}
+.card.st-pub{border-left:5px solid var(--col-pub);opacity:.88}
+.topline{display:flex;justify-content:space-between;align-items:center}
+.cnum{font-size:11px;color:var(--muted);font-weight:700}
+.pill{font-size:10px;border-radius:999px;padding:3px 9px;background:var(--pbg);color:var(--primary);border:1px solid var(--plight)}
+.quote{font-family:"Noto Serif TC",serif;font-size:18px;line-height:1.55;letter-spacing:.01em}
+.meta{display:grid;gap:7px;margin-top:auto}
+.row{display:grid;grid-template-columns:56px 1fr;gap:6px;align-items:start}
+.row label{font-size:11px;color:var(--muted);padding-top:8px}
+.row select,.row input,.row textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:#fffaf4;padding:7px 9px;color:var(--text);font-size:12px;outline:none;font-family:"Noto Sans TC",sans-serif}
+.row textarea{min-height:44px;resize:vertical}
+.emo-row{display:flex;gap:5px;flex-wrap:wrap;padding:2px 0}
+.emo-chip{font-size:10px;border-radius:999px;padding:3px 9px;border:1px solid var(--border);background:#fffaf4;color:var(--sub);cursor:pointer;transition:.1s;font-family:"Noto Sans TC",sans-serif}
+.emo-chip.on{background:var(--pbg);color:var(--primary);border-color:var(--plight)}
+.actions{display:flex;gap:6px;margin-top:2px}
+.mini{flex:1;border:1px solid var(--border);background:#fffaf4;color:var(--sub);border-radius:10px;padding:7px 8px;font-size:11px;font-weight:700;cursor:pointer;font-family:"Noto Sans TC",sans-serif}
+.mini.pri{background:var(--primary);color:#fff;border-color:var(--primary)}
+
+/* MODAL共用 */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(42,33,24,.38);z-index:100;backdrop-filter:blur(4px);padding:16px;align-items:center;justify-content:center}
+.modal-bg.show{display:flex}
+.modal{background:#fffdf9;border-radius:22px;padding:24px;width:100%;max-width:460px;box-shadow:0 20px 60px rgba(42,33,24,.2);max-height:92vh;overflow-y:auto}
+.modal-kicker{font-size:11px;letter-spacing:.16em;color:var(--primary);font-weight:700;text-transform:uppercase;margin-bottom:6px}
+.modal-quote{font-family:"Noto Serif TC",serif;font-size:18px;line-height:1.55;margin:8px 0 14px;color:var(--text)}
+.modal-grid{display:grid;gap:10px}
+.mrow{display:grid;grid-template-columns:56px 1fr;gap:8px;align-items:start}
+.mrow label{font-size:12px;color:var(--muted);padding-top:8px}
+.mrow select,.mrow input,.mrow textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:#fffaf4;padding:8px 10px;color:var(--text);font-size:13px;outline:none;font-family:"Noto Sans TC",sans-serif}
+.mrow textarea{min-height:52px;resize:vertical}
+.mrow .emo-row{padding:2px 0}
+.modal-actions{display:flex;gap:8px;margin-top:16px;justify-content:flex-end;flex-wrap:wrap}
+.mbtn{border:0;border-radius:12px;padding:9px 16px;font-weight:700;cursor:pointer;font-size:13px;font-family:"Noto Sans TC",sans-serif}
+.mbtn.pri{background:var(--primary);color:#fff}
+.mbtn.sec{background:#f0ece6;color:var(--sub)}
+.mbtn.danger{background:#f0e8e6;color:#a03a2a}
+
+/* ADD MODAL 新增短句 */
+.add-modal{max-width:480px}
+.add-modal textarea{width:100%;border:1px solid var(--border);border-radius:12px;background:#fffaf4;padding:12px;color:var(--text);font-family:"Noto Serif TC",serif;font-size:16px;line-height:1.7;outline:none;resize:vertical;min-height:100px;margin:12px 0}
+.add-modal .hint{font-size:11px;color:var(--muted);margin-bottom:14px}
+
+/* SETUP MODAL */
+.setup-modal{max-width:500px}
+.setup-modal p{font-size:13px;color:var(--sub);line-height:1.7;margin:8px 0 14px}
+.setup-modal input{width:100%;border:1px solid var(--border);border-radius:12px;padding:10px 12px;font-size:13px;color:var(--text);outline:none;font-family:"Noto Sans TC",sans-serif;margin-bottom:12px}
+.step-box{font-size:12px;color:var(--muted);background:var(--pbg);border-radius:12px;padding:10px 14px;margin-bottom:14px;line-height:1.9}
+.step-box b{color:var(--primary)}
+.gas-test{font-size:11px;color:var(--muted);margin-top:6px;min-height:16px}
+.emo-mgr{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;min-height:32px}
+.emo-tag{display:flex;align-items:center;gap:4px;background:var(--pbg);border:1px solid var(--plight);border-radius:999px;padding:4px 10px;font-size:12px;color:var(--primary)}
+.emo-tag button{border:none;background:transparent;color:var(--muted);cursor:pointer;font-size:14px;line-height:1;padding:0 0 0 2px}
+.emo-tag button:hover{color:#c4503a}
+.emo-add-row{display:flex;gap:6px;margin-top:8px}
+.emo-add-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:13px;color:var(--text);outline:none;background:#fffaf4;font-family:"Noto Sans TC",sans-serif}
+.emo-hint{font-size:11px;color:var(--muted);margin-top:4px}
+.sec-title{font-size:11px;font-weight:700;color:var(--sub);letter-spacing:.08em;text-transform:uppercase;margin:16px 0 8px;padding-top:14px;border-top:1px solid var(--border)}
+
+/* TOAST */
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#2a2118;color:#fff;padding:10px 18px;border-radius:999px;font-size:13px;opacity:0;pointer-events:none;transition:.2s;z-index:300;white-space:nowrap}
+.toast.show{opacity:1}
+.footer{margin-top:28px;color:var(--muted);font-size:11px;text-align:center}
+.empty{display:none;text-align:center;color:var(--muted);padding:40px}
+
+/* RESPONSIVE */
+/* 1100px: 5欄→3欄，全部欄位顯示（捲動） */
+@media(max-width:1100px){
+  .kanban{grid-template-columns:repeat(3,1fr)}
+}
+/* 900px: dashboard 單欄 */
+@media(max-width:900px){
+  .dashboard{grid-template-columns:1fr}
+  .emo-grid{grid-template-columns:repeat(3,1fr)}
+}
+/* 800px: kanban 2欄 */
+@media(max-width:800px){
+  .kanban{grid-template-columns:repeat(2,1fr)}
+  .list-grid{grid-template-columns:1fr 1fr}
+}
+/* 620px: 手機 */
+@media(max-width:620px){
+  .kanban{grid-template-columns:1fr 1fr}
+  .header{flex-direction:column;align-items:flex-start}
+  .header-right{width:100%;justify-content:space-between}
+  .toolbar{position:sticky;top:0;background:rgba(242,237,230,.96);backdrop-filter:blur(10px);z-index:10;padding:10px 0}
+  .toolbar input{min-width:100px}
+  .list-grid{grid-template-columns:1fr}
+  .emo-grid{grid-template-columns:repeat(2,1fr)}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+}
+/* 420px: 極窄 */
+@media(max-width:420px){
+  .kanban{grid-template-columns:1fr}
+  .stats-grid{grid-template-columns:repeat(3,1fr)}
+  .sync-btn .btn-label{display:none}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="header">
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <div>
+      <div class="brand-name">Manda Content OS</div>
+      <div class="brand-tag">謙謙爸 · 內容作業系統</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="sync-group">
+      <button class="sync-btn" onclick="syncPull()" title="從雲端讀取">
+        <div class="sync-dot" id="syncDot"></div><span class="btn-label">☁ 讀取</span>
+      </button>
+      <button class="sync-btn push" onclick="syncPush()" title="推送到雲端">
+        <span class="btn-label">↑ 同步</span>
+      </button>
+      <button class="sync-btn" onclick="openSetup()" title="GAS 設定">⚙</button>
+    </div>
+    <div class="view-toggle">
+      <button class="vbtn active" data-view="kanban" onclick="setView('kanban')">看板</button>
+      <button class="vbtn" data-view="list" onclick="setView('list')">清單</button>
+    </div>
+  </div>
+</header>
+<div class="sync-status" id="syncStatus"></div>
+
+<section class="dashboard">
+  <div class="panel">
+    <div class="kicker">Content OS · Phase 1</div>
+    <h1>低能量時刻｜內容工廠</h1>
+    <p class="dsub" id="dashSub">從靈感到發布，一條線管理。</p>
+    <div class="progress-wrap"><div class="progress" id="progress"></div></div>
+    <div class="pnote" id="progressText">今天先整理到這裡就好。</div>
+  </div>
+  <div class="panel">
+    <div class="stats-grid">
+      <div class="stat s-idea"><b id="cIdea">0</b><span>💡 靈感</span></div>
+      <div class="stat s-draft"><b id="cDraft">0</b><span>📝 草稿</span></div>
+      <div class="stat s-visual"><b id="cVisual">0</b><span>🎨 待製圖</span></div>
+      <div class="stat s-sched"><b id="cSched">0</b><span>📅 待發布</span></div>
+      <div class="stat s-pub"><b id="cPub">0</b><span>🚀 已發布</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="emotion-panel">
+  <div class="panel">
+    <div class="emo-title">品牌情緒覆蓋率</div>
+    <div class="emo-grid" id="emoGrid">
+    </div>
+  </div>
+</section>
+
+<div class="toolbar">
+  <input id="search" placeholder="搜尋短句或備註…" oninput="render()" />
+  <select id="platFilter" onchange="render()">
+    <option value="all">全部平台</option>
+    <option value="Threads">Threads</option>
+    <option value="IG單張">IG 單張</option>
+    <option value="IG輪播">IG 輪播</option>
+    <option value="限動">限動</option>
+  </select>
+  <select id="statusFilter" onchange="render()">
+    <option value="all">全部狀態</option>
+    <option value="idea">💡 靈感</option>
+    <option value="draft">📝 草稿</option>
+    <option value="visual">🎨 待製圖</option>
+    <option value="sched">📅 待發布</option>
+    <option value="pub">🚀 已發布</option>
+  </select>
+  <button class="tbtn add" onclick="openAdd()">＋ 新增短句</button>
+  <button class="tbtn sec" onclick="exportCSV()">匯出 CSV</button>
+  <button class="tbtn sec" onclick="resetAll()">重置</button>
+</div>
+
+<div id="kanbanView">
+  <div class="kanban" id="kanban"></div>
+</div>
+<div class="list-view" id="listView">
+  <div class="list-grid" id="listGrid"></div>
+  <div class="empty" id="empty">沒有符合的短句。</div>
+
+
+<div class="footer">Manda｜不是追進度，是把內容慢慢放出去。謙謙爸 © 2025</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="modalBg" onclick="bgClose(event,'modalBg')">
+  <div class="modal">
+    <div class="modal-kicker" id="mKicker">編輯短句</div>
+    <div class="modal-quote" id="mQuote"></div>
+    <div class="modal-grid">
+      <div class="mrow"><label>狀態</label>
+        <select id="mStatus" onchange="mPatch('status',this.value)">
+          <option value="idea">💡 靈感</option><option value="draft">📝 草稿</option>
+          <option value="visual">🎨 待製圖</option><option value="sched">📅 待發布</option>
+          <option value="pub">🚀 已發布</option>
+        </select>
+      </div>
+      <div class="mrow"><label>平台</label>
+        <select id="mPlat" onchange="mPatch('platform',this.value)">
+          <option>Threads</option><option>IG單張</option><option>IG輪播</option><option>限動</option>
+        </select>
+      </div>
+      <div class="mrow"><label>日期</label><input type="date" id="mDate" onchange="mPatch('date',this.value)"/></div>
+      <div class="mrow"><label>情緒</label><div class="emo-row" id="mEmo"></div></div>
+      <div class="mrow"><label>備註</label><textarea id="mNote" placeholder="圖像方向、caption、發布後數據…" oninput="mPatch('note',this.value)"></textarea></div>
+    </div>
+    <div class="modal-actions">
+      <button class="mbtn danger" onclick="deleteItem()">刪除</button>
+      <button class="mbtn sec" onclick="copyModal()">複製文句</button>
+      <button class="mbtn pri" onclick="publishModal()">標記發布</button>
+      <button class="mbtn sec" onclick="closeId('modalBg')">關閉</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="addBg" onclick="bgClose(event,'addBg')">
+  <div class="modal add-modal">
+    <div class="modal-kicker">新增短句</div>
+    <textarea id="addText" placeholder="輸入你的短句…&#10;可以一次輸入多句，每句用換行分開。"></textarea>
+    <div class="hint">每行視為一句，空行會略過。</div>
+    <div class="modal-grid" style="margin-bottom:12px">
+      <div class="mrow"><label>狀態</label>
+        <select id="addStatus">
+          <option value="idea">💡 靈感</option><option value="draft">📝 草稿</option>
+          <option value="visual" selected>🎨 待製圖</option>
+        </select>
+      </div>
+      <div class="mrow"><label>平台</label>
+        <select id="addPlat"><option>Threads</option><option>IG單張</option><option>IG輪播</option><option>限動</option></select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="mbtn sec" onclick="closeId('addBg')">取消</button>
+      <button class="mbtn pri" onclick="doAdd()">新增</button>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP MODAL -->
+<div class="modal-bg" id="setupBg" onclick="bgClose(event,'setupBg')">
+  <div class="modal setup-modal">
+    <div class="modal-kicker">雲端同步設定</div>
+    <h1 style="font-size:18px;margin-bottom:0">連結 Google Sheet</h1>
+    <p>將 GAS Web App 網址貼在下方，即可跨裝置同步資料。</p>
+    <div class="step-box">
+      <b>部署步驟</b><br>
+      1. 開新 Google Sheet → 擴充功能 → Apps Script<br>
+      2. 貼上 GAS 腳本並儲存（Ctrl+S）<br>
+      3. 部署 → 新增部署 → 網頁應用程式<br>
+      4. 執行身分：<b>我</b>｜存取權限：<b>任何人</b><br>
+      5. 複製部署網址，貼到下方
+    </div>
+    <input type="url" id="gasUrlInput" placeholder="https://script.google.com/macros/s/…/exec" />
+    <input type="text" id="gasTokenInput" placeholder="存取 Token（在 GAS 腳本裡設定的密碼）" style="margin-top:8px" autocomplete="off" />
+    <div class="gas-test" id="gasTest"></div>
+    <div class="sec-title">情緒標籤管理</div>
+    <div class="emo-mgr" id="emoMgr"></div>
+    <div class="emo-add-row">
+      <input type="text" id="emoNewInput" placeholder="新增標籤名稱…" maxlength="10" onkeydown="if(event.key==='Enter')addEmoTag()" />
+      <button class="mbtn pri" onclick="addEmoTag()" style="padding:7px 14px;font-size:12px">新增</button>
+    </div>
+    <div class="emo-hint" id="emoHint"></div>
+    <div class="modal-actions">
+      <button class="mbtn sec" onclick="testGas()">測試連線</button>
+      <button class="mbtn sec" onclick="closeId('setupBg')">取消</button>
+      <button class="mbtn pri" onclick="saveSetup()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const EMO_KEY='manda-emo-tags';
+const EMO_DEF=['疲憊感','中斷感','育兒感','回來感','產品露出'];
+let EMO=loadEmo();
+function loadEmo(){try{const s=localStorage.getItem(EMO_KEY);if(s){const a=JSON.parse(s);if(Array.isArray(a)&&a.length)return a;}}catch(e){}return [...EMO_DEF];}
+function saveEmo(){localStorage.setItem(EMO_KEY,JSON.stringify(EMO));}
+const COLS=[
+  {id:'idea',label:'💡 靈感'},{id:'draft',label:'📝 草稿'},
+  {id:'visual',label:'🎨 待製圖'},{id:'sched',label:'📅 待發布'},{id:'pub',label:'🚀 已發布'}
+];
+const KEY='manda-content-os-v2', GAS_KEY='manda-gas-url', TOKEN_KEY='manda-gas-token';
+const DEF=[
+"今天不是沒努力，是真的有點撐不住。","有些訊息，不是沒回，是不知道怎麼回。",
+"最近不是懶，只是每天都像快沒電。","光是把今天過完，就已經很累了。",
+"有時候連休息，都休息不起來。","很想消失一下，但又還有很多事。",
+"今天也不是不想努力，只是心有點重。","有些疲憊，睡很久也不會好。",
+"最近常常覺得，連解釋都很花力氣。","好像沒有發生什麼，但就是很累了。",
+"有些人不是突然冷淡，只是撐太久了。","今天能動一點點，就已經很多了。",
+"有時候不是想放棄，只是想先停一下。","最近常常坐著坐著，就開始放空。",
+"原本很喜歡的事，最近也提不起勁。","長大後才發現，累不是一天造成的。",
+"有些低潮，不會大哭，只會安靜。","今天沒做多少，但我真的盡力了。",
+"最近最大的願望，好像只是不要那麼累。","有時候最難的，不是開始，是撐著日常。",
+"明明沒做什麼，卻像耗掉一整天。","最近不是沒有情緒，是情緒太多了。",
+"有些人看起來正常，其實已經快沒力氣。","偶爾真的會羨慕，那些不容易累的人。",
+"今天如果只能做到這樣，也先這樣吧。","有時候不是不想見人，是沒有力氣說話。",
+"最近常常覺得，光活著就用了很多力氣。","有些夜晚，不特別難過，但也睡不著。",
+"慢慢發現，很多人其實都在硬撐。","如果你最近也很累，那不是只有你。"
+];
+const platGuess=i=>i%5===0?'IG輪播':i%3===0?'IG單張':'Threads';
+const sMap={ready:'visual',scheduled:'sched',published:'pub',reuse:'idea'};
+
+let nextId=0;
+let items=load(), curView='kanban', editId=null;
+
+function load(){
+  const s=localStorage.getItem(KEY);
+  if(s){try{const a=JSON.parse(s);nextId=Math.max(0,...a.map(x=>x.id))+1;return a;}catch(e){}}
+  const old=localStorage.getItem('manda-low-energy-tracker-v1');
+  if(old){try{
+    const a=JSON.parse(old).map(it=>({
+      id:it.id,text:it.text,status:sMap[it.status]||'visual',
+      platform:it.platform||platGuess(it.id),date:it.date||'',note:it.note||'',emotions:[]
+    }));
+    nextId=Math.max(0,...a.map(x=>x.id))+1;
+    return a;
+  }catch(e){}}
+  nextId=1;
+  return [];
+}
+function save(){localStorage.setItem(KEY,JSON.stringify(items));updateStats();}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function stLabel(s){return COLS.find(c=>c.id===s)?.label||s;}
+function gasUrl(){return localStorage.getItem(GAS_KEY)||'';}
+function gasToken(){return localStorage.getItem(TOKEN_KEY)||'';}
+function closeId(id){document.getElementById(id).classList.remove('show');}
+function bgClose(e,id){if(e.target===document.getElementById(id))closeId(id);}
+
+/* ---- SYNC ---- */
+function syncDot(state,msg){
+  const d=document.getElementById('syncDot');
+  d.className='sync-dot'+(state==='ok'?' ok':state==='err'?' err':state==='ing'?' ing':'');
+  document.getElementById('syncStatus').textContent=msg||'';
+}
+function tsNow(){return new Date().toLocaleString('zh-TW',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+
+async function syncPush(){
+  const url=gasUrl();if(!url){openSetup();return;}
+  if(!confirm('把目前資料推送到雲端 Google Sheet？\n（會覆蓋雲端舊資料）'))return;
+  syncDot('ing','同步中…');
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'push',token:gasToken(),data:items})});
+    const j=await r.json();
+    if(j.ok){syncDot('ok','↑ 已同步 · '+tsNow());toast('已同步到 Google Sheet');}
+    else{syncDot('err','同步失敗');toast('同步失敗：'+j.error);}
+  }catch(e){syncDot('err','連線失敗');toast('連線失敗，請確認 GAS 網址');}
+}
+
+async function syncPull(){
+  const url=gasUrl();if(!url){openSetup();return;}
+  if(!confirm('從雲端讀取最新資料？\n（會覆蓋本地資料）'))return;
+  syncDot('ing','讀取中…');
+  try{
+    const gasWithParam=new URL(url);gasWithParam.searchParams.set('action','pull');
+    if(gasToken())gasWithParam.searchParams.set('token',gasToken());
+    const r=await fetch(gasWithParam.toString());
+    const j=await r.json();
+    if(j.ok&&Array.isArray(j.data)){
+      items=j.data;nextId=Math.max(0,...items.map(x=>x.id))+1;
+      save();render();
+      syncDot('ok','☁ 已讀取 · '+tsNow());toast('讀取 '+items.length+' 筆資料');
+    }else{syncDot('err','讀取失敗');toast('讀取失敗：'+(j.error||'格式異常'));}
+  }catch(e){syncDot('err','連線失敗');toast('連線失敗，請確認 GAS 網址');}
+}
+
+/* ---- SETUP ---- */
+function openSetup(){
+  document.getElementById('gasUrlInput').value=gasUrl();
+  document.getElementById('gasTokenInput').value=gasToken();
+  document.getElementById('gasTest').textContent='';
+  renderEmoMgr();
+  document.getElementById('setupBg').classList.add('show');
+}
+function renderEmoMgr(){
+  const mgr=document.getElementById('emoMgr');
+  const hint=document.getElementById('emoHint');
+  if(!mgr)return;
+  mgr.innerHTML=EMO.map((e,i)=>'<span class="emo-tag">'+esc(e)+'<button onclick="removeEmoTag('+i+')" title="刪除">×</button></span>').join('');
+  if(hint)hint.textContent=EMO.length>=10?'最多 10 個標籤，請先刪除再新增':'目前 '+EMO.length+' 個，最多 10 個';
+}
+function addEmoTag(){
+  const inp=document.getElementById('emoNewInput');
+  const v=inp.value.trim();
+  if(!v){toast('請輸入標籤名稱');return;}
+  if(EMO.length>=10){toast('最多 10 個標籤');return;}
+  if(EMO.includes(v)){toast('標籤已存在');return;}
+  EMO.push(v);saveEmo();inp.value='';
+  renderEmoMgr();renderEmoBars();toast('已新增標籤：'+v);
+}
+function removeEmoTag(i){
+  if(EMO.length<=1){toast('至少保留一個標籤');return;}
+  const name=EMO[i];
+  if(!confirm('刪除標籤「'+name+'」？\n已套用此標籤的卡片會同時移除。'))return;
+  items.forEach(it=>{
+    if(!it.emotions)return;
+    it.emotions=it.emotions.filter(e=>e!==i).map(e=>e>i?e-1:e);
+  });
+  EMO.splice(i,1);saveEmo();save();
+  renderEmoMgr();render();toast('已刪除標籤：'+name);
+}
+function saveSetup(){
+  const v=document.getElementById('gasUrlInput').value.trim();
+  if(!v){toast('請貼上 GAS 網址');return;}
+  const t=document.getElementById('gasTokenInput').value.trim();
+  localStorage.setItem(GAS_KEY,v);
+  if(t)localStorage.setItem(TOKEN_KEY,t);else localStorage.removeItem(TOKEN_KEY);
+  closeId('setupBg');
+  syncDot('ok','已儲存設定');
+  toast('設定已儲存'+(t?'（含 Token）':''));
+}
+async function testGas(){
+  const url=document.getElementById('gasUrlInput').value.trim();
+  if(!url){document.getElementById('gasTest').textContent='請先貼上網址';return;}
+  document.getElementById('gasTest').textContent='測試中…';
+  try{
+    const u=new URL(url);u.searchParams.set('action','ping');
+    const r=await fetch(u.toString());
+    const j=await r.json();
+    const hasToken=document.getElementById('gasTokenInput').value.trim();
+    document.getElementById('gasTest').textContent=j.ok?'✓ 連線成功！GAS 運作正常'+(hasToken?' · Token 已設定':'· ⚠ 尚未設定 Token'):'✗ GAS 回應但格式異常：'+JSON.stringify(j);
+  }catch(e){document.getElementById('gasTest').textContent='✗ 連線失敗：'+e.message;}
+}
+
+/* ---- ADD ---- */
+function openAdd(){
+  document.getElementById('addText').value='';
+  document.getElementById('addBg').classList.add('show');
+  setTimeout(()=>document.getElementById('addText').focus(),100);
+}
+function doAdd(){
+  const raw=document.getElementById('addText').value;
+  const status=document.getElementById('addStatus').value;
+  const platform=document.getElementById('addPlat').value;
+  const lines=raw.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  if(!lines.length){toast('請輸入至少一句短句');return;}
+  lines.forEach(text=>{
+    items.push({id:nextId++,text,status,platform,date:'',note:'',emotions:[]});
+  });
+  document.getElementById('statusFilter').value='all';
+  save();render();
+  closeId('addBg');
+  toast('已新增 '+lines.length+' 句');
+}
+
+/* ---- DELETE ---- */
+function deleteItem(){
+  if(!confirm('確定要刪除這句嗎？'))return;
+  items=items.filter(x=>x.id!==editId);
+  save();render();
+  closeId('modalBg');
+  toast('已刪除');
+}
+
+/* ---- VIEW ---- */
+function setView(v){
+  curView=v;
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.toggle('active',b.getAttribute('data-view')===v));
+  document.getElementById('kanbanView').style.display=v==='kanban'?'block':'none';
+  document.getElementById('listView').style.display=v==='list'?'block':'none';
+  render();
+}
+function filtered(){
+  const q=document.getElementById('search').value.trim();
+  const pf=document.getElementById('platFilter').value;
+  const sf=document.getElementById('statusFilter').value;
+  return items.filter(it=>
+    (!q||it.text.includes(q)||(it.note||'').includes(q))&&
+    (pf==='all'||it.platform===pf)&&
+    (sf==='all'||it.status===sf)
+  );
+}
+function render(){curView==='kanban'?renderKanban():renderList();updateStats();}
+
+/* ---- KANBAN ---- */
+function renderKanban(){
+  const list=filtered();
+  document.getElementById('kanban').innerHTML=COLS.map(col=>{
+    const cards=list.filter(it=>it.status===col.id);
+    return `<div class="kb-col">
+      <div class="kb-col-head"><span class="kb-col-name">${col.label}</span><span class="kb-count">${cards.length}</span></div>
+      ${!cards.length?'<div class="kb-empty">還沒有內容</div>':''}
+      ${cards.map(it=>`<div class="kb-card ${it.status}" onclick="openModal(${it.id})">
+        <div class="kb-num">#${String(it.id).padStart(2,'0')}</div>
+        <div class="kb-text">${esc(it.text)}</div>
+        <div class="kb-foot">
+          <span class="kb-plat">${it.platform}</span>
+          <div class="kb-emos">${(it.emotions||[]).map(e=>`<span class="kb-emo">${EMO[e][0]}</span>`).join('')}</div>
+          ${it.date?`<span class="kb-date">${it.date.slice(5)}</span>`:''}
+        </div>
+      </div>`).join('')}
+    </div>`;
+  }).join('');
+}
+
+/* ---- LIST ---- */
+function renderList(){
+  const list=filtered();
+  document.getElementById('listGrid').innerHTML=list.map(it=>`
+    <article class="card st-${it.status}">
+      <div class="topline"><span class="cnum">#${String(it.id).padStart(2,'0')}</span><span class="pill">${stLabel(it.status)}</span></div>
+      <div class="quote">${esc(it.text)}</div>
+      <div class="meta">
+        <div class="row"><label>狀態</label><select onchange="patch(${it.id},'status',this.value)">
+          ${COLS.map(c=>`<option value="${c.id}"${it.status===c.id?' selected':''}>${c.label}</option>`).join('')}
+        </select></div>
+        <div class="row"><label>平台</label><select onchange="patch(${it.id},'platform',this.value)">
+          ${['Threads','IG單張','IG輪播','限動'].map(p=>`<option${it.platform===p?' selected':''}>${p}</option>`).join('')}
+        </select></div>
+        <div class="row"><label>日期</label><input type="date" value="${it.date||''}" onchange="patch(${it.id},'date',this.value)"></div>
+        <div class="row"><label>情緒</label><div class="emo-row">${EMO.map((e,i)=>`<span class="emo-chip${(it.emotions||[]).includes(i)?' on':''}" onclick="toggleEmo(${it.id},${i},this)">${e}</span>`).join('')}</div></div>
+        <div class="row"><label>備註</label><textarea onchange="patch(${it.id},'note',this.value)" placeholder="圖像方向、caption…">${esc(it.note||'')}</textarea></div>
+      </div>
+      <div class="actions">
+        <button class="mini pri" onclick="copyText(${it.id})">複製文句</button>
+        <button class="mini" onclick="markPub(${it.id})">標記發布</button>
+      </div>
+    </article>`).join('');
+  document.getElementById('empty').style.display=list.length?'none':'block';
+}
+
+/* ---- PATCH ---- */
+function patch(id,field,val){const it=items.find(x=>x.id===id);if(!it)return;it[field]=val;save();render();}
+function toggleEmo(id,i,el){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  it.emotions=it.emotions||[];
+  const idx=it.emotions.indexOf(i);
+  if(idx>=0)it.emotions.splice(idx,1);else it.emotions.push(i);
+  el.classList.toggle('on',it.emotions.includes(i));
+  save();updateStats();
+}
+function markPub(id){
+  const it=items.find(x=>x.id===id);if(!it)return;
+  it.status='pub';if(!it.date)it.date=new Date().toISOString().slice(0,10);
+  save();render();toast('已標記發布');
+}
+function copyText(id){const it=items.find(x=>x.id===id);if(!it)return;navigator.clipboard.writeText(it.text).then(()=>toast('已複製'));}
+
+/* ---- MODAL ---- */
+function openModal(id){
+  editId=id;
+  const it=items.find(x=>x.id===id);if(!it)return;
+  document.getElementById('mKicker').textContent='#'+String(id).padStart(2,'0')+' · '+it.platform;
+  document.getElementById('mQuote').textContent=it.text;
+  document.getElementById('mStatus').value=it.status;
+  document.getElementById('mPlat').value=it.platform;
+  document.getElementById('mDate').value=it.date||'';
+  document.getElementById('mNote').value=it.note||'';
+  document.getElementById('mEmo').innerHTML=EMO.map((e,i)=>
+    `<span class="emo-chip${(it.emotions||[]).includes(i)?' on':''}" onclick="toggleEmoM(${i},this)">${e}</span>`
+  ).join('');
+  document.getElementById('modalBg').classList.add('show');
+}
+function mPatch(field,val){const it=items.find(x=>x.id===editId);if(!it)return;it[field]=val;save();render();}
+function toggleEmoM(i,el){
+  const it=items.find(x=>x.id===editId);if(!it)return;
+  it.emotions=it.emotions||[];
+  const idx=it.emotions.indexOf(i);
+  if(idx>=0)it.emotions.splice(idx,1);else it.emotions.push(i);
+  el.classList.toggle('on',it.emotions.includes(i));
+  save();updateStats();
+}
+function copyModal(){const it=items.find(x=>x.id===editId);if(!it)return;navigator.clipboard.writeText(it.text).then(()=>toast('已複製'));}
+function publishModal(){markPub(editId);closeId('modalBg');}
+
+/* ---- STATS ---- */
+function updateStats(){
+  const total=items.length||1,cnt=id=>items.filter(x=>x.status===id).length;
+  document.getElementById('cIdea').textContent=cnt('idea');
+  document.getElementById('cDraft').textContent=cnt('draft');
+  document.getElementById('cVisual').textContent=cnt('visual');
+  document.getElementById('cSched').textContent=cnt('sched');
+  document.getElementById('cPub').textContent=cnt('pub');
+  const pub=cnt('pub'),realTotal=items.length;
+  document.getElementById('progress').style.width=(realTotal?Math.round(pub/realTotal*100):0)+'%';
+  document.getElementById('progressText').textContent=realTotal
+    ?`已發布 ${pub}/${realTotal} 則，${cnt('sched')} 則待發布。不是追進度，是慢慢放出去。`
+    :'還沒有任何內容，按「＋ 新增短句」開始。';
+  const sub=document.getElementById('dashSub');
+  if(sub)sub.textContent='共 '+realTotal+' 則內容，從靈感到發布，一條線管理。';
+  renderEmoBars();
+}
+function renderEmoBars(){
+  const grid=document.getElementById('emoGrid');if(!grid)return;
+  const realTotal=items.length||1;
+  const colors=['#c4763a','#9c7aa6','#be6a7d','#7a8f68','#8d9db6','#b68a55','#5a8a8a','#a07040','#6a7ab6','#8a6a9c'];
+  grid.innerHTML=EMO.map(function(label,i){
+    const pct=Math.round(items.filter(function(it){return (it.emotions||[]).includes(i);}).length/realTotal*100);
+    const color=colors[i%colors.length];
+    return '<div class="emo-item"><div class="emo-label">'+esc(label)+'</div><div class="emo-bar-wrap"><div class="emo-bar" style="width:'+pct+'%;background:'+color+'"></div></div><div class="emo-pct">'+pct+'%</div></div>';
+  }).join('');
+}
+
+/* ---- CSV ---- */
+function exportCSV(){
+  const rows=[['編號','短句','狀態','平台','日期','情緒標籤','備註'],
+    ...items.map(it=>[it.id,it.text,stLabel(it.status),it.platform,it.date||'',
+      (it.emotions||[]).map(i=>EMO[i]||'').filter(Boolean).join('、'),it.note||''])];
+  const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(',')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'}));
+  const a=document.createElement('a');a.href=url;a.download='manda-content-os.csv';
+  document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},200);
+  toast('CSV 已匯出');
+}
+
+function resetAll(){
+  if(!confirm('確定要重置所有狀態嗎？\n（此動作無法還原）'))return;
+  localStorage.removeItem(KEY);items=load();
+  syncDot('','');  // 清除同步狀態
+  render();toast('已重置');
+}
+
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2000);}
+
+if(gasUrl())syncDot('ok','已連結雲端');
+render();
+renderEmoBars();
+
+</script>
+</div>
+</body>
+</html>
