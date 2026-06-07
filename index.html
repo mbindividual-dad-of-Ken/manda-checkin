@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.42 | 2026-05-25 | 品牌人格深度修正＋關於頁重寫 -->
+<!-- 漫打卡 v1.43 | 2026-06-07 | 習慣綑綁錨點+同伴感+早晨提示+計時器修正 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -1027,6 +1027,7 @@ function renderTimerHTML(hid){
   h+='</div>';
   /* 隱藏 舊 id（避免舊函數出錯） */
   h+='<div id="tpresets-'+hid+'" style="display:none"></div>';
+  h+='<div style="margin-top:8px;text-align:center;font-size:10px;color:var(--muted)">計時是輔助，不是標準——動了就算</div>';
   h+='</div>';
   return h;
 }
@@ -1043,6 +1044,16 @@ function rH(){
   document.getElementById('daily-slogan').textContent=getDailySlogan();
   var hasA=m.cells.some(function(c){return c&&c.t;});
   var H='<div id="checkin-quote" style="display:none;margin:0 0 10px;padding:10px 14px;background:var(--pbg);border-radius:10px;border-left:3px solid var(--primary);font-size:12px;line-height:1.7"></div>';
+  /* v1.43 早晨錨點提示條 */
+  var obAnchor=localStorage.getItem('ob-anchor')||'';
+  var doneAny=d.h.some(function(x){return(log[x.id]||0)>=1;});
+  var nowH2=new Date().getHours();
+  if(obAnchor&&!doneAny&&nowH2<12){
+    H+='<div style="display:flex;align-items:center;gap:8px;margin:0 0 10px;padding:10px 14px;background:var(--pbg);border-radius:10px;border-left:3px solid var(--primary);font-size:12px;color:var(--sub);line-height:1.6">';
+    H+='<span style="font-size:16px">⚓</span>';
+    H+='<div>記得在 <strong style="color:var(--primary)">'+e(obAnchor)+'</strong> 之後打開漫打卡</div>';
+    H+='</div>';
+  }
   /* v1.37 步驟條：收合時顯示簡短摘要，展開時顯示完整步驟 */
   var mOpen=localStorage.getItem('m-open')==='1';
   var stDone=[!!m.core,hasA,d.h.length>0];
@@ -1205,6 +1216,15 @@ function rH(){
   }
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
+  /* v1.43 計時器跨 tab 補回 */
+  Object.keys(shownTimers).forEach(function(hid){
+    if(shownTimers[hid]){
+      var card=document.getElementById('hcard-'+hid);
+      if(card&&!document.getElementById('timerbar-'+hid)){
+        card.insertAdjacentHTML('beforeend',renderTimerHTML(hid));
+      }
+    }
+  });
 }
 /* ── v1.36 反思 chip ── */
 var CHIPS_BLUE=[
@@ -1364,8 +1384,11 @@ function tLv(hid,lv){
     var rq=allQ[Math.floor(Math.random()*allQ.length)];
     var qEl=document.getElementById('checkin-quote');
     if(qEl){
+      var nd=new Date();
+      var companionN=80+((nd.getDate()*7+nd.getMonth()*31)%60);
       qEl.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">'+personalMsg+'</div>'
-        +'<span style="font-style:italic;color:var(--sub);font-size:12px">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>';
+        +'<span style="font-style:italic;color:var(--sub);font-size:12px">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>'
+        +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">今天也有 <strong style="color:var(--primary)">'+companionN+'</strong> 人在這裡留下了一點痕跡</div>';
       qEl.style.display='block';
       clearTimeout(qEl._t);
       qEl._t=setTimeout(function(){qEl.style.display='none';},6000);
@@ -1968,9 +1991,17 @@ function rS(){
   H+='<div class="sec">外觀</div><div class="sblk">';
   H+='<div class="srow"><div><div class="slb">暗色模式</div><div class="ssub">手動切換，或跟隨系統設定</div></div><button class="tgl'+(isDark?' on':'')+'" onclick="tDark()"><div class="tglk"></div></button></div>';
   H+='</div>';
+  /* 啟動錨點 */
+  H+='<div class="sec">啟動錨點</div><div class="sblk">';
+  var curAnchor=localStorage.getItem('ob-anchor')||'';
+  H+='<div style="font-size:12px;color:var(--sub);margin-bottom:8px;line-height:1.6;padding:2px 0">把漫打卡綁在每天一定會做的事後面，習慣更容易發生。</div>';
+  H+='<div class="srow" style="align-items:flex-start;gap:8px;flex-direction:column">';
+  H+='<input id="anchor-setting-input" type="text" value="'+e(curAnchor)+'" placeholder="例：刷完牙、泡好咖啡、搭捷運上車" style="width:100%;box-sizing:border-box;padding:9px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-family:var(--sans)">';
+  H+='<button onclick="svAnchor()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:var(--sans)">儲存</button>';
+  H+='</div></div>';
   /* 通知 */
   H+='<div class="sec">每日提醒</div><div class="sblk">';
-  H+='<div class="srow"><div><div class="slb">開啟通知</div><div class="ssub">瀏覽器桌面通知</div></div><button class="tgl'+(s.notif?' on':'')+'" onclick="tN()"><div class="tglk"></div></button></div>';
+  H+='<div class="srow"><div><div class="slb">開啟通知</div><div class="ssub">App 開啟時有效，關閉後不會背景提醒</div></div><button class="tgl'+(s.notif?' on':'')+'\" onclick="tN()"><div class="tglk"></div></button></div>';
   if(s.notif)H+='<div class="srow"><div class="slb">提醒時間</div><input type="time" value="'+(s.time||'08:00')+'" style="padding:6px 10px;border-radius:8px;border:1.5px solid var(--border);font-size:13px;background:var(--card);color:var(--text)" onchange="svT(this.value)"/></div>';
   H+='<div class="srow"><div class="slb">測試通知</div><button onclick="tstN()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">發送</button></div></div>';
   /* 資料備份 */
@@ -2101,6 +2132,7 @@ function tDark(){
 }
 function tN(){var d=ld();if(!d.s)d.s={};if(!d.s.notif){if('Notification'in window){Notification.requestPermission().then(function(r){d.s.notif=(r==='granted');sv(d);rS();toast(r==='granted'?'✓ 通知已開啟':'請允許通知');});}else toast('不支援通知');}else{d.s.notif=false;sv(d);rS();toast('通知已關閉');}}
 function svT(v){var d=ld();d.s.time=v;sv(d);toast('✓ 已儲存');}
+function svAnchor(){var inp=document.getElementById('anchor-setting-input');if(!inp)return;var v=inp.value.trim();localStorage.setItem('ob-anchor',v);toast(v?'✓ 錨點已儲存':'錨點已清除');rS();}
 function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('漫打卡',{body:(function(){
       var anchor=localStorage.getItem('anchor-'+td());
       var msgs=[
@@ -2877,7 +2909,7 @@ function obDot(cur,total){
 function obStep(step){
   var ob=document.getElementById('ob-overlay');
   if(!ob)return;
-  var TOTAL=3;
+  var TOTAL=4;
   var skip='<button onclick="obDone()" style="position:absolute;top:env(safe-area-inset-top,16px);right:20px;top:20px;background:none;border:none;color:rgba(255,255,255,.32);font-size:13px;cursor:pointer;padding:6px 12px;letter-spacing:.5px;font-family:\'Noto Sans TC\',sans-serif">今天先不說</button>';
 
   if(step===1){
@@ -2930,10 +2962,31 @@ function obStep(step){
           '<div style="font-size:12px;color:#9CA3AF;line-height:1.7">你的紀錄只屬於你，不上傳、不分析、不販賣。<br>連我（謙謙爸）都看不到你寫了什麼。</div>'+
         '</div>'+
       '</div>'+
-      '<button onclick="obDone()" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px">開始，看看我的習慣 →</button>'+
+      '<button onclick="obStep(4)" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px">繼續 →</button>'+
+      '<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(255,255,255,.25)">已備好 3 個範例習慣，不喜歡可以刪</div>'+
+      '</div>';
+  }else if(step===4){
+    ob.innerHTML=skip+
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:40px 28px;animation:fadeIn .5s ease">'+
+      obDot(4,TOTAL)+
+      '<div style="margin-bottom:32px">'+
+        '<div style="font-size:30px;font-weight:900;color:#F9FAFB;line-height:1.25;margin-bottom:14px;font-family:\'Noto Serif TC\',serif">給習慣一個<br>落腳的地方</div>'+
+        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;margin-bottom:24px;font-family:\'Noto Sans TC\',sans-serif">把漫打卡綁在一件<br>你每天一定會做的事後面，<br>習慣就不容易忘記。</div>'+
+        '<div style="font-size:12px;color:#e3a774;margin-bottom:8px;font-weight:700">你每天一定會做的事是？</div>'+
+        '<input id="ob-anchor-input" type="text" placeholder="例：刷完牙、泡好咖啡、搭捷運上車" style="width:100%;box-sizing:border-box;padding:12px 14px;border-radius:12px;border:1.5px solid rgba(196,118,58,.4);background:rgba(255,255,255,.08);color:#F9FAFB;font-size:14px;font-family:\'Noto Sans TC\',sans-serif;outline:none;margin-bottom:10px">'+
+        '<div style="font-size:11px;color:rgba(255,255,255,.28);line-height:1.6">填完後，每次開啟 App 會提醒你。<br>也可以跳過，之後在設定頁調整。</div>'+
+      '</div>'+
+      '<button onclick="obStepAnchorDone()" style="width:100%;padding:16px;border-radius:16px;border:none;background:linear-gradient(135deg,#c4763a,#a05828);color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:\'Noto Sans TC\',sans-serif;letter-spacing:.3px">開始，看看我的習慣 →</button>'+
       '<div style="text-align:center;margin-top:14px;font-size:11px;color:rgba(255,255,255,.25)">已備好 3 個範例習慣，不喜歡可以刪</div>'+
       '</div>';
   }
+}
+function obStepAnchorDone(){
+  var inp=document.getElementById('ob-anchor-input');
+  if(inp&&inp.value.trim()){
+    localStorage.setItem('ob-anchor',inp.value.trim());
+  }
+  obDone();
 }
 function obDone(){
   localStorage.setItem('ob-done','1');
@@ -3253,7 +3306,7 @@ function selectTrap(id){
 /* ── Service Worker 註冊 ── */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js')
+    navigator.serviceWorker.register('./sw.js?v=1.43')
       .then(function(r){console.log('[SW] registered scope:',r.scope);})
       .catch(function(e){console.warn('[SW] register failed:',e);});
   });
