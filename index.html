@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.43 | 2026-06-07 | 習慣綑綁錨點+同伴感+早晨提示+計時器修正 -->
+<!-- 漫打卡 v1.44 | 2026-06-09 | 文案對齊：讓整個產品說同一種語言 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>漫打卡 Manda</title>
 <meta name="author" content="謙謙爸 | 漫打卡">
-<meta name="description" content="漫打卡 — 融合大谷翔平 OW64 曼陀羅框架與 Stephen Guise 彈性習慣的每日打卡 PWA">
+<meta name="description" content="漫打卡 — 讓疲憊的人，還願意回來的地方">
 <meta name="copyright" content="© 2026 謙謙爸. All Rights Reserved.">
 
 <!-- PWA 核心 -->
@@ -659,9 +659,9 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
   <div id="main"></div>
   <div id="nav">
     <button class="nb on" id="nb0" onclick="go(0)"><span class="ni">🏠</span>今日</button>
-    <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>月曆</button>
-    <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>我的軌跡</button>
-    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">➕</span>加入</button>
+    <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>痕跡</button>
+    <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>軌跡</button>
+    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">🌱</span>回來</button>
     <button class="nb" id="nb4" onclick="go(4)"><span class="ni">⚙️</span>設定</button>
   </div>
 </div>
@@ -1539,7 +1539,7 @@ function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',h
 
 /* ── 月曆 (v1.29 D1 溫暖熱力圖) ── */
 function rC(){
-  document.getElementById('ttl').textContent='月曆';
+  document.getElementById('ttl').textContent='痕跡';
   document.getElementById('tsub').textContent='你走過的每一天，都在這裡。';
   var n=new Date();if(!cY){cY=n.getFullYear();cM=n.getMonth();}if(!cSel)cSel=td();
   var d=ld(),t=td(),mons=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
@@ -1713,7 +1713,7 @@ function cSl(s){cSel=s;rC();}
 
 /* ── 統計頁面 (v1.29 E2 數據儀表板) ── */
 function rSt(){
-  document.getElementById('ttl').textContent='我的軌跡';
+  document.getElementById('ttl').textContent='軌跡';
   document.getElementById('tsub').textContent='30 天 · 數字說話';
   var d=ld(),t=td();
   if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">加入習慣後就能看到軌跡 📊</div>';return;}
@@ -1769,11 +1769,11 @@ function rSt(){
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c4763a">'+checkInDays30+'</div><div class="stat29-kpi-lbl">有動過 · 天</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#d97757">'+totalCB+'</div><div class="stat29-kpi-lbl">重新回來 · 次</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">最長記錄 · 天</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">完成次數</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">留下痕跡</div></div>';
   H+='</div>';
 
   /* === 等級分布 === */
-  H+='<div class="sec">完成等級分布</div>';
+  H+='<div class="sec">今天留下了什麼</div>';
   H+='<div class="stat-card">';
   var levelNames=['今日的1','穩定前進','多走一步'];
   var levelCols=['#c4763a','#d97757','#7a4a1a'];
@@ -1910,7 +1910,7 @@ function rSt(){
 
 /* ── 新增習慣 ── */
 function rA(){
-  document.getElementById('ttl').textContent='加入習慣';
+  document.getElementById('ttl').textContent='想回來的事';
   document.getElementById('tsub').textContent='選一件事，今天就開始。';
   aC=aC||'#c4763a';
   var cs=CL.map(function(c){return '<div class="cs'+(aC===c?' on':'')+'" style="background:'+c+'" onclick="aPC(this,\''+c+'\')"></div>';}).join('');
@@ -2572,7 +2572,7 @@ function checkMilestone(hid,streak){
   document.getElementById('ms-num').textContent=streak;
   var capMap={7:'回來七次了',14:'兩週，你都在',30:'這個月，你留下了',66:'六十六天的痕跡',100:'一百天，你沒有消失'};
   /* v1.40 回來里程碑也顯示鼓勵 */
-  document.getElementById('ms-cap').textContent=capMap[streak]||('連續 '+streak+' 天');
+  document.getElementById('ms-cap').textContent=capMap[streak]||('回來了 '+streak+' 次');
   var quoteMap={
     7:'七天裡，你一次次選擇回來。<br>這不是小事。',
     14:'兩週 · 兩個週末。<br>你都選擇了回來。',
@@ -3306,7 +3306,7 @@ function selectTrap(id){
 /* ── Service Worker 註冊 ── */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js?v=1.43')
+    navigator.serviceWorker.register('./sw.js?v=1.44')
       .then(function(r){console.log('[SW] registered scope:',r.scope);})
       .catch(function(e){console.warn('[SW] register failed:',e);});
   });
