@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.44 | 2026-06-09 | 文案對齊：讓整個產品說同一種語言 -->
+<!-- 漫打卡 v1.45 | 2026-06-09 | 首頁IA重構：OW64下移+今日一勝前置+回來浮層 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -60,6 +60,17 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
 /* ── 卡關層 overlay ── */
 #stuck-overlay{display:none;position:fixed;inset:0;background:rgba(42,33,24,.55);z-index:900;justify-content:center;align-items:flex-end;backdrop-filter:blur(4px)}
 #stuck-overlay.open{display:flex}
+/* v1.45 回來浮層 */
+#comeback-overlay{display:none;position:fixed;inset:0;background:rgba(42,33,24,.55);z-index:901;justify-content:center;align-items:flex-end;backdrop-filter:blur(4px)}
+#comeback-overlay.open{display:flex}
+.comeback-sheet{background:var(--app);border-radius:24px 24px 0 0;padding:24px 20px 40px;width:100%;max-width:430px}
+.comeback-title{font-family:var(--serif);font-size:17px;font-weight:700;color:var(--text);margin-bottom:4px}
+.comeback-sub{font-size:12px;color:var(--sub);margin-bottom:16px;line-height:1.6}
+.comeback-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--card);border-radius:12px;border:1.5px solid var(--border);margin-bottom:8px;cursor:pointer;transition:border-color .2s}
+.comeback-item:hover{border-color:var(--primary)}
+.comeback-icon{font-size:20px}
+.comeback-name{font-size:14px;font-weight:600;color:var(--text)}
+.comeback-hint{font-size:11px;color:var(--sub);margin-top:2px}
 #stuck-box{background:var(--app);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:420px;box-shadow:0 -8px 32px rgba(42,33,24,.18)}
 .stuck-step{display:none}
 .stuck-step.active{display:block}
@@ -661,13 +672,22 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
     <button class="nb on" id="nb0" onclick="go(0)"><span class="ni">🏠</span>今日</button>
     <button class="nb" id="nb1" onclick="go(1)"><span class="ni">📅</span>痕跡</button>
     <button class="nb" id="nb2" onclick="go(2)"><span class="ni">📊</span>軌跡</button>
-    <button class="nb" id="nb3" onclick="go(3)"><span class="ni">🌱</span>回來</button>
+    <button class="nb" id="nb3" onclick="openComebackSheet()"><span class="ni">🌱</span>回來</button>
     <button class="nb" id="nb4" onclick="go(4)"><span class="ni">⚙️</span>設定</button>
   </div>
 </div>
 <div id="mo" onclick="if(event.target===this)cm()"><div id="mb"></div></div>
 
 <!-- 卡關層 overlay -->
+<!-- v1.45 回來浮層 -->
+<div id="comeback-overlay" onclick="if(event.target===this)closeComebackSheet()">
+  <div class="comeback-sheet">
+    <div class="comeback-title">🌱 今天回來哪裡？</div>
+    <div class="comeback-sub">選一個，就從今日的1開始。</div>
+    <div id="comeback-list"></div>
+    <button onclick="closeComebackSheet()" style="width:100%;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer;font-family:var(--sans);margin-top:4px">今天先不用</button>
+  </div>
+</div>
 <div id="stuck-overlay" onclick="if(event.target===this)closeStuck()">
 <div id="stuck-box">
   <!-- Step 1: 情緒快照 -->
@@ -1054,70 +1074,31 @@ function rH(){
     H+='<div>記得在 <strong style="color:var(--primary)">'+e(obAnchor)+'</strong> 之後打開漫打卡</div>';
     H+='</div>';
   }
-  /* v1.37 步驟條：收合時顯示簡短摘要，展開時顯示完整步驟 */
-  var mOpen=localStorage.getItem('m-open')==='1';
-  var stDone=[!!m.core,hasA,d.h.length>0];
-  var stAll=stDone.every(Boolean);
-  if(mOpen){
-    /* 展開狀態：顯示完整步驟條 */
-    H+='<div class="steps">';
-    var st=[{n:1,l:'核心目標',d:stDone[0]},{n:2,l:'行動領域',d:stDone[1]},{n:3,l:'連結習慣',d:stDone[2]}];
-    st.forEach(function(s,i){
-      var a=!s.d&&(i===0||(i>0&&st[i-1].d));
-      H+='<div class="si"><div class="sd '+(s.d?'done':a?'go':'wait')+'">'+(s.d?'✓':s.n)+'</div><div class="sl'+(a?' go':'')+'">'+s.l+'</div></div>';
-      if(i<2)H+='<div class="sline"></div>';
-    });
-    H+='</div>';
-  }else{
-    /* 收合狀態：一行摘要 */
-    var stTxt=stAll?'曼陀羅已設定完成 ✓':
-      (!stDone[0]?'點下方展開 → 設定核心目標':
-      (!stDone[1]?'點下方展開 → 填入行動領域':
-      '點下方展開 → 連結習慣'));
-    var stCol=stAll?'var(--primary)':'var(--muted)';
-    H+='<div style="font-size:11px;color:'+stCol+';margin-bottom:8px;padding:6px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="tgMandala()">📋 '+stTxt+'</div>';
-  }
-  /* 曼陀羅標題列 */
-  H+='<div class="sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="tgMandala()">';
-  H+='<span>曼陀羅九宮格</span>';
-  H+='<span id="m-arrow" style="font-size:10px;color:var(--primary);font-weight:700">'+(mOpen?'▲ 收合':'▼ 展開')+'</span>';
-  H+='</div>';
-  H+='<div id="m-wrap" style="display:'+(mOpen?'block':'none')+'">';
-  H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">核心目標 ⟶ 8 個行動領域 ⟶ 64 個具體行動（OW64 法則）</div>';
-  H+='<div class="mgrid">';
-  CO.forEach(function(ci){
-    if(ci===-1){H+='<div class="mc core" onclick="oCore()"><div class="tag">核心目標</div><div class="val">'+(m.core?e(m.core):'點此設定')+'</div></div>';}
-    else{
-      var cell=m.cells[ci]||{},bc=cell.c||(cell.t?'#c4763a':'var(--border)');
-      H+='<div class="mc'+(cell.t?' fill':'')+'" style="border-color:'+bc+'" onclick="oCell('+ci+')">';
-      if(cell.t)H+='<div class="tag">領域</div><div class="val">'+e(cell.t)+'</div>';
-      else H+='<div class="ph">'+(m.core?'＋':'')+'</div>';
-      H+='</div>';
+  /* v1.45 今日一勝前置小卡 */
+  var todayWinKey='win-'+t;
+  var todayWin=localStorage.getItem(todayWinKey)||'';
+  if(doneAny||todayWin){
+    H+='<div style="margin:0 0 10px;padding:12px 14px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary);display:flex;align-items:center;gap:10px">';
+    H+='<span style="font-size:18px">✨</span>';
+    H+='<div style="flex:1">';
+    if(todayWin){
+      H+='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:2px">今日一勝</div>';
+      H+='<div style="font-size:12px;color:var(--sub);line-height:1.5">'+e(todayWin)+'</div>';
+    }else{
+      H+='<div style="font-size:12px;color:var(--sub)">今天有動了，要留下一句話嗎？</div>';
     }
-  });
-  H+='</div>';
-  var filled=[];for(var k=0;k<8;k++)if(m.cells[k]&&m.cells[k].t)filled.push(k);
-  if(filled.length){
-    H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">點執行格填入行動並連結習慣</div>';
-    filled.forEach(function(ci){
-      var cell=m.cells[ci],sub=m.subs[ci],bc=cell.c||'#c4763a';
-      var lc=sub?sub.cells.filter(function(c){return c&&c.hid;}).length:0;
-      H+='<div class="sb"><div class="sbh"><div class="sbd" style="background:'+bc+'"></div><div class="sbt">'+e(cell.t)+'</div><div class="sbb" style="background:'+bc+'20;color:'+bc+'">'+(lc?lc+'個習慣':'未連結')+'</div></div>';
-      H+='<div class="sgrid">';
-      CO.forEach(function(sci){
-        if(sci===-1){H+='<div class="sc scc" style="background:'+bc+'15;border-color:'+bc+'"><div class="scv" style="color:'+bc+'">'+e(cell.t)+'</div></div>';}
-        else{
-          var sc=(sub&&sub.cells[sci])||{},lh=sc.hid?d.h.find(function(x){return x.id===sc.hid;}):null;
-          H+='<div class="sc" onclick="oSub('+ci+','+sci+')">';
-          if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+lh.i+' '+lh.n+'</div>';else H+='<div class="scu">未連結</div>';}
-          else H+='<div class="scp">＋</div>';
-          H+='</div>';
-        }
-      });
-      H+='</div></div>';
-    });
+    H+='</div></div>';
+  }else{
+    H+='<div style="margin:0 0 10px;padding:11px 14px;background:var(--card);border-radius:12px;border:1px dashed var(--border);display:flex;align-items:center;gap:10px;cursor:pointer" onclick="document.getElementById(\'win-input-inline\').focus()">';
+    H+='<span style="font-size:16px">✨</span>';
+    H+='<div style="flex:1;font-size:12px;color:var(--muted)">今天想留下什麼？（選填）</div>';
+    H+='</div>';
+    H+='<div style="margin:-4px 0 10px;display:flex;gap:6px">';
+    H+='<input id="win-input-inline" type="text" placeholder="一句話就好" style="flex:1;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--text);font-size:13px;font-family:var(--sans);outline:none">';
+    H+='<button onclick="svWinInline()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">留下</button>';
+    H+='</div>';
   }
-  H+='</div>'; /* /m-wrap */
+  /* v1.45 OW64 移到習慣卡片下方，此處移除原本 OW64 區塊 */
   if(d.h.length){
     var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
     var pct=Math.round(done/d.h.length*100);
@@ -1212,6 +1193,64 @@ function rH(){
   if(d.h.length>0){
     H+=renderMomentumBlock(d,log);
   }else{
+    /* v1.45 OW64 移至此處，習慣卡片下方，預設收合 */
+    var mOpen=localStorage.getItem('m-open')==='1';
+    var stDone=[!!m.core,hasA,d.h.length>0];
+    var stAll=stDone.every(Boolean);
+    H+='<div class="sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:8px" onclick="tgMandala()">';
+    H+='<span>🎯 OW64 曼陀羅</span>';
+    H+='<span id="m-arrow" style="font-size:10px;color:var(--primary);font-weight:700">'+(mOpen?'▲ 收合':'▼ 展開')+'</span>';
+    H+='</div>';
+    H+='<div id="m-wrap" style="display:'+(mOpen?'block':'none')+'">';
+    if(mOpen){
+      H+='<div class="steps">';
+      var st=[{n:1,l:'核心目標',d:stDone[0]},{n:2,l:'行動領域',d:stDone[1]},{n:3,l:'連結習慣',d:stDone[2]}];
+      st.forEach(function(s,i){
+        var a=!s.d&&(i===0||(i>0&&st[i-1].d));
+        H+='<div class="si"><div class="sd '+(s.d?'done':a?'go':'wait')+'">'+(s.d?'✓':s.n)+'</div><div class="sl'+(a?' go':'')+'">'+s.l+'</div></div>';
+        if(i<2)H+='<div class="sline"></div>';
+      });
+      H+='</div>';
+    }else{
+      var stTxt=stAll?'曼陀羅已設定完成 ✓':(!stDone[0]?'點展開 → 設定核心目標':(!stDone[1]?'點展開 → 填入行動領域':'點展開 → 連結習慣'));
+      var stCol=stAll?'var(--primary)':'var(--muted)';
+      H+='<div style="font-size:11px;color:'+stCol+';padding:6px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border)">'+stTxt+'</div>';
+    }
+    H+='<div style="font-size:12px;color:var(--muted);margin:8px 0">核心目標 ⟶ 8 個行動領域 ⟶ 64 個具體行動</div>';
+    H+='<div class="mgrid">';
+    CO.forEach(function(ci){
+      if(ci===-1){H+='<div class="mc core" onclick="oCore()"><div class="tag">核心目標</div><div class="val">'+(m.core?e(m.core):'點此設定')+'</div></div>';}
+      else{
+        var cell=m.cells[ci]||{},bc=cell.c||(cell.t?'#c4763a':'var(--border)');
+        H+='<div class="mc'+(cell.t?' fill':'')+'" style="border-color:'+bc+'" onclick="oCell('+ci+')">';
+        if(cell.t)H+='<div class="tag">領域</div><div class="val">'+e(cell.t)+'</div>';
+        else H+='<div class="ph">'+(m.core?'＋':'')+'</div>';
+        H+='</div>';
+      }
+    });
+    H+='</div>';
+    var filled=[];for(var k=0;k<8;k++)if(m.cells[k]&&m.cells[k].t)filled.push(k);
+    if(filled.length){
+      H+='<div style="font-size:12px;color:var(--muted);margin-bottom:8px">點執行格填入行動並連結習慣</div>';
+      filled.forEach(function(ci){
+        var cell=m.cells[ci],sub=m.subs[ci],bc=cell.c||'#c4763a';
+        var lc=sub?sub.cells.filter(function(c){return c&&c.hid;}).length:0;
+        H+='<div class="sb"><div class="sbh"><div class="sbd" style="background:'+bc+'"></div><div class="sbt">'+e(cell.t)+'</div><div class="sbb" style="background:'+bc+'20;color:'+bc+'">'+(lc?lc+'個習慣':'未連結')+'</div></div>';
+        H+='<div class="sgrid">';
+        CO.forEach(function(sci){
+          if(sci===-1){H+='<div class="sc scc" style="background:'+bc+'15;border-color:'+bc+'"><div class="scv" style="color:'+bc+'">'+e(cell.t)+'</div></div>';}
+          else{
+            var sc=(sub&&sub.cells[sci])||{},lh=sc.hid?d.h.find(function(x){return x.id===sc.hid;}):null;
+            H+='<div class="sc" onclick="oSub('+ci+','+sci+')">';
+            if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+lh.i+' '+lh.n+'</div>';else H+='<div class="scu">未連結</div>';}
+            else H+='<div class="scp">＋</div>';
+            H+='</div>';
+          }
+        });
+        H+='</div></div>';
+      });
+    }
+    H+='</div>'; /* /m-wrap */
     H+=renderWinCard();
   }
   H+='<div style="height:20px"></div>';
@@ -2056,6 +2095,10 @@ function rS(){
   H+='</div>';
   
   H+='</div>';
+  /* v1.45 新增習慣入口移至設定頁 */
+  H+='<div class="sec">想回來的事</div><div class="sblk">';
+  H+='<div class="srow"><div><div class="slb">加一個習慣</div><div class="ssub">選一件事，每天回來一點點</div></div><button onclick="go(3)" style="padding:5px 13px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:sans-serif">＋ 加入</button></div>';
+  H+='</div>';
   /* 資料管理 */
   H+='<div class="sec">資料管理</div><div class="sblk">';
   H+='<div class="srow"><div><div class="slb" style="color:var(--danger)">重設曼陀羅</div><div class="ssub">清除所有格子</div></div><button onclick="rsM()" style="padding:5px 13px;border-radius:8px;border:1.5px solid #fca5a5;background:var(--app);cursor:pointer;font-size:12px;color:var(--danger);font-family:sans-serif">重設</button></div>';
@@ -2385,6 +2428,27 @@ var MINI_PROMPTS={
   big:        '切到最小單位，先動再說'
 };
 
+/* v1.45 回來浮層 */
+function openComebackSheet(){
+  var d=ld(),log=d.l[td()]||{};
+  var list=document.getElementById('comeback-list');
+  if(!d.h||!d.h.length){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">還沒有習慣，先去設定頁加一個吧</div>';
+  }else{
+    list.innerHTML=d.h.map(function(hb){
+      var lvl=log[hb.id]||0;
+      var hint=lvl>=1?'今天已經動了 ✓':'今日的1：'+hb.v1+' '+hb.u+' 就夠了';
+      return '<div class="comeback-item" onclick="closeComebackSheet();go(0);setTimeout(function(){var el=document.getElementById(\'hcard-'+hb.id+'\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});},200)">'
+        +'<span class="comeback-icon">'+hb.i+'</span>'
+        +'<div><div class="comeback-name">'+e(hb.n)+'</div><div class="comeback-hint">'+hint+'</div></div>'
+        +'</div>';
+    }).join('');
+  }
+  document.getElementById('comeback-overlay').classList.add('open');
+}
+function closeComebackSheet(){
+  document.getElementById('comeback-overlay').classList.remove('open');
+}
 function openStuck(){
   stuckEmotion='';stuckHabitId='';
   document.querySelectorAll('.emo-card,.emo-card-wide').forEach(function(b){b.classList.remove('selected');});
@@ -3184,6 +3248,15 @@ function renderWinCard(){
   H+='</div>';
   return H;
 }
+/* v1.45 今日一勝 inline 快速儲存 */
+function svWinInline(){
+  var inp=document.getElementById('win-input-inline');
+  if(!inp||!inp.value.trim())return;
+  var t=td();
+  localStorage.setItem('win-'+t,inp.value.trim());
+  toast('記住了 ✨');
+  rH();
+}
 function saveWin(){
   var inp=document.getElementById('win-input');
   if(!inp||!inp.value.trim()){toast('寫點什麼，哪怕很短');return;}
@@ -3306,7 +3379,7 @@ function selectTrap(id){
 /* ── Service Worker 註冊 ── */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js?v=1.44')
+    navigator.serviceWorker.register('./sw.js?v=1.45')
       .then(function(r){console.log('[SW] registered scope:',r.scope);})
       .catch(function(e){console.warn('[SW] register failed:',e);});
   });
