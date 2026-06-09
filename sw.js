@@ -1,5 +1,5 @@
-/* 漫打卡 Service Worker v1.44 */
-var CACHE = 'manda-v1.44';
+/* 漫打卡 Service Worker v1.45 */
+var CACHE = 'manda-v1.45';
 var ASSETS = [
   './',
   './index.html',
