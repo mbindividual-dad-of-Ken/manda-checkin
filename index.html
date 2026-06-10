@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.45 | 2026-06-09 | 首頁IA重構：OW64下移+今日一勝前置+回來浮層 -->
+<!-- 漫打卡 v1.46 | 2026-06-11 | 安全強化＋簽名保護版：SWR快取/匯入驗證/簽名功能綁定 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -784,11 +784,33 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
 </div>
 <div id="toast"></div>
 <script>
-/* ── 開發者版權簽名 ── */
-// 版權所有 © 2026 Jerry. All Rights Reserved.
-// 本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
-// MANDALA_TALKS_DNA: Elastic-OW64-Resilience-2026
-var APP_AUTHOR='謙謙爸',MANDALA_TALKS_DNA='Elastic-OW64-Resilience-2026';
+/* ════════════════════════════════════════════════════════
+   ⚠️ 簽名保護區 ── 任何版本迭代必須原樣保留本區塊 ⚠️
+   本區塊與匯出/匯入功能綁定（_meta 與 _k 校驗），
+   移除或修改將直接導致 JSON 備份匯出與匯入驗證失效。
+   SIG.a = 作者署名（Base64，執行期由 sigA() 解碼，供關於頁渲染）
+   SIG.d = 作品 DNA 碼　SIG.v = 目前版本
+   sigK() = 署名校驗雜湊【演算法已凍結，永不可更改：
+            h = h*31 + charCode，無號 32 位元，輸出 36 進位】
+   版權所有 © 2026 謙謙爸 (Jerry). All Rights Reserved.
+   本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
+   ════════════════════════════════════════════════════════ */
+var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.46'};
+function sigA(){try{return decodeURIComponent(escape(atob(SIG.a)));}catch(err){return '';}}
+function sigK(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h.toString(36);}
+var APP_AUTHOR=sigA(),MANDALA_TALKS_DNA=SIG.d;
+/* ════════════════ 簽名保護區結束 ════════════════ */
+
+/* v1.46 錯誤可見度：去重＋每次開啟最多送 3 筆到 GA4 */
+var _errSeen={},_errN=0;
+window.onerror=function(msg,srcUrl,line){
+  try{
+    var key=String(msg).slice(0,80)+':'+line;
+    if(_errSeen[key]||_errN>=3)return;
+    _errSeen[key]=1;_errN++;
+    if(typeof gtag!=='undefined')gtag('event','js_error',{error_msg:String(msg).slice(0,100),error_line:line||0,app_ver:SIG.v});
+  }catch(err){}
+};
 var SK='eh3',CL=['#c4763a','#2563eb','#0f766e','#16a34a','#d97706','#dc2626','#db2777','#4b5563'];
 var CO=[0,1,2,3,-1,4,5,6,7],tab=0,cY,cM,cSel,aC='#c4763a';
 var TPLS=[
@@ -804,11 +826,14 @@ function ld(){
   try{
     var d=JSON.parse(localStorage.getItem(SK)||'{}');
     if(!d.h)d.h=[];if(!d.l)d.l={};if(!d.s)d.s={};
-    if(!d.m)d.m=nm();if(!d.ts)d.ts={};
+    if(!d.m)d.m=nm();if(!d.ts)d.ts={};if(!d.ver)d.ver=146;
     return d;
   }catch(e){return{h:[],l:{},s:{},m:nm(),ts:{}};}
 }
-function sv(d){localStorage.setItem(SK,JSON.stringify(d));}
+function sv(d){
+  try{localStorage.setItem(SK,JSON.stringify(d));}
+  catch(err){toast('⚠️ 儲存空間不足，這筆沒有存進去——請先到設定匯出備份');}
+}
 function nm(){
   return{core:'',
     cells:Array(8).fill(0).map(function(){return{t:'',c:'',hid:''};}),
@@ -1130,7 +1155,7 @@ function rH(){
       H+='<div style="margin:14px 0 6px;padding:16px;border-radius:14px;background:var(--pbg);border:1px solid var(--border)">';
       H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;letter-spacing:.05em">今天就這一個</div>';
       H+='<div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">';
-      H+='<span style="font-size:22px">'+fh.i+'</span>';
+      H+='<span style="font-size:22px">'+e(fh.i)+'</span>';
       H+='<div><div style="font-size:14px;font-weight:600;color:var(--text)">'+e(fh.n)+'</div>';
       H+='<div style="font-size:11px;color:var(--sub);margin-top:2px">今日的1：'+fh.v1+' '+fh.u+' 就夠了</div></div>';
       H+='</div>';
@@ -1143,7 +1168,7 @@ function rH(){
     d.h.forEach(function(hb){
       var lvl=log[hb.id]||0,st=sk(d.l,hb.id),col=hb.col||'#c4763a',src=fsrc(m,hb.id);
       H+='<div class="hc" id="hcard-'+hb.id+'" style="border-left-color:'+col+'">';
-      H+='<div class="hr"><span style="font-size:17px">'+hb.i+'</span><span class="hn">'+e(hb.n)+'</span>';
+      H+='<div class="hr"><span style="font-size:17px">'+e(hb.i)+'</span><span class="hn">'+e(hb.n)+'</span>';
       if(src)H+='<span class="hsrc" style="background:'+col+'20;color:'+col+'">'+e(src)+'</span>';
       var cb=comebackCount(d.l,hb.id);
       var mb=monthBackCount(d.l,hb.id);
@@ -1164,7 +1189,7 @@ function rH(){
         H+='<div class="lb" style="background:'+bg+';border-color:'+bc2+';'+(fd?'opacity:.38;text-decoration:line-through':'')+'" onclick="tLv(\''+hb.id+'\','+x.lv+')">';
         H+='<span class="lbn" style="color:'+(ac?col:'var(--muted)')+'">'+x.n+'</span>';
         if(x.lv===1&&lvl===0){H+='<span style="font-size:9px;background:#c4763a20;color:#c4763a;padding:1px 5px;border-radius:8px;display:block;margin-top:2px">今日的1就夠了</span>';}
-        H+='<span class="lbv" style="color:'+(ac?col:'var(--muted)')+'">'+hb['v'+x.lv]+' '+hb.u+'</span></div>';
+        H+='<span class="lbv" style="color:'+(ac?col:'var(--muted)')+'">'+hb['v'+x.lv]+' '+e(hb.u)+'</span></div>';
       });
       H+='</div></div>';
     });
@@ -1242,7 +1267,7 @@ function rH(){
           else{
             var sc=(sub&&sub.cells[sci])||{},lh=sc.hid?d.h.find(function(x){return x.id===sc.hid;}):null;
             H+='<div class="sc" onclick="oSub('+ci+','+sci+')">';
-            if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+lh.i+' '+lh.n+'</div>';else H+='<div class="scu">未連結</div>';}
+            if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+e(lh.i)+' '+e(lh.n)+'</div>';else H+='<div class="scu">未連結</div>';}
             else H+='<div class="scp">＋</div>';
             H+='</div>';
           }
@@ -1569,7 +1594,7 @@ function dCell(ci){var d=ld();d.m.cells[ci]={t:'',c:'',hid:''};d.m.subs[ci]={cel
 function oSub(ci,sci){
   var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
-  var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+h.i+' '+h.n+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+h.u+'</option>';}).join('');
+  var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+e(h.i)+' '+e(h.n)+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+e(h.u)+'</option>';}).join('');
   var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/多走一步 打卡。</div>';
   om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」的具體行動</div><label class="ml">行動描述</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：每天重量訓練 30 分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
 }
@@ -1742,7 +1767,7 @@ function rC(){
   else d.h.forEach(function(hb){
     var lv=sl[hb.id]||0,col=hb.col||'#c4763a';
     var b=lv===0?'<span style="font-size:11px;color:var(--muted)">未完成</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'多走一步')+'</span>';
-    H+='<div class="cdr"><span style="font-size:13px;color:var(--text)">'+hb.i+' '+e(hb.n)+'</span>'+b+'</div>';
+    H+='<div class="cdr"><span style="font-size:13px;color:var(--text)">'+e(hb.i)+' '+e(hb.n)+'</span>'+b+'</div>';
   });
   H+='</div><div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
@@ -1871,7 +1896,7 @@ function rSt(){
     var stats=last30Stats(d.l,hb.id);
     var curStr=sk(d.l,hb.id);
     H+='<div class="stat29-row" style="border-left:3px solid '+col+'">';
-    H+='<span class="stat29-row-i">'+hb.i+'</span>';
+    H+='<span class="stat29-row-i">'+e(hb.i)+'</span>';
     H+='<div class="stat29-row-c">';
     H+='<div class="stat29-row-n">'+e(hb.n)+'</div>';
     var hcb=comebackCount(d.l,hb.id);
@@ -1890,8 +1915,8 @@ function rSt(){
     var stats=last30Stats(d.l,hb.id);
     H+='<div class="stat-card">';
     H+='<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">';
-    H+='<span style="font-size:20px">'+hb.i+'</span>';
-    H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 多走一步 '+hb.v3+' '+hb.u+'</div></div>';
+    H+='<span style="font-size:20px">'+e(hb.i)+'</span>';
+    H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 多走一步 '+hb.v3+' '+e(hb.u)+'</div></div>';
     H+='</div>';
     H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">目前連續</div></div>';
@@ -1933,7 +1958,7 @@ function rSt(){
   }else{
     mReview='這個月你有 <b>'+mActiveDays+' 天</b>打開了漫打卡';
     if(mFullDays>0)mReview+='，其中 <b>'+mFullDays+' 天</b>完成了所有習慣';
-    if(mBestH)mReview+='。堅持最好的是「'+mBestH.i+' '+e(mBestH.n)+'」，共打卡 <b>'+mBestCnt+' 次</b>';
+    if(mBestH)mReview+='。堅持最好的是「'+e(mBestH.i)+' '+e(mBestH.n)+'」，共打卡 <b>'+mBestCnt+' 次</b>';
     mReview+='。';
     if(mActiveDays>=20)mReview+='<br><br>這個月你非常穩定——不是意志力，是你把系統做對了。';
     else if(mActiveDays>=10)mReview+='<br><br>超過一半的天數你都沒有放棄自己，這比你想的更難得。';
@@ -2048,12 +2073,13 @@ function rS(){
   H+='<div class="srow"><div><div class="slb">匯出 JSON 備份</div><div class="ssub">完整備份（可還原）</div></div><button onclick="expJSON()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">匯出</button></div>';
   H+='<div class="srow"><div><div class="slb">匯出 CSV 記錄</div><div class="ssub">打卡記錄表格格式</div></div><button onclick="expCSV()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">匯出</button></div>';
   H+='<div class="srow"><div><div class="slb">匯入 JSON 備份</div><div class="ssub">從備份檔還原資料</div></div><label style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">選擇檔案<input type="file" accept=".json" style="display:none" onchange="impJSON(this)"></label></div>';
+  if(localStorage.getItem('eh3-undo'))H+='<div class="srow"><div><div class="slb">還原匯入前資料</div><div class="ssub">回到上次匯入前的狀態（保留 7 天）</div></div><button onclick="undoImp()" style="padding:5px 13px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);cursor:pointer;font-size:12px;font-family:sans-serif;color:var(--text)">還原</button></div>';
   H+='</div>';
   /* 習慣清單 */
   H+='<div class="sec">習慣清單（'+d.h.length+'）</div><div class="sblk">';
   if(!d.h.length)H+='<div style="padding:12px 0;font-size:12px;color:var(--muted)">尚無習慣</div>';
   d.h.forEach(function(hb){
-    H+='<div class="srow"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:'+(hb.col||'#c4763a')+'"></div><div><div class="slb">'+hb.i+' '+e(hb.n)+'</div><div class="ssub">今日的1:'+hb.v1+' 穩定前進:'+hb.v2+' 多走一步:'+hb.v3+' '+hb.u+'</div></div></div>';
+    H+='<div class="srow"><div style="display:flex;align-items:center;gap:7px"><div style="width:9px;height:9px;border-radius:50%;background:'+(hb.col||'#c4763a')+'"></div><div><div class="slb">'+e(hb.i)+' '+e(hb.n)+'</div><div class="ssub">今日的1:'+hb.v1+' 穩定前進:'+hb.v2+' 多走一步:'+hb.v3+' '+e(hb.u)+'</div></div></div>';
     H+='<button onclick="dHS(\''+hb.id+'\')" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">✕</button></div>';
   });
   H+='</div>';
@@ -2114,7 +2140,7 @@ function rS(){
   H+='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">';
   H+='<img src="./icons/icon-192.png" style="width:44px;height:44px;border-radius:10px">';
   H+='<div><div style="font-size:15px;font-weight:800;color:var(--primary)">漫打卡 v1.42</div>';
-  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-05-25 · by 謙謙爸</div></div></div>';
+  H+='<div style="font-size:11px;color:var(--sub)">Manda PWA · 2026-06-11 · v'+SIG.v+' · by '+e(sigA())+'</div></div></div>';
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
   H+='漫打卡建立在三件事上：<br><br>';
@@ -2160,7 +2186,7 @@ function rS(){
   
   H+='你不用一次改變人生。你只需要，今天再踩一小格就好。</div>';
   H+='<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">';
-  H+='<span style="font-size:10px;color:var(--muted);font-style:italic">Handcrafted with ♥ by 謙謙爸</span>';
+  H+='<span style="font-size:10px;color:var(--muted);font-style:italic">Handcrafted with ♥ by '+e(sigA())+'</span>';
   H+='<a href="mailto:mbindividual@gmail.com" style="font-size:10px;color:var(--primary);text-decoration:none">mbindividual@gmail.com</a>';
   H+='</div></div>';
   H+='<div style="height:30px"></div>';
@@ -2193,14 +2219,19 @@ function clL(){if(!confirm('確定清除？'))return;var d=ld();d.l={};sv(d);rS(
 /* ── 匯出 / 匯入 ── */
 function expJSON(){
   var d=ld();
+  /* 簽名保護區綁定：v1.46+ 匯出檔自動寫入 _meta 與 _k 校驗 */
+  d.ver=146;
+  d._meta={app:'漫打卡 Manda',author:sigA(),dna:SIG.d,ver:SIG.v,exported:new Date().toISOString()};
+  d._k=sigK(d._meta.author+'|'+d._meta.dna+'|'+d._meta.ver);
   var blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   var a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='彈性習慣備份_'+td()+'.json';a.click();URL.revokeObjectURL(a.href);
   toast('✓ 備份已下載');
 }
+function csvSafe(s){s=String(s||'');if(/^[=+\-@]/.test(s))s="'"+s;if(s.indexOf(',')>=0||s.indexOf('"')>=0)s='"'+s.replace(/"/g,'""')+'"';return s;}
 function expCSV(){
   var d=ld();
-  var rows=[['日期'].concat(d.h.map(function(h){return h.n;}))];
+  var rows=[['日期'].concat(d.h.map(function(h){return csvSafe(h.n);}))];
   Object.keys(d.l).sort().forEach(function(date){
     var row=[date];
     d.h.forEach(function(hb){
@@ -2217,15 +2248,49 @@ function expCSV(){
 }
 function impJSON(input){
   var file=input.files[0];if(!file)return;
+  if(file.size>2*1024*1024){toast('❌ 檔案過大（上限 2MB）');input.value='';return;}
   var reader=new FileReader();
   reader.onload=function(ev){
     try{
       var data=JSON.parse(ev.target.result);
-      if(!data.h||!data.l)throw new Error();
-      if(confirm('確定匯入？現有資料將被覆蓋。')){sv(data);toast('✓ 匯入成功');go(0);}
+      /* 結構驗證 */
+      if(!data||typeof data!=='object'||Array.isArray(data))throw new Error();
+      if(!Array.isArray(data.h)||typeof data.l!=='object'||data.l===null||Array.isArray(data.l))throw new Error();
+      /* 簽名驗證：v1.46+ 檔案必須通過；舊版備份（無 ver）相容放行 */
+      if(data.ver&&data.ver>=146){
+        var ok=data._meta&&data._meta.dna===SIG.d&&
+               data._k===sigK((data._meta.author||'')+'|'+(data._meta.dna||'')+'|'+(data._meta.ver||''));
+        if(!ok){toast('❌ 備份檔驗證失敗，可能已被修改');input.value='';return;}
+      }
+      /* 欄位清洗：限制長度，去除非物件項 */
+      data.h=data.h.filter(function(x){return x&&typeof x==='object';}).map(function(x){
+        x.n=String(x.n||'').slice(0,40);x.i=String(x.i||'').slice(0,8);x.u=String(x.u||'').slice(0,12);
+        return x;
+      });
+      var isLegacy=!data.ver;
+      if(confirm((isLegacy?'偵測到舊版備份檔。':'')+'確定匯入？現有資料將被覆蓋。\n（會自動保留一份目前資料的快照，可於設定還原）')){
+        /* 匯入前快照，保留 7 天 */
+        try{
+          localStorage.setItem('eh3-undo',localStorage.getItem(SK)||'');
+          localStorage.setItem('eh3-undo-ts',String(Date.now()));
+        }catch(err){}
+        delete data._meta;delete data._k;
+        sv(data);toast('✓ 匯入成功');go(0);
+      }
     }catch(err){toast('❌ 檔案格式錯誤');}
   };
   reader.readAsText(file);input.value='';
+}
+function undoImp(){
+  var u=localStorage.getItem('eh3-undo');
+  if(!u){toast('沒有可還原的快照');return;}
+  if(!confirm('還原到上次匯入前的資料？目前資料將被覆蓋。'))return;
+  try{
+    JSON.parse(u);
+    localStorage.setItem(SK,u);
+    localStorage.removeItem('eh3-undo');localStorage.removeItem('eh3-undo-ts');
+    toast('✓ 已還原');go(0);
+  }catch(err){toast('❌ 快照損毀，無法還原');}
 }
 
 /* ── Ripple 觸控回饋 ── */
@@ -2439,7 +2504,7 @@ function openComebackSheet(){
       var lvl=log[hb.id]||0;
       var hint=lvl>=1?'今天已經動了 ✓':'今日的1：'+hb.v1+' '+hb.u+' 就夠了';
       return '<div class="comeback-item" onclick="closeComebackSheet();go(0);setTimeout(function(){var el=document.getElementById(\'hcard-'+hb.id+'\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'center\'});},200)">'
-        +'<span class="comeback-icon">'+hb.i+'</span>'
+        +'<span class="comeback-icon">'+e(hb.i)+'</span>'
         +'<div><div class="comeback-name">'+e(hb.n)+'</div><div class="comeback-hint">'+hint+'</div></div>'
         +'</div>';
     }).join('');
@@ -2687,6 +2752,7 @@ function saveUpgradeEmail(){
   }).then(function(r){
     if(r.ok){
       if(typeof gtag!=='undefined')gtag('event','upgrade_email_saved',{method:'formspree'});
+      localStorage.removeItem('upg-emails');/* v1.46 成功送出後清除本機暫存 */
       document.getElementById('upg-email-done').style.display='block';
       var wrap=document.getElementById('upg-email-wrap');
       if(wrap){wrap.querySelectorAll('div:first-child,div:nth-child(2)').forEach(function(c){c.style.display='none';});}
@@ -3379,7 +3445,7 @@ function selectTrap(id){
 /* ── Service Worker 註冊 ── */
 if('serviceWorker' in navigator){
   window.addEventListener('load',function(){
-    navigator.serviceWorker.register('./sw.js?v=1.45')
+    navigator.serviceWorker.register('./sw.js?v=1.46')
       .then(function(r){console.log('[SW] registered scope:',r.scope);})
       .catch(function(e){console.warn('[SW] register failed:',e);});
   });
@@ -3404,6 +3470,11 @@ document.addEventListener('DOMContentLoaded',function(){
       document.body.classList.toggle('dark',e.matches);
     });
   }
+  /* v1.46 申請持久儲存，降低 iOS 閒置 7 天清除資料的風險 */
+  if(navigator.storage&&navigator.storage.persist){navigator.storage.persist().catch(function(){});}
+  /* v1.46 匯入快照逾 7 天自動清除 */
+  var uts=parseInt(localStorage.getItem('eh3-undo-ts')||'0',10);
+  if(uts&&Date.now()-uts>7*86400000){localStorage.removeItem('eh3-undo');localStorage.removeItem('eh3-undo-ts');}
   go(0);
   bindRipples();
   if(!localStorage.getItem('ob-done')){
