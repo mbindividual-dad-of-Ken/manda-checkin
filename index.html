@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.46 | 2026-06-11 | 安全強化＋簽名保護版：SWR快取/匯入驗證/簽名功能綁定 -->
+<!-- 漫打卡 v1.47c | 2026-06-15 | P0修復：九宮格永遠顯示＋P1品牌漂移清理 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -795,7 +795,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
    版權所有 © 2026 謙謙爸 (Jerry). All Rights Reserved.
    本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
    ════════════════════════════════════════════════════════ */
-var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.46'};
+var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.47c'};
 function sigA(){try{return decodeURIComponent(escape(atob(SIG.a)));}catch(err){return '';}}
 function sigK(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h.toString(36);}
 var APP_AUTHOR=sigA(),MANDALA_TALKS_DNA=SIG.d;
@@ -1194,36 +1194,13 @@ function rH(){
       H+='</div></div>';
     });
   }else{H+='<div class="empty">有什麼事，你想每天做一點點？</div>';}
-  /* ② 啟動錨點 UI */
-  var savedAnchor=localStorage.getItem('anchor-'+t)||'';
-  H+='<div id="anchor-wrap" style="display:'+(savedAnchor?'block':'none')+';margin-top:16px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary)">';
-  H+='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">⚓ 埋下明天的啟動錨點</div>';
-  H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">明天先做哪一件？就一件。寫下來，明天提醒你從這裡開始。</div>';
-  H+='<div style="display:flex;gap:8px">';
-  H+='<input id="anchor-input" type="text" placeholder="例：打開漫打卡，完成今日的1" value="'+e(savedAnchor)+'" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-family:sans-serif">';
-  H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
-  H+='</div>';
-  H+='</div>';
-  /* v1.33 分享觸發按鈕（有習慣時顯示） */
-  if(d.h.length>0){
-    var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
-    var pct=Math.round(done/d.h.length*100);
-    H+='<button class="share-trigger" onclick="openShare(\'今日習慣 '+done+'/'+d.h.length+'\','+pct+')">';
-    H+='<span class="st-icon">🪄</span>';
-    H+='<span class="st-text"><div class="st-label">把今天輕輕收起來</div><div class="st-sub">今天，也值得被記住</div></span>';
-    H+='<span style="font-size:16px;color:var(--muted)">›</span>';
-    H+='</button>';
-  }
-  /* v1.37 今日動能整合區塊 */
-  if(d.h.length>0){
-    H+=renderMomentumBlock(d,log);
-  }else{
-    /* v1.45 OW64 移至此處，習慣卡片下方，預設收合 */
+  /* ── 九宮格：永遠顯示，不論有無習慣 ── */
+  {
     var mOpen=localStorage.getItem('m-open')==='1';
     var stDone=[!!m.core,hasA,d.h.length>0];
     var stAll=stDone.every(Boolean);
     H+='<div class="sec" style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-top:8px" onclick="tgMandala()">';
-    H+='<span>🎯 OW64 曼陀羅</span>';
+    H+='<span>🎯 九宮格</span>';
     H+='<span id="m-arrow" style="font-size:10px;color:var(--primary);font-weight:700">'+(mOpen?'▲ 收合':'▼ 展開')+'</span>';
     H+='</div>';
     H+='<div id="m-wrap" style="display:'+(mOpen?'block':'none')+'">';
@@ -1237,11 +1214,11 @@ function rH(){
       });
       H+='</div>';
     }else{
-      var stTxt=stAll?'曼陀羅已設定完成 ✓':(!stDone[0]?'點展開 → 設定核心目標':(!stDone[1]?'點展開 → 填入行動領域':'點展開 → 連結習慣'));
+      var stTxt=stAll?'曼陀羅已設定完成 ✓':(!stDone[0]?'最近有什麼事，一直放在心裡？':(!stDone[1]?'點展開 → 填入行動領域':'點展開 → 連結習慣'));
       var stCol=stAll?'var(--primary)':'var(--muted)';
       H+='<div style="font-size:11px;color:'+stCol+';padding:6px 10px;background:var(--card);border-radius:8px;border:1px solid var(--border)">'+stTxt+'</div>';
     }
-    H+='<div style="font-size:12px;color:var(--muted);margin:8px 0">核心目標 ⟶ 8 個行動領域 ⟶ 64 個具體行動</div>';
+    H+='<div style="font-size:12px;color:var(--muted);margin:8px 0">不用填滿。想到哪裡，就先放哪裡。</div>';
     H+='<div class="mgrid">';
     CO.forEach(function(ci){
       if(ci===-1){H+='<div class="mc core" onclick="oCore()"><div class="tag">核心目標</div><div class="val">'+(m.core?e(m.core):'點此設定')+'</div></div>';}
@@ -1267,7 +1244,7 @@ function rH(){
           else{
             var sc=(sub&&sub.cells[sci])||{},lh=sc.hid?d.h.find(function(x){return x.id===sc.hid;}):null;
             H+='<div class="sc" onclick="oSub('+ci+','+sci+')">';
-            if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+e(lh.i)+' '+e(lh.n)+'</div>';else H+='<div class="scu">未連結</div>';}
+            if(sc.t||sc.aim){if(sc.aim)H+='<div class="scu" style="font-size:9px;margin-bottom:2px">→ '+e(sc.aim)+'</div>';if(sc.t){H+='<div class="scv">'+e(sc.t)+'</div>';if(lh)H+='<div class="scl" style="background:'+(lh.col||bc)+'20;color:'+(lh.col||bc)+'">'+e(lh.i)+' '+e(lh.n)+'</div>';else H+='<div class="scu">未連結</div>';}}
             else H+='<div class="scp">＋</div>';
             H+='</div>';
           }
@@ -1277,6 +1254,30 @@ function rH(){
     }
     H+='</div>'; /* /m-wrap */
     H+=renderWinCard();
+  }
+  /* ② 啟動錨點 UI */
+  var savedAnchor=localStorage.getItem('anchor-'+t)||'';
+  H+='<div id="anchor-wrap" style="display:'+(savedAnchor?'block':'none')+';margin-top:16px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary)">';
+  H+='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">⚓ 埋下明天的啟動錨點</div>';
+  H+='<div style="font-size:11px;color:var(--sub);margin-bottom:8px;line-height:1.6">明天先做哪一件？就一件。寫下來，明天提醒你從這裡開始。</div>';
+  H+='<div style="display:flex;gap:8px">';
+  H+='<input id="anchor-input" type="text" placeholder="例：打開漫打卡，完成今日的1" value="'+e(savedAnchor)+'" style="flex:1;padding:8px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:12px;font-family:sans-serif">';
+  H+='<button onclick="saveAnchor()" style="padding:8px 12px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">存下</button>';
+  H+='</div>';
+  H+='</div>';
+  /* v1.33 分享觸發按鈕（有習慣時顯示） */
+  if(d.h.length>0){
+    var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
+    var pct=Math.round(done/d.h.length*100);
+    H+='<button class="share-trigger" onclick="openShare(\'今日習慣 '+done+'/'+d.h.length+'\','+pct+')">';
+    H+='<span class="st-icon">🪄</span>';
+    H+='<span class="st-text"><div class="st-label">把今天輕輕收起來</div><div class="st-sub">今天，也值得被記住</div></span>';
+    H+='<span style="font-size:16px;color:var(--muted)">›</span>';
+    H+='</button>';
+  }
+  /* v1.37 今日動能整合區塊 */
+  if(d.h.length>0){
+    H+=renderMomentumBlock(d,log);
   }
   H+='<div style="height:20px"></div>';
   document.getElementById('main').innerHTML=H;
@@ -1439,9 +1440,9 @@ function tLv(hid,lv){
     }else if(newLv===1){
       personalMsg='今日的1，就是今天最重要的事。做到了。';
     }else if(newLv===3&&curStreak>=7){
-      personalMsg='多走一步！'+curStreak+'天了——這不是意志力，是你把系統做對了。';
+      personalMsg='多走一步！'+curStreak+'天，原來這個方式比較適合你。';
     }else if(newLv===3){
-      personalMsg='多走一步！你今天選擇了最好的自己。';
+      personalMsg='多走一步！今天的你，有替自己留一點。';
     }else{
       personalMsg='穩定前進，比偶爾爆發更有力量。';
     }
@@ -1452,7 +1453,7 @@ function tLv(hid,lv){
       var companionN=80+((nd.getDate()*7+nd.getMonth()*31)%60);
       qEl.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">'+personalMsg+'</div>'
         +'<span style="font-style:italic;color:var(--sub);font-size:12px">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>'
-        +'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);font-size:11px;color:var(--muted)">今天也有 <strong style="color:var(--primary)">'+companionN+'</strong> 人在這裡留下了一點痕跡</div>';
+        +'';
       qEl.style.display='block';
       clearTimeout(qEl._t);
       qEl._t=setTimeout(function(){qEl.style.display='none';},6000);
@@ -1535,12 +1536,12 @@ function triggerBadDay(){
     +'<div style="background:var(--pbg);border-radius:14px;padding:16px;margin-bottom:20px;border-left:3px solid var(--primary)">'
     +'<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:8px">⚡ 今天只要這樣就夠了</div>'
     +'<div style="font-size:13px;color:var(--text);line-height:1.8">'
-    +'今天我只贏這 10 分鐘。<br>'
+    +'今天先留這 10 分鐘。<br>'
     +'選一個習慣，打「今日的1」<br>'
-    +'<span style="color:var(--sub);font-size:11px">做了，就算數。軌道沒有斷線。</span>'
+    +'<span style="color:var(--sub);font-size:11px">做了，就算。不用補回來。</span>'
     +'</div>'
     +'</div>'
-    +'<button onclick="closeBadDay()" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">好，今天我只贏這一點 →</button>'
+    +'<button onclick="closeBadDay()" style="width:100%;padding:14px;border-radius:12px;border:none;background:var(--primary);color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:10px">好，今天先留這一點 →</button>'
     +'<button onclick="closeBadDayOnly()" style="width:100%;padding:10px;border-radius:12px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:13px;cursor:pointer">先關閉</button>'
     +'</div>';
   document.body.appendChild(ov);
@@ -1581,12 +1582,12 @@ function showInstantFeedback(text,level){
 }
 
 /* ── 曼陀羅編輯 ── */
-function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">你最想改變的那件事，從這裡開始拆解。<br><br>把核心目標放在中心，拆解為 8 個行動領域，再各自展開 8 個具體行動——大谷翔平高一就用這套方法，把大夢變成每天踩得到的一格。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
+function oCore(){var d=ld();om('<div class="mt">① 核心目標</div><div class="md">最近有什麼事，一直放在心裡？先把它放在中心格。<br><br>外圍不用全填，想到哪格就填哪格。留白也沒關係，之後想到了再來。</div><label class="ml">你的核心目標</label><input type="text" class="mi" id="xc" value="'+e(d.m.core||'')+'" placeholder="例如：成為更健康的自己"/><div class="mbtns"><button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCore()">儲存</button></div>');}
 function svCore(){var d=ld();d.m.core=document.getElementById('xc').value.trim();sv(d);cm();rH();}
 function oCell(ci){
   var d=ld(),cell=d.m.cells[ci]||{};
   var sw=CL.map(function(c){return '<div class="sw'+(cell.c===c?' on':'')+'" style="background:'+c+'" onclick="pSw(this,\''+c+'\')"></div>';}).join('');
-  om('<div class="mt">② 行動領域</div><div class="md">為了達成核心目標，需要哪些面向的努力？<span style="color:var(--primary)">這格代表方向，在執行格連結習慣。</span><br><br><b>OW64 四方向參考：</b><br>❤️ 心（不輕易放棄）· ⭐ 技（專業技能）· 💪 體（身體健康）· 🌱 活（生活準則）</div><label class="ml">領域名稱</label><input type="text" class="mi" id="xct" value="'+e(cell.t||'')+'" placeholder="例如：體能訓練"/><label class="ml">代表色</label><div class="swrow" id="xsw">'+sw+'</div><div class="mbtns">'+(cell.t?'<button class="mbtn red" onclick="dCell('+ci+')">刪除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCell('+ci+')">儲存</button></div>');
+  om('<div class="mt">② 行動領域</div><div class="md">這件事的哪些角落，你想慢慢靠近？<span style="color:var(--primary)">不用想齊八個，填得到幾個就幾個。</span><br><br><b>可以參考的方向：</b><br>❤️ 心（情緒與意志）· ⭐ 技（能力與學習）· 💪 體（身體與健康）· 🌱 活（生活與關係）</div><label class="ml">領域名稱</label><input type="text" class="mi" id="xct" value="'+e(cell.t||'')+'" placeholder="例如：體能訓練"/><label class="ml">代表色</label><div class="swrow" id="xsw">'+sw+'</div><div class="mbtns">'+(cell.t?'<button class="mbtn red" onclick="dCell('+ci+')">刪除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svCell('+ci+')">儲存</button></div>');
 }
 function pSw(el,c){document.querySelectorAll('#xsw .sw').forEach(function(s){s.classList.remove('on');});el.classList.add('on');}
 function svCell(ci){var d=ld(),v=document.getElementById('xct').value.trim(),s=document.querySelector('#xsw .sw.on');d.m.cells[ci]={t:v,c:s?s.style.background:CL[ci%8],hid:''};sv(d);cm();rH();}
@@ -1596,9 +1597,9 @@ function oSub(ci,sci){
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
   var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+e(h.i)+' '+e(h.n)+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+e(h.u)+'</option>';}).join('');
   var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/多走一步 打卡。</div>';
-  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」的具體行動</div><label class="ml">行動描述</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：每天重量訓練 30 分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
+  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」</div><label class="ml">想靠近的樣子</label><input type="text" class="mi" id="xsaim" value="'+e(sc.aim||'')+'" placeholder="例如：晚上有一點屬於自己的時間"/><label class="ml">今天碰得到的一點點</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：倒一杯水，坐五分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t||sc.aim?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
 }
-function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,hid:hid};sv(d);cm();rH();}
+function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),aim=document.getElementById('xsaim')?document.getElementById('xsaim').value.trim():'',hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',aim:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,aim:aim,hid:hid};sv(d);cm();rH();}
 function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',hid:''};sv(d);cm();rH();}
 
 /* ── 月曆 (v1.29 D1 溫暖熱力圖) ── */
@@ -1658,7 +1659,7 @@ function rC(){
     if(stuckRange&&maxStreakAll>=2){
       sub='你從 '+stuckRange.end+' 日的空白，回到了 '+(stuckRange.end+1)+' 日。<br>那不是失敗，是讓你回得來的轉折。';
     }else if(mFullDays>=10){
-      sub='本月有 '+mFullDays+' 天全勤——不是意志力，是你把系統做對了。';
+      sub='本月有 '+mFullDays+' 天都有回來——原來這個方式比較適合你。';
     }else if(mDoneDays>=5){
       sub='你已經在這個月留下痕跡了。<br>不用比昨天更好，比上個月的自己回得更快就好。';
     }else{
@@ -1778,7 +1779,7 @@ function cSl(s){cSel=s;rC();}
 /* ── 統計頁面 (v1.29 E2 數據儀表板) ── */
 function rSt(){
   document.getElementById('ttl').textContent='軌跡';
-  document.getElementById('tsub').textContent='30 天 · 數字說話';
+  document.getElementById('tsub').textContent='30 天 · 最近的樣子';
   var d=ld(),t=td();
   if(!d.h.length){document.getElementById('main').innerHTML='<div class="empty">加入習慣後就能看到軌跡 📊</div>';return;}
 
@@ -1920,8 +1921,8 @@ function rSt(){
     H+='</div>';
     H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">目前連續</div></div>';
-    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+maxStr+'</div><div style="font-size:10px;color:var(--muted)">最長連續</div></div>';
-    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">完成天數</div></div>';
+    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+maxStr+'</div><div style="font-size:10px;color:var(--muted)">最近常常回來</div></div>';
+    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">有留下的日子</div></div>';
     H+='</div>';
     /* 30天熱力 */
     H+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">近 30 天打卡紀錄</div>';
@@ -1960,7 +1961,7 @@ function rSt(){
     if(mFullDays>0)mReview+='，其中 <b>'+mFullDays+' 天</b>完成了所有習慣';
     if(mBestH)mReview+='。堅持最好的是「'+e(mBestH.i)+' '+e(mBestH.n)+'」，共打卡 <b>'+mBestCnt+' 次</b>';
     mReview+='。';
-    if(mActiveDays>=20)mReview+='<br><br>這個月你非常穩定——不是意志力，是你把系統做對了。';
+    if(mActiveDays>=20)mReview+='<br><br>這個月你常常回來——原來這個方式比較適合你。';
     else if(mActiveDays>=10)mReview+='<br><br>超過一半的天數你都沒有放棄自己，這比你想的更難得。';
     else mReview+='<br><br>每一次重新開始，都比上一次更有說服力。';
   }
@@ -2144,8 +2145,8 @@ function rS(){
   H+='<div style="font-size:11px;color:var(--sub);background:var(--card);border-radius:8px;padding:8px 12px;margin-bottom:12px;line-height:1.7;border:1px solid var(--border)">🔒 你的習慣紀錄只存在你的設備與個人空間。連開發者都看不到你寫了什麼。</div>';
   H+='<div style="font-size:12px;color:var(--text);line-height:1.9;margin-bottom:12px">';
   H+='漫打卡建立在三件事上：<br><br>';
-  H+='<b>🟣 曼陀羅九宮格（OW64）</b><br>';
-  H+='有些目標太大的時候，人會連開始都覺得累。九宮格的存在，不是為了把人生規劃得更完美，而是把那些「不知道怎麼開始」的願望，慢慢拆成今天走得到的一小步。<br><br>';
+  H+='<b>🟣 九宮格</b><br>';
+  H+='當一件事太大、太亂，人會連開始都覺得累。九宮格不是要你把格子全部填完，而是先把心裡那件事攤開來——不用填滿，今天看得見一格，就已經比較不那麼亂了。<br><br>';
   H+='<b>🔵 彈性三級制</b><br>';
   H+='今日的1 / 穩定前進 / 多走一步——有力氣的日子，可以多做一些。沒力氣的日子，也可以把目標縮到很小很小。重要的不是每天都很厲害，而是狀態亂掉的時候，你還願意留下來。靈感來自 Stephen Guise《彈性習慣》。<br><br>';
   H+='<b>🎯 人生平衡輪</b><br>';
@@ -2657,7 +2658,7 @@ var QUOTES=[
   {q:'不小看每天的微小彈性，小水滴也能穿石。',src:'彈性習慣'},
   {q:'曾經有過比今天更強的一天，就是你繼續下去的最好理由。',src:'漫打卡'},
   {q:'未知性是最強的好奇心引擎：成長不是筆直線，是有驚喜的曲線。',src:'漫打卡'},
-  {q:'更好的關鍵詞不是「變得更好」，而是「不要停下來」。',src:'不完美主義'},
+  {q:'更好的關鍵詞不是「變得更好」，而是「還願意回來」。',src:'不完美主義'},
   {q:'預設值不只是設計，更是一種善意：幫助你在漫不經心的狀態下做對的事。',src:'推力'},
   {q:'第二天繼續，不是因為完美，而是因為沒有關係。',src:'漫打卡'},
   {q:'習慣的社會證明：知道全世界有人和你一起在做這件事，會讓你走得更遠。',src:'推力'},
@@ -2665,11 +2666,11 @@ var QUOTES=[
   {q:'自己設計的達成方式，使你對習慣更有所有權感。',src:'遊戲化實戰全書'},
   {q:'你不是意志力不夠的人。你只是從來沒有一個設計給真實人類的習慣系統。',src:'漫打卡'},
   {q:'彈性不是放棄，是讓你明天還能回來的設計。',src:'漫打卡'},
-  {q:'連勝不斷，不是因為你每天都很強，而是因為你允許自己有時候只做一件事。',src:'漫打卡'},
+  {q:'不是每天都很強，而是你允許自己有時候只做一件事——然後你還是回來了。',src:'漫打卡'},
   {q:'Mini 不是退而求其次，是今天最聰明的選擇。',src:'漫打卡'},
   {q:'你選擇回來的每一天，都比昨天的自己更有說服力。',src:'漫打卡'},
   {q:'習慣不需要完美的開始，只需要一個不完美的今天。',src:'漫打卡'},
-  {q:'讓系統幫你贏，不是靠意志力撐過去。',src:'漫打卡'},
+  {q:'找到一個比較不會讓你放棄的方式，這件事本身就很了不起。',src:'漫打卡'},
   {q:'最累的那天，也能留下一個記錄。這就是彈性的意義。',src:'漫打卡'}
 ];
 
@@ -2833,14 +2834,14 @@ function generateRecommendation(){
   
   var recommendation=dimensions[minIndex];
   var suggestions={
-    '事業發展':'建議將「技能提升」或「工作效率優化」設為九宮格中心目標',
-    '財務狀況':'建議將「理財學習」或「收入提升計畫」設為九宮格中心目標',
-    '身體健康':'建議將「運動習慣」或「健康飲食」設為九宮格中心目標',
-    '人際關係':'建議將「社交互動」或「家庭時光」設為九宮格中心目標',
-    '個人成長':'建議將「閱讀學習」或「新技能培養」設為九宮格中心目標',
-    '娛樂休閒':'建議將「興趣培養」或「放鬆時光」設為九宮格中心目標',
-    '生活環境':'建議將「環境整理」或「生活品質提升」設為九宮格中心目標',
-    '心靈成長':'建議將「冥想練習」或「價值觀釐清」設為九宮格中心目標'
+    '事業發展':'工作這塊最近壓著你，先把它放進九宮格看看',
+    '財務狀況':'錢的事有點沉，先把它攤開來，找找今天碰得到的一格',
+    '身體健康':'身體好像在發訊號了，先把它放在中心，慢慢靠近就好',
+    '人際關係':'關係這塊有點悶，放進九宮格，看看哪一角想先動動',
+    '個人成長':'想讓自己慢慢不一樣，先把這個放在中心格試試',
+    '娛樂休閒':'好像很久沒有真的放鬆了，先把這件事放回來',
+    '生活環境':'環境亂的時候心也容易亂，先把這塊放進九宮格看看',
+    '心靈成長':'好像有點找不到方向，先把這感覺放在中心，慢慢展開'
   };
   
   closeBalanceWheel();
