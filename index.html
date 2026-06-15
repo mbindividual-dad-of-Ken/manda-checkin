@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.47e | 2026-06-15 | 今天從這格開始 + 文案清理完整版 -->
+<!-- 漫打卡 v1.47f | 2026-06-16 | P0修復完整版：todayFocus移位/完成態/saveAndSet/語氣全清 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -795,7 +795,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
    版權所有 © 2026 謙謙爸 (Jerry). All Rights Reserved.
    本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
    ════════════════════════════════════════════════════════ */
-var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.47e'};
+var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.47f'};
 function sigA(){try{return decodeURIComponent(escape(atob(SIG.a)));}catch(err){return '';}}
 function sigK(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h.toString(36);}
 var APP_AUTHOR=sigA(),MANDALA_TALKS_DNA=SIG.d;
@@ -1123,30 +1123,37 @@ function rH(){
     H+='<button onclick="svWinInline()" style="padding:8px 14px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:var(--sans)">留下</button>';
     H+='</div>';
   }
+  /* ── 今天從這格開始 臨時卡（零習慣也顯示）── */
+  var tf=d.todayFocus;
+  if(tf&&tf.date===t&&!tf.done){
+    H+='<div style="margin:0 0 10px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary)">';
+    H+='<div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:4px">🌱 今天從這格開始</div>';
+    if(tf.aim)H+='<div style="font-size:11px;color:var(--sub);margin-bottom:4px">→ '+e(tf.aim)+'</div>';
+    H+='<div style="font-size:13px;color:var(--text);font-weight:600">'+e(tf.text)+'</div>';
+    H+='<div style="display:flex;gap:8px;margin-top:10px">';
+    H+='<button onclick="doneTodayFocus()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">留下這一步 ✓</button>';
+    H+='<button onclick="clearTodayFocus()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer">移開</button>';
+    H+='</div></div>';
+  }else if(tf&&tf.date===t&&tf.done){
+    H+='<div style="margin:0 0 10px;padding:12px 16px;background:var(--card);border-radius:12px;border-left:3px solid #87a878;display:flex;align-items:center;gap:10px">';
+    H+='<span style="font-size:16px">✓</span>';
+    H+='<div style="flex:1"><div style="font-size:11px;font-weight:700;color:#87a878;margin-bottom:2px">今天有碰到這一格</div>';
+    H+='<div style="font-size:12px;color:var(--sub)">'+e(tf.text)+'</div></div>';
+    H+='<button onclick="clearTodayFocus()" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);font-size:11px;cursor:pointer">先這樣</button>';
+    H+='</div>';
+  }
   /* v1.45 OW64 移到習慣卡片下方，此處移除原本 OW64 區塊 */
   if(d.h.length){
     var done=d.h.filter(function(x){return(log[x.id]||0)>=1;}).length;
     var pct=Math.round(done/d.h.length*100);
     var allDone=done===d.h.length;
-    /* ── 卡關入口按鈕 ── */
+    /* ── 卡關入口按鈕 */
     if(!allDone){
       H+='<button id="stuck-gate" onclick="openStuck()">';
       H+='<div class="sg-icon">🌀</div>';
       H+='<div class="sg-text"><div class="sg-label">現在卡住了？點這裡</div><div class="sg-sub">幫你找到下一個最小行動</div></div>';
       H+='<div style="font-size:16px;color:var(--muted)">›</div>';
       H+='</button>';
-    }
-    /* ── 今天從這格開始 臨時卡 ── */
-    var tf=ld().todayFocus;
-    if(tf&&tf.date===t){
-      H+='<div style="margin:0 0 10px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary);position:relative">';
-      H+='<div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:4px">🌱 今天從這格開始</div>';
-      if(tf.aim)H+='<div style="font-size:11px;color:var(--sub);margin-bottom:4px">→ '+e(tf.aim)+'</div>';
-      H+='<div style="font-size:13px;color:var(--text);font-weight:600">'+e(tf.text)+'</div>';
-      H+='<div style="display:flex;gap:8px;margin-top:10px">';
-      H+='<button onclick="doneTodayFocus()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">留下這一步 ✓</button>';
-      H+='<button onclick="clearTodayFocus()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer">移開</button>';
-      H+='</div></div>';
     }
     /* ── 方向感語氣條 ── */
     var dirQ=allDone?'今天留下了痕跡 ✓':(done>0?'今天已經動了一下':'今天還有習慣沒靠近');
@@ -1308,7 +1315,7 @@ var CHIPS_BLUE=[
   '身體需要休息','行程比預期忙','心情不在狀態','環境不配合','突發狀況'
 ];
 var CHIPS_GREEN=[
-  '今日的1就是今天的 Elite','習慣還在，沒有斷','本可以更多，但今天的1已夠了','明天我會準備好','小步也是前進'
+  '今日的1已經夠了','今天有留下，就算','本可以更多，但今天這樣也行','明天的事，明天再看','小步也是往前'
 ];
 function showReflectChip(hid,lv){
   /* lv=1 才問（今日的1 用戶最需要情緒支持），高等級打卡不打擾 */
@@ -1608,12 +1615,13 @@ function oSub(ci,sci){
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
   var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+e(h.i)+' '+e(h.n)+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+e(h.u)+'</option>';}).join('');
   var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/多走一步 打卡。</div>';
-  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」</div><label class="ml">想靠近的樣子</label><input type="text" class="mi" id="xsaim" value="'+e(sc.aim||'')+'" placeholder="例如：晚上有一點屬於自己的時間"/><label class="ml">今天碰得到的一點點</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：倒一杯水，坐五分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t||sc.aim?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>'+(sc.t?'<button class="mbtn" style="width:100%;margin-top:8px;background:var(--pbg);border:1.5px solid var(--primary);color:var(--primary);font-weight:700" onclick="setTodayFocus('+ci+','+sci+')">🌱 今天從這格開始</button>':''));
+  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」</div><label class="ml">想靠近的樣子</label><input type="text" class="mi" id="xsaim" value="'+e(sc.aim||'')+'" placeholder="例如：晚上有一點屬於自己的時間"/><label class="ml">今天碰得到的一點點</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：倒一杯水，坐五分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t||sc.aim?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div><button class="mbtn" style="width:100%;margin-top:8px;background:var(--pbg);border:1.5px solid var(--primary);color:var(--primary);font-weight:700" onclick="saveAndSetTodayFocus('+ci+','+sci+')">🌱 儲存並從今天開始</button>');
 }
 function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),aim=document.getElementById('xsaim')?document.getElementById('xsaim').value.trim():'',hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',aim:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,aim:aim,hid:hid};sv(d);cm();rH();}
 function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',hid:''};sv(d);cm();rH();}
-function setTodayFocus(ci,sci){var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};if(!sc.t&&!sc.aim)return;d.todayFocus={date:td(),ci:ci,sci:sci,text:sc.t||'',aim:sc.aim||''};sv(d);cm();go(0);toast('🌱 今天從這格開始，加油');}
-function doneTodayFocus(){var d=ld();if(d.todayFocus)d.todayFocus.done=true;sv(d);rH();toast('今天留下一點了 ✓');}
+function setTodayFocus(ci,sci){var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};if(!sc.t&&!sc.aim)return;d.todayFocus={date:td(),ci:ci,sci:sci,text:sc.t||'',aim:sc.aim||''};sv(d);cm();go(0);toast('🌱 記下了，今天先從這格開始');}
+function saveAndSetTodayFocus(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),aim=document.getElementById('xsaim')?document.getElementById('xsaim').value.trim():'',hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',aim:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,aim:aim,hid:hid};if(v||aim){d.todayFocus={date:td(),ci:ci,sci:sci,text:v||aim,aim:aim};}sv(d);cm();go(0);toast('🌱 記下了，今天先從這格開始');}
+function doneTodayFocus(){var d=ld();if(!d.todayFocus)return;d.todayFocus.done=true;var t=td();if(!d.l[t])d.l[t]={};d.l[t]._focus={text:d.todayFocus.text,aim:d.todayFocus.aim,ci:d.todayFocus.ci,sci:d.todayFocus.sci};sv(d);rH();toast('今天留下一點了 ✓');}
 function clearTodayFocus(){var d=ld();delete d.todayFocus;sv(d);rH();}
 
 /* ── 月曆 (v1.29 D1 溫暖熱力圖) ── */
@@ -1847,7 +1855,7 @@ function rSt(){
   var totalCB=d.h.reduce(function(s,h){return s+comebackCount(d.l,h.id);},0);
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c4763a">'+checkInDays30+'</div><div class="stat29-kpi-lbl">有動過 · 天</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#d97757">'+totalCB+'</div><div class="stat29-kpi-lbl">重新回來 · 次</div></div>';
-  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">最長記錄 · 天</div></div>';
+  H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#87a878">'+bestStreak+'</div><div class="stat29-kpi-lbl">曾接著回來 · 天</div></div>';
   H+='<div class="stat29-kpi-card"><div class="stat29-kpi-num" style="color:#c08a96">'+totalChecks30+'</div><div class="stat29-kpi-lbl">留下痕跡</div></div>';
   H+='</div>';
 
@@ -1936,7 +1944,8 @@ function rSt(){
     H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">最近接著回來</div></div>';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">近30天回來</div></div>';
-    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">有留下的日子</div></div>';
+    var cb30=comebackCount(d.l,hb.id);
+    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+cb30+'</div><div style="font-size:10px;color:var(--muted)">重新回來</div></div>';
     H+='</div>';
     /* 30天熱力 */
     H+='<div style="font-size:10px;color:var(--muted);margin-bottom:4px">近 30 天打卡紀錄</div>';
@@ -2220,9 +2229,9 @@ function svAnchor(){var inp=document.getElementById('anchor-setting-input');if(!
 function tstN(){if('Notification'in window&&Notification.permission==='granted'){new Notification('漫打卡',{body:(function(){
       var anchor=localStorage.getItem('anchor-'+td());
       var msgs=[
-        '如果你現在打開漫打卡，就算只踏一小步，今天就贏了。',
+        '如果你現在打開漫打卡，就算只踏一小步，今天也算。',
         '今天不用做到很多，今日的1就夠了。',
-        '如果你覺得難——切換失控日模式，10分鐘就算贏。'
+        '如果你覺得難——切換失控日模式，10分鐘也可以留下來。'
       ];
       var base=msgs[new Date().getDay()%msgs.length];
       return anchor?('今天記得：'+anchor):base;
@@ -2502,7 +2511,7 @@ var EMOTION_MSG={
 /* 情緒 → 最小行動文字 */
 var MINI_PROMPTS={
   overwhelmed:'先深呼吸3秒，只打開這個習慣就好',
-  tired:      '做最小版本，完成就算贏',
+  tired:      '做最小版本，碰到一點就算',
   scared:     '只做開頭的一小步，不用做完',
   lost:       '就選這個，其他等一下再說',
   big:        '切到最小單位，先動再說'
@@ -2649,7 +2658,7 @@ function getDailySlogan(){
 
 /* ── 里程碑語錄庫 ── */
 var QUOTES=[
-  {q:'彈性不是退縮，而是確保天天都能贏的聰明策略。',src:'彈性習慣'},
+  {q:'彈性不是退縮，而是讓你每天都還能回來的設計。',src:'彈性習慣'},
   {q:'你不是太弱，只是缺乏彈性而已。',src:'彈性習慣'},
   {q:'橡皮筋哲學：壓縮之後，自然彈回。習慣也是。',src:'彈性習慣'},
   {q:'做了就是1，就是完美的勝利。',src:'不完美主義'},
@@ -2675,8 +2684,8 @@ var QUOTES=[
   {q:'更好的關鍵詞不是「變得更好」，而是「還願意回來」。',src:'不完美主義'},
   {q:'預設值不只是設計，更是一種善意：幫助你在漫不經心的狀態下做對的事。',src:'推力'},
   {q:'第二天繼續，不是因為完美，而是因為沒有關係。',src:'漫打卡'},
-  {q:'習慣的社會證明：知道全世界有人和你一起在做這件事，會讓你走得更遠。',src:'推力'},
-  {q:'從完成的那一刻起，這個習慣就屬於了你。',src:'漫打卡'},
+  {q:'有時候知道你不是一個人在做這件事，會讓你多走一點。',src:'推力'},
+  {q:'每一次你回來，這個方向就多屬於你一點。',src:'漫打卡'},
   {q:'自己設計的達成方式，使你對習慣更有所有權感。',src:'遊戲化實戰全書'},
   {q:'你不是意志力不夠的人。你只是從來沒有一個設計給真實人類的習慣系統。',src:'漫打卡'},
   {q:'彈性不是放棄，是讓你明天還能回來的設計。',src:'漫打卡'},
