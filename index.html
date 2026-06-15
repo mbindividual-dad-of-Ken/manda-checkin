@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- 漫打卡 v1.47c | 2026-06-15 | P0修復：九宮格永遠顯示＋P1品牌漂移清理 -->
+<!-- 漫打卡 v1.47e | 2026-06-15 | 今天從這格開始 + 文案清理完整版 -->
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
@@ -795,7 +795,7 @@ body{font-family:var(--sans);background:var(--bg);display:flex;justify-content:c
    版權所有 © 2026 謙謙爸 (Jerry). All Rights Reserved.
    本程式融合 Stephen Guise《彈性習慣》邏輯與大谷翔平 OW64 曼陀羅框架。
    ════════════════════════════════════════════════════════ */
-var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.47c'};
+var SIG={a:'6KyZ6KyZ54i4',d:'Elastic-OW64-Resilience-2026',v:'1.47e'};
 function sigA(){try{return decodeURIComponent(escape(atob(SIG.a)));}catch(err){return '';}}
 function sigK(s){var h=0;for(var i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))>>>0;}return h.toString(36);}
 var APP_AUTHOR=sigA(),MANDALA_TALKS_DNA=SIG.d;
@@ -1136,6 +1136,18 @@ function rH(){
       H+='<div style="font-size:16px;color:var(--muted)">›</div>';
       H+='</button>';
     }
+    /* ── 今天從這格開始 臨時卡 ── */
+    var tf=ld().todayFocus;
+    if(tf&&tf.date===t){
+      H+='<div style="margin:0 0 10px;padding:14px 16px;background:var(--pbg);border-radius:12px;border-left:3px solid var(--primary);position:relative">';
+      H+='<div style="font-size:11px;font-weight:700;color:var(--primary);margin-bottom:4px">🌱 今天從這格開始</div>';
+      if(tf.aim)H+='<div style="font-size:11px;color:var(--sub);margin-bottom:4px">→ '+e(tf.aim)+'</div>';
+      H+='<div style="font-size:13px;color:var(--text);font-weight:600">'+e(tf.text)+'</div>';
+      H+='<div style="display:flex;gap:8px;margin-top:10px">';
+      H+='<button onclick="doneTodayFocus()" style="flex:1;padding:8px;border-radius:8px;border:none;background:var(--primary);color:#fff;font-size:12px;font-weight:700;cursor:pointer">留下這一步 ✓</button>';
+      H+='<button onclick="clearTodayFocus()" style="padding:8px 12px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--sub);font-size:12px;cursor:pointer">移開</button>';
+      H+='</div></div>';
+    }
     /* ── 方向感語氣條 ── */
     var dirQ=allDone?'今天留下了痕跡 ✓':(done>0?'今天已經動了一下':'今天還有習慣沒靠近');
     var dirS=allDone?'有做，就算。':done>0?'動了就算，繼續就好。':'還沒開始也行，現在也可以。';
@@ -1421,7 +1433,8 @@ function tLv(hid,lv){
     /* 即時成就提示 */
     var levelNames=['','今日的1','穩定前進','多走一步'];
     var levelEmojis=['','✨','🔥','💎'];
-    var achieveText=levelEmojis[newLv]+' '+levelNames[newLv]+' 完成！';
+    var feedbackTexts={1:'✨ 今天留下一點了',2:'🌿 今天有往前一些',3:'💎 今天多靠近了一點'};
+    var achieveText=feedbackTexts[newLv]||'';
     showInstantFeedback(achieveText,newLv);
   }
   rH();  /* 打卡完成：顯示個人化鼓勵語 */
@@ -1449,8 +1462,6 @@ function tLv(hid,lv){
     var rq=allQ[Math.floor(Math.random()*allQ.length)];
     var qEl=document.getElementById('checkin-quote');
     if(qEl){
-      var nd=new Date();
-      var companionN=80+((nd.getDate()*7+nd.getMonth()*31)%60);
       qEl.innerHTML='<div style="font-size:12px;font-weight:700;color:var(--primary);margin-bottom:6px">'+personalMsg+'</div>'
         +'<span style="font-style:italic;color:var(--sub);font-size:12px">「'+rq.q+'」</span><br><span style="font-size:10px;color:var(--muted)">— '+rq.src+'</span>'
         +'';
@@ -1557,12 +1568,12 @@ function closeBadDay(){
       if(el){
         var hint=document.createElement('div');
         hint.style.cssText='font-size:11px;color:var(--primary);background:var(--pbg);border-radius:6px;padding:4px 8px;margin-top:4px;text-align:center';
-        hint.textContent='💙 今天的1就夠了——只要不斷線';
+        hint.textContent='💙 今天的1就夠了——不用把前面補回來';
         el.appendChild(hint);
       }
     }
   });
-  toast('💙 今天只贏一點點就夠了');
+  toast('💙 今天先留這一點就好');
 }
 
 function closeBadDayOnly(){
@@ -1597,10 +1608,13 @@ function oSub(ci,sci){
   var cn=d.m.cells[ci]?d.m.cells[ci].t:'',bc=d.m.cells[ci]?d.m.cells[ci].c:'#c4763a';
   var ho='<option value="">— 不連結習慣 —</option>'+d.h.map(function(h){return '<option value="'+h.id+'"'+(sc.hid===h.id?' selected':'')+'>'+e(h.i)+' '+e(h.n)+' | 今日的1:'+h.v1+' 穩定前進:'+h.v2+' 多走一步:'+h.v3+' '+e(h.u)+'</option>';}).join('');
   var hint=d.h.length===0?'<div class="mh">⚠️ 尚無習慣，請先到「加入」建立習慣。</div>':'<div class="mh" style="border-left:3px solid '+bc+';padding-left:9px">連結後，每天在今日頁面用 今日的1/穩定前進/多走一步 打卡。</div>';
-  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」</div><label class="ml">想靠近的樣子</label><input type="text" class="mi" id="xsaim" value="'+e(sc.aim||'')+'" placeholder="例如：晚上有一點屬於自己的時間"/><label class="ml">今天碰得到的一點點</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：倒一杯水，坐五分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t||sc.aim?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>');
+  om('<div class="mt">③ 執行格</div><div class="md">「'+e(cn)+'」</div><label class="ml">想靠近的樣子</label><input type="text" class="mi" id="xsaim" value="'+e(sc.aim||'')+'" placeholder="例如：晚上有一點屬於自己的時間"/><label class="ml">今天碰得到的一點點</label><input type="text" class="mi" id="xst" value="'+e(sc.t||'')+'" placeholder="例如：倒一杯水，坐五分鐘"/>'+hint+(d.h.length?'<label class="ml">連結習慣</label><select class="msel" id="xsh">'+ho+'</select>':'')+'<div class="mbtns">'+(sc.t||sc.aim?'<button class="mbtn red" onclick="dSub('+ci+','+sci+')">清除</button>':'')+'<button class="mbtn" onclick="cm()">取消</button><button class="mbtn pri" onclick="svSub('+ci+','+sci+')">儲存</button></div>'+(sc.t?'<button class="mbtn" style="width:100%;margin-top:8px;background:var(--pbg);border:1.5px solid var(--primary);color:var(--primary);font-weight:700" onclick="setTodayFocus('+ci+','+sci+')">🌱 今天從這格開始</button>':''));
 }
 function svSub(ci,sci){var d=ld(),v=document.getElementById('xst').value.trim(),aim=document.getElementById('xsaim')?document.getElementById('xsaim').value.trim():'',hel=document.getElementById('xsh'),hid=hel?hel.value:'';if(!d.m.subs[ci])d.m.subs[ci]={cells:Array(8).fill(0).map(function(){return{t:'',aim:'',hid:''};})};d.m.subs[ci].cells[sci]={t:v,aim:aim,hid:hid};sv(d);cm();rH();}
 function dSub(ci,sci){var d=ld();if(d.m.subs[ci])d.m.subs[ci].cells[sci]={t:'',hid:''};sv(d);cm();rH();}
+function setTodayFocus(ci,sci){var d=ld(),sub=d.m.subs[ci],sc=(sub&&sub.cells[sci])||{};if(!sc.t&&!sc.aim)return;d.todayFocus={date:td(),ci:ci,sci:sci,text:sc.t||'',aim:sc.aim||''};sv(d);cm();go(0);toast('🌱 今天從這格開始，加油');}
+function doneTodayFocus(){var d=ld();if(d.todayFocus)d.todayFocus.done=true;sv(d);rH();toast('今天留下一點了 ✓');}
+function clearTodayFocus(){var d=ld();delete d.todayFocus;sv(d);rH();}
 
 /* ── 月曆 (v1.29 D1 溫暖熱力圖) ── */
 function rC(){
@@ -1767,7 +1781,7 @@ function rC(){
   if(!d.h.length)H+='<div style="font-size:13px;color:var(--muted)">尚無習慣</div>';
   else d.h.forEach(function(hb){
     var lv=sl[hb.id]||0,col=hb.col||'#c4763a';
-    var b=lv===0?'<span style="font-size:11px;color:var(--muted)">未完成</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'多走一步')+'</span>';
+    var b=lv===0?'<span style="font-size:11px;color:var(--muted)">那天先空著</span>':'<span style="font-size:11px;padding:2px 9px;border-radius:20px;background:'+col+(lv===1?'20':lv===2?'44':'66')+';color:'+col+'">'+(lv===1?'今日的1':lv===2?'穩定前進':'多走一步')+'</span>';
     H+='<div class="cdr"><span style="font-size:13px;color:var(--text)">'+e(hb.i)+' '+e(hb.n)+'</span>'+b+'</div>';
   });
   H+='</div><div style="height:20px"></div>';
@@ -1920,8 +1934,8 @@ function rSt(){
     H+='<div style="flex:1"><div style="font-size:13px;font-weight:700;color:var(--text)">'+e(hb.n)+'</div><div style="font-size:11px;color:var(--sub)">今日的1 '+hb.v1+' / 穩定前進 '+hb.v2+' / 多走一步 '+hb.v3+' '+e(hb.u)+'</div></div>';
     H+='</div>';
     H+='<div style="display:flex;gap:8px;margin-bottom:10px">';
-    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">目前連續</div></div>';
-    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+maxStr+'</div><div style="font-size:10px;color:var(--muted)">最近常常回來</div></div>';
+    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+curStr+'</div><div style="font-size:10px;color:var(--muted)">最近接著回來</div></div>';
+    H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">近30天回來</div></div>';
     H+='<div style="flex:1;background:var(--app);border-radius:8px;padding:8px;text-align:center"><div style="font-size:18px;font-weight:700;color:'+col+'">'+stats.total+'</div><div style="font-size:10px;color:var(--muted)">有留下的日子</div></div>';
     H+='</div>';
     /* 30天熱力 */
@@ -1958,8 +1972,8 @@ function rSt(){
     mReview='這個月還沒有打卡紀錄，今天開始也不遲。';
   }else{
     mReview='這個月你有 <b>'+mActiveDays+' 天</b>打開了漫打卡';
-    if(mFullDays>0)mReview+='，其中 <b>'+mFullDays+' 天</b>完成了所有習慣';
-    if(mBestH)mReview+='。堅持最好的是「'+e(mBestH.i)+' '+e(mBestH.n)+'」，共打卡 <b>'+mBestCnt+' 次</b>';
+    if(mFullDays>0)mReview+='，其中 <b>'+mFullDays+' 天</b>每件事都有碰到';
+    if(mBestH)mReview+='。最近最常回來的是「'+e(mBestH.i)+' '+e(mBestH.n)+'」，一共留下 <b>'+mBestCnt+' 次</b>';
     mReview+='。';
     if(mActiveDays>=20)mReview+='<br><br>這個月你常常回來——原來這個方式比較適合你。';
     else if(mActiveDays>=10)mReview+='<br><br>超過一半的天數你都沒有放棄自己，這比你想的更難得。';
@@ -3062,7 +3076,7 @@ function obStep(step){
       obDot(2,TOTAL)+
       '<div style="margin-bottom:28px">'+
         '<div style="font-size:30px;font-weight:900;color:#F9FAFB;line-height:1.25;margin-bottom:14px;font-family:\'Noto Serif TC\',serif">你只需要<br>今天的一小步</div>'+
-        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;margin-bottom:24px;font-family:\'Noto Sans TC\',sans-serif">不是每天「最佳狀態」，<br>是每天「不斷線」。</div>'+
+        '<div style="font-size:15px;color:#9CA3AF;line-height:1.85;margin-bottom:24px;font-family:\'Noto Sans TC\',sans-serif">不是每天都在最佳狀態。<br>是亂掉以後，還找得到回來的位置。</div>'+
         '<div style="display:flex;flex-direction:column;gap:9px">'+
           '<div style="display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.05);border-radius:12px;padding:12px 14px;border:1px solid rgba(196,118,58,.25)">'+
             '<span style="font-size:18px">✨</span>'+
@@ -3370,7 +3384,7 @@ var TRAPS=[
    body:'你現在想的，已經比「還沒動手」更遠了。\n試試看：把腦子裡最小的那個想法，直接寫下來。光是這樣，就已經比什麼都沒做更靠近了。',
    cta:'今日的 1，從這裡開始'},
   {id:'perfect',   label:'完美主義',    icon:'🎯',
-   title:'完美不是目標，不斷線才是。',
+   title:'完美不是目標。回來就好。',
    body:'你的標準很高——這是好事，但不是今天的任務。\n今天的任務只有一個：讓自己的習慣記錄上，出現一個數字。哪怕只有 1。',
    cta:'先留下今日的 1 就好'},
   {id:'hoard',     label:'知識囤積',    icon:'📚',
