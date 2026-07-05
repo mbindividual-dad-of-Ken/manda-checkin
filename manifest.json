@@ -2,6 +2,7 @@
   "name": "漫打卡 Manda",
   "short_name": "漫打卡",
   "description": "融合 OW64 曼陀羅框架與彈性習慣的每日打卡 PWA",
+  "id": "./",
   "start_url": "./index.html",
   "display": "standalone",
   "orientation": "portrait",
