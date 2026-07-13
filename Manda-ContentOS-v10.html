@@ -387,6 +387,8 @@ const COLS=[
   {id:'visual',label:'🎨 待製圖'},{id:'sched',label:'📅 待發布'},{id:'pub',label:'🚀 已發布'}
 ];
 const KEY='manda-content-os-v2', GAS_KEY='manda-gas-url', TOKEN_KEY='manda-gas-token';
+/* 【v10.1 注意】以下 30 句素材自定義以來全檔無任何引用（Codex 審查確認為死碼）。
+   保留作為素材庫參考；若確認不需要可整段刪除，或在空狀態時提供「載入範例」按鈕使用它。 */
 const DEF=[
 "今天不是沒努力，是真的有點撐不住。","有些訊息，不是沒回，是不知道怎麼回。",
 "最近不是懶，只是每天都像快沒電。","光是把今天過完，就已經很累了。",
@@ -616,9 +618,9 @@ function renderKanban(){
         <div class="kb-num">#${String(it.id).padStart(2,'0')}</div>
         <div class="kb-text">${esc(it.text)}</div>
         <div class="kb-foot">
-          <span class="kb-plat">${it.platform}</span>
+          <span class="kb-plat">${esc(it.platform)}</span>
           <div class="kb-emos">${(it.emotions||[]).map(e=>`<span class="kb-emo">${esc(String(e||'')[0]||'')}</span>`).join('')}</div>
-          ${it.date?`<span class="kb-date">${it.date.slice(5)}</span>`:''}
+          ${it.date?`<span class="kb-date">${esc(String(it.date).slice(5))}</span>`:''}
         </div>
       </div>`).join('')}
     </div>`;
@@ -630,7 +632,7 @@ function renderList(){
   const list=filtered();
   document.getElementById('listGrid').innerHTML=list.map(it=>`
     <article class="card st-${it.status}">
-      <div class="topline"><span class="cnum">#${String(it.id).padStart(2,'0')}</span><span class="pill">${stLabel(it.status)}</span></div>
+      <div class="topline"><span class="cnum">#${String(it.id).padStart(2,'0')}</span><span class="pill">${esc(stLabel(it.status))}</span></div>
       <div class="quote">${esc(it.text)}</div>
       <div class="meta">
         <div class="row"><label>狀態</label><select onchange="patch(${it.id},'status',this.value)">
@@ -639,7 +641,7 @@ function renderList(){
         <div class="row"><label>平台</label><select onchange="patch(${it.id},'platform',this.value)">
           ${['Threads','IG單張','IG輪播','限動'].map(p=>`<option${it.platform===p?' selected':''}>${p}</option>`).join('')}
         </select></div>
-        <div class="row"><label>日期</label><input type="date" value="${it.date||''}" onchange="patch(${it.id},'date',this.value)"></div>
+        <div class="row"><label>日期</label><input type="date" value="${esc(it.date||'')}" onchange="patch(${it.id},'date',this.value)"></div>
         <div class="row"><label>情緒</label><div class="emo-row">${EMO.map((e,i)=>`<span class="emo-chip${(it.emotions||[]).includes(e)?' on':''}" onclick="toggleEmo(${it.id},${i},this)">${esc(e)}</span>`).join('')}</div></div>
         <div class="row"><label>備註</label><textarea onchange="patch(${it.id},'note',this.value)" placeholder="圖像方向、caption…">${esc(it.note||'')}</textarea></div>
       </div>
